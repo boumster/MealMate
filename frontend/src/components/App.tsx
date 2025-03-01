@@ -23,7 +23,6 @@ export default function App() {
 
   return (
     <div className="App">
-      <title>FitnessPal</title>
       <Header />
       <Switch>
         <Route exact path="/" component={() => <Home message={message} />} />

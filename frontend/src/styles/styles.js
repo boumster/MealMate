@@ -34,4 +34,20 @@ const Button = styled.button`
     }
 `;
 
-export { Container, Input, Button };
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+`;
+
+const Label = styled.label`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 10px;
+`;
+
+export { Container, Input, Button, Form, Label };
