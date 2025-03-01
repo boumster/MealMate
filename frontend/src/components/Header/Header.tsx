@@ -62,7 +62,7 @@ export default function Header() {
         <HeaderContainer>
             <HeaderContent>
                 <MenuButton onClick={toggleDropdown}>&#9776;</MenuButton>
-                <HeaderTitle>Fitness Pal</HeaderTitle>
+                <HeaderTitle>MealMate</HeaderTitle>
                 <DropdownMenu isOpen={isDropdownOpen}>
                     <DropdownItem href="/">Home</DropdownItem>
                     <DropdownItem href="/about">About</DropdownItem>
