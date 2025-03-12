@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import "../../styles/Register.css";
+import { registerUser } from "../../utilities/api";
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -9,8 +10,25 @@ const Register: React.FC = () => {
   const [finalPassword, setFinalPassword] = useState("");
   const history = useHistory();
 
-  const handleRegister = () => {
-    console.log("Register button clicked (not implemented yet)");
+  const handleRegister = async () => {
+    const userData = {
+      username: username,
+      email: email,
+      password: checkPassword,
+    };
+
+    if (checkPassword !== finalPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    const response = await registerUser(userData);
+    if (response.status === 201) {
+      alert("User registered successfully");
+      history.push("/");
+    } else {
+      alert("User registration failed");
+    }
   };
 
   return (
