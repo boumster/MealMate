@@ -11,6 +11,7 @@ const HeaderContent = styled.div`
     display: flex;
     align-items: center;
     position: relative;
+    width: 100%;
 `;
 
 const MenuButton = styled.button`
@@ -23,6 +24,23 @@ const MenuButton = styled.button`
 const HeaderTitle = styled.h1`
     margin: 0 0 0 10px;
 `;
+
+const LoginButton = styled.a`
+    margin-left: auto; 
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+        background-color: #d9d9d9;
+    }
+`;
+
 
 interface DropdownMenuProps {
     isOpen: boolean;
@@ -63,6 +81,7 @@ export default function Header() {
             <HeaderContent>
                 <MenuButton onClick={toggleDropdown}>&#9776;</MenuButton>
                 <HeaderTitle>MealMate</HeaderTitle>
+                <LoginButton href="/login">Login</LoginButton>
                 <DropdownMenu isOpen={isDropdownOpen}>
                     <DropdownItem href="/">Home</DropdownItem>
                     <DropdownItem href="/about">About</DropdownItem>
