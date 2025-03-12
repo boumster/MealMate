@@ -7,13 +7,12 @@ import Home from "./Home/Home";
 import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
-import Login from "./Login/Login"; 
+import Login from "./Login/Login";
 import Register from "./Register/Register";
+import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {
   const [message, setMessage] = useState<string>("");
-
-  //used location to figure out what page is where, used for hiding header on login page for me - JB
   const location = useLocation();
 
   useEffect(() => {
@@ -28,14 +27,23 @@ export default function App() {
 
   return (
     <div className="App">
-      {location.pathname !== "/login" && location.pathname !== "/register" && <Header />}
+      {location.pathname !== "/login" && location.pathname !== "/register" && (
+        <Header />
+      )}
       <Switch>
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/register" component={Register} />
-        <Route exact path="/" component={() => <Home message={message} />} />
-        <Route path="/about" component={About} />
-        <Route path="/contact" component={Contact} />
-        <Route path="/mealplans" component={Mealplans} />
+        {/* Public Routes */}
+        <Route exact path="/login" render={(props) => <Login />} />
+        <Route exact path="/register" render={(props) => <Register />} />
+        <Route
+          exact
+          path="/"
+          render={(props) => <Home {...props} message={message} />}
+        />
+        <Route path="/about" render={(props) => <About />} />
+
+        {/* Protected Routes */}
+        <PrivateRoute path="/contact" component={Contact} />
+        <PrivateRoute path="/mealplans" component={Mealplans} />
       </Switch>
     </div>
   );

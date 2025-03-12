@@ -1,6 +1,6 @@
 fastapi[standard]
 uvicorn
 httpx
-psycopg2
+mysql-connector-python
 python-dotenv
 openai

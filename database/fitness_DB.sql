@@ -1,26 +1,24 @@
---
--- PostgreSQL database dump
---
+-- Drop database if exists
+DROP DATABASE IF EXISTS fitnessdb;
 
--- Dumped from database version 16.2
--- Dumped by pg_dump version 16.2
+-- Create database
+CREATE DATABASE fitnessdb;
 
--- Started on 2025-03-02 12:17:20
+-- Use the database
+USE fitnessdb;
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+-- Create users table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Completed on 2025-03-02 12:17:20
+-- Create MySQL user for application
+CREATE USER 'fitness_user'@'localhost' IDENTIFIED BY 'fitness123';
 
---
--- PostgreSQL database dump complete
---
-
+-- Grant privileges to the user
+GRANT ALL PRIVILEGES ON fitnessdb.* TO 'fitness_user'@'localhost';
+FLUSH PRIVILEGES;
