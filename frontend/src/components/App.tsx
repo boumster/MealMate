@@ -8,6 +8,7 @@ import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
 import Login from "./Login/Login"; 
+import Register from "./Register/Register";
 
 export default function App() {
   const [message, setMessage] = useState<string>("");
@@ -27,9 +28,10 @@ export default function App() {
 
   return (
     <div className="App">
-      {location.pathname !== "/login" && <Header />}
+      {location.pathname !== "/login" && location.pathname !== "/register" && <Header />}
       <Switch>
         <Route exact path="/login" component={Login} />
+        <Route exact path="/register" component={Register} />
         <Route exact path="/" component={() => <Home message={message} />} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />

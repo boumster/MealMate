@@ -17,19 +17,19 @@ const Login: React.FC = () => {
       <input
         type="text"
         placeholder="Username"
-        className="input-user"
+        className="login-input"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        className="input-password"
+        className="login-input"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <button className="login-button" onClick={handleLogin}>Login</button>
-      <button className="login-button" onClick={() => history.push("/")}>Register</button>
+      <button className="login-button" onClick={() => history.push("/register")}>Register</button>
       <button className="login-button" onClick={() => history.push("/")}>Return to Home</button>
     </div>
   );
