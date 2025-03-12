@@ -2,7 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-load_dotenv("../../New folder/API.env") 
+load_dotenv('.env') 
 api_key = os.getenv("API_KEY")
 if not api_key:
     raise ValueError("API_KEY not found in environment variables")

@@ -2,3 +2,5 @@ fastapi[standard]
 uvicorn
 httpx
 psycopg2
+python-dotenv
+openai
