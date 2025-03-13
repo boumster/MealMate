@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from database_connection import DatabaseConnection
 import bcrypt
 from models import UserData, LoginData
+from DeepSeek import DeepSeekAI
 
 app = FastAPI()
 
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 db = DatabaseConnection()
+deepseek = DeepSeekAI()
 
 
 
@@ -167,5 +169,31 @@ async def login_user(user_data: LoginData) -> JSONResponse:
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "An unexpected error occurred"
+            }
+        )
+
+@app.post("/generate")
+async def generate_text(prompt: str) -> JSONResponse:
+    try:
+        response = deepseek.generate_completion(
+            prompt,
+            site_url="http://localhost:8000",
+            site_name="DeepSeek AI"
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Text generated successfully",
+                "response": response
+            }
+        )
+    except Exception as e:
+        print(f"Error generating text: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error generating text"
             }
         )
