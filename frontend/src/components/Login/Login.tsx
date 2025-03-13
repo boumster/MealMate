@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import "../../styles/Login.css";
 import { loginUser } from "../../utilities/api";
 import { useAuth } from "../../context/Auth/AuthProvider";
+import { Button, Container, Input } from "../../styles/styles";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -33,35 +34,35 @@ const Login: React.FC = () => {
     }
   };
   return (
-    <div className="login-container">
+    <Container>
       <h2>Mealmate Login</h2>
-      <input
+      <Input
         type="text"
         placeholder="Username"
         className="login-input"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <input
+      <Input
         type="password"
         placeholder="Password"
         className="login-input"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button className="login-button" onClick={handleLogin}>
+      <Button className="login-button" onClick={handleLogin}>
         Login
-      </button>
-      <button
+      </Button>
+      <Button
         className="login-button"
         onClick={() => history.push("/register")}
       >
         Register
-      </button>
-      <button className="login-button" onClick={() => history.push("/")}>
+      </Button>
+      <Button className="login-button" onClick={() => history.push("/")}>
         Return to Home
-      </button>
-    </div>
+      </Button>
+    </Container>
   );
 };
 

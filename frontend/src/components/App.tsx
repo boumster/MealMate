@@ -7,8 +7,8 @@ import Home from "./Home/Home";
 import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
-import Login from "./Login/Login";
 import Register from "./Register/Register";
+import Login from "./Login/Login"
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {

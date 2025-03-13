@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import "../../styles/Register.css";
 import { registerUser } from "../../utilities/api";
+import { Button, Container, Input } from "../../styles/styles";
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -32,23 +33,23 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="register-container">
+    <Container className="register-container">
       <h2>Register</h2>
-      <input
+      <Input
         className="register-input"
         type="text"
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <input
+      <Input
         className="register-input"
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <input
+      <Input
         className="register-input"
         id="input-pw"
         type="password"
@@ -56,7 +57,7 @@ const Register: React.FC = () => {
         value={checkPassword}
         onChange={(e) => setCheckPassword(e.target.value)}
       />
-      <input
+      <Input
         className="register-input"
         id="confirm-pw"
         type="password"
@@ -65,10 +66,10 @@ const Register: React.FC = () => {
         onChange={(e) => setFinalPassword(e.target.value)}
       />
       {/* maybe 2fa here, or something in login, fix button decisions maybe want register to straight go to login or send confirmation alert. */}
-      <button className="register-button" onClick={handleRegister}>Register</button>
+      <Button className="register-button" onClick={handleRegister}>Register</Button>
       {/* make so button checks that checkPassword is equal to finalPassword, if not redo */}
-      <button className="register-button" onClick={() => history.push("/login")}>Go to Login</button>
-    </div>
+      <Button className="register-button" onClick={() => history.push("/login")}>Go to Login</Button>
+    </Container>
   );
 };
 
