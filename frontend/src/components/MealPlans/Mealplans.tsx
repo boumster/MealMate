@@ -7,6 +7,7 @@ import {
   Label,
   FormRow,
 } from "../../styles/styles";
+import { generateMealPlan } from "../../utilities/api";
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
@@ -23,11 +24,37 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
 
-  const handleGenerateMealPlan = () => {
-    // Logic to generate meal plan based on user input
-    const generatedMealPlan = `Meal plan based on ingredients: ${ingredients}, calories: ${calories}, meal type: ${mealType}, meals per day: ${mealsPerDay}, cuisine: ${cuisine}, favorite ingredients: ${favoriteIngredients}, disliked ingredients: ${dislikedIngredients}, cooking skill: ${cookingSkill}, cooking time: ${cookingTime}, available ingredients: ${availableIngredients}, budget: ${budget}, grocery stores: ${groceryStores}`;
-    setMealPlan(generatedMealPlan);
+  const handleGenerateMealPlan = async () => {
+    const requestData = {
+      ingredients,
+      calories,
+      mealType,
+      mealsPerDay,
+      cuisine,
+      favoriteIngredients,
+      dislikedIngredients,
+      cookingSkill,
+      cookingTime,
+      availableIngredients,
+      budget,
+      groceryStores,
+    };
+  
+    try {
+      // Call the API utility function
+      const data = await generateMealPlan(requestData); // Assuming `generateMealPlan` already parses the JSON
+      console.log(data);
+  
+      if (data.status === 200) {
+        setMealPlan(data.response); // Use the parsed response directly
+      } else {
+        console.error("Failed to generate meal plan:", data.message);
+      }
+    } catch (error) {
+      console.error("Error generating meal plan:", error);
+    }
   };
+
 
   return (
     <Container>

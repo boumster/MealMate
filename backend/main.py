@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from database_connection import DatabaseConnection
+from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData
-from DeepSeek import DeepSeekAI
+from models import UserData, LoginData, MealPlanRequest
+from LLM import GeminiLLM
 
 app = FastAPI()
 
@@ -18,8 +18,7 @@ app.add_middleware(
 )
 
 db = DatabaseConnection()
-deepseek = DeepSeekAI()
-
+ai_model = GeminiLLM()
 
 
 @app.get("/")
@@ -172,14 +171,11 @@ async def login_user(user_data: LoginData) -> JSONResponse:
             }
         )
 
-@app.post("/generate")
-async def generate_text(prompt: str) -> JSONResponse:
+@app.post("/generate-gemini")
+async def generate_gemini(prompt: str) -> JSONResponse:
     try:
-        response = deepseek.generate_completion(
-            prompt,
-            site_url="http://localhost:8000",
-            site_name="DeepSeek AI"
-        )
+        prompt = "Generate a recipe for a vegan dinner with high protein."
+        response = ai_model.generate_completion(prompt)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
@@ -195,5 +191,54 @@ async def generate_text(prompt: str) -> JSONResponse:
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "Error generating text"
+            }
+        )
+
+@app.post("/generate-meal-plan")
+async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
+    try:
+        # Generate a prompt based on the request
+        prompt = "Generate a meal plan"
+        if request.ingredients:
+            prompt += f" using ingredients: {request.ingredients}"
+        if request.calories:
+            prompt += f" with {request.calories} calories"
+        if request.meal_type:
+            prompt += f" for {request.meal_type}"
+        if request.meals_per_day:
+            prompt += f" with {request.meals_per_day} meals per day"
+        if request.cuisine:
+            prompt += f" with {request.cuisine} cuisine"
+        if request.favorite_ingredients:
+            prompt += f" with favorite ingredients: {request.favorite_ingredients}"
+        if request.disliked_ingredients:
+            prompt += f" excluding ingredients: {request.disliked_ingredients}"
+        if request.cooking_skill:
+            prompt += f" for {request.cooking_skill} cooks"
+        if request.cooking_time:
+            prompt += f" with {request.cooking_time} cooking time"
+        if request.available_ingredients:
+            prompt += f" with available ingredients: {request.available_ingredients}"
+        if request.budget:
+            prompt += f" with a budget of {request.budget}"
+        if request.grocery_stores:
+            prompt += f" with grocery stores: {request.grocery_stores}"
+        
+        response = ai_model.generate_completion(prompt, role="meal planner")
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Meal plan generated successfully",
+                "response": response
+            }
+        )
+    except Exception as e:
+        print(f"Error generating meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error generating meal plan"
             }
         )

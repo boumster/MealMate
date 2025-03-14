@@ -3,5 +3,5 @@ uvicorn
 httpx
 mysql-connector-python
 python-dotenv
-openai
 bcrypt
+google-genai
