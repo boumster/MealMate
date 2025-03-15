@@ -63,3 +63,22 @@ export async function loginUser(userData) {
     console.error("Error logging in user:", error);
   }
 };
+
+export async function generateMealPlan(mealPlan) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-meal-plan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mealPlan),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error generating meal plan:", error);
+  }
+}
