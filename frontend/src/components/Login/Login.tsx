@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     }
   };
   return (
-    <Container>
+    <Container className="login-container">
       <h2>Mealmate Login</h2>
       <Input
         type="text"

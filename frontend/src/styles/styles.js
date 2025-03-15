@@ -77,4 +77,30 @@ const FormRow = styled.div`
     }
 `;
 
-export { Container, Input, Button, Form, Label, FormRow };
+const Title = styled.h2`
+  color: #333;
+  text-align: center;
+  margin-bottom: 1rem;
+`;
+
+const Paragraph = styled.p`
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 40rem;
+`;
+
+const List = styled.ul`
+  list-style: none;
+  padding: 0;
+  text-align: center;
+`;
+
+const ListItem = styled.li`
+  color: #444;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+`;
+
+export { Container, Input, Button, Form, Label, FormRow, Title, Paragraph, List, ListItem };

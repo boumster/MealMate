@@ -83,12 +83,10 @@ export default function Header() {
         <MenuButton onClick={toggleDropdown}>&#9776;</MenuButton>
         <HeaderTitle>MealMate</HeaderTitle>
         {isAuthenticated ? (
-          <LoginButton href="/login" onClick={logoutUser}>
-            Logout
-          </LoginButton>
-        ) : (
-          <LoginButton href="/login">Login</LoginButton>
-        )}
+        <LoginButton href="/profile">My Profile</LoginButton>
+      ) : (
+        <LoginButton href="/login">Login</LoginButton>
+      )}
         <DropdownMenu isOpen={isDropdownOpen}>
           <DropdownItem href="/">Home</DropdownItem>
           <DropdownItem href="/about">About</DropdownItem>
