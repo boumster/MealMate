@@ -264,11 +264,11 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
         )
     
 # create another function that does retrieval of meal plan based on user ID
-@app.post("/retrieve_mealplan")
+@app.post("/retrieve-mealplan")
 async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
     try:
         query = """
-            SELECT * FROM mealplans 
+            SELECT id, title FROM mealplans 
             WHERE user_id = %s
         """
         values = (request.id,) 

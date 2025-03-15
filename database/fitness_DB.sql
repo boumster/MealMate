@@ -20,7 +20,8 @@ CREATE TABLE users (
 CREATE TABLE mealplans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(255) UNIQUE NOT NULL,
-    mealplan LONGTEXT NOT NULL
+    mealplan LONGTEXT NOT NULL,
+    title VARCHAR(255) NOT NULL
 );
 
 -- Drop MySQL user if exists
