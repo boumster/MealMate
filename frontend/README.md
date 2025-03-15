@@ -18,7 +18,7 @@ To get started with this project, follow these steps:
 
 3. **Run the application:**
    ```
-   npm start
+   npm run start
    ```
 
 4. **Open your browser:**
