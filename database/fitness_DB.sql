@@ -20,8 +20,11 @@ CREATE TABLE users (
 CREATE TABLE mealplans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(255) UNIQUE NOT NULL,
-    mealplan VARCHAR(65000) NOT NULL
+    mealplan LONGTEXT NOT NULL
 );
+
+-- Drop MySQL user if exists
+DROP USER IF EXISTS 'fitness_user'@'localhost';
 
 -- Create MySQL user for application
 CREATE USER 'fitness_user'@'localhost' IDENTIFIED BY 'fitness123';
