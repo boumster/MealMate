@@ -225,20 +225,79 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             prompt += f" with grocery stores: {request.grocery_stores}"
         
         response = ai_model.generate_completion(prompt, role="meal planner")
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status": status.HTTP_200_OK,
-                "message": "Meal plan generated successfully",
-                "response": response
-            }
-        )
+
+        # store the user's meal plan into sql table
+        query = """
+            INSERT INTO mealplans (user_id, mealplan) 
+            VALUES (%s, %s)
+        """
+        values = (request.id, response)
+
+        # Execute the query
+        try:
+            db.execute_query(query, values)
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "Meal plan generated and succesfully saved into database",
+                    "response": response
+                }
+            )
+        except Exception as db_error:
+            print(f"Mealplan Database error: {str(db_error)}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": "Meal plan generated successfully, but an error occurred while saving it to the database."
+                }
+            )
     except Exception as e:
         print(f"Error generating meal plan: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating meal plan"
+                "message": "An error occurred while generating the meal plan."
+            }
+        )
+    
+# create another function that does retrieval of meal plan based on user ID
+@app.post("/retrieve_mealplan")
+async def retrieve_user_mealplan(request) -> JSONResponse:
+    try:
+        query = """
+            SELECT * FROM mealplans 
+            WHERE user_id = %s
+        """
+        values = (request.id) 
+
+        response = db.execute_query(query, values)
+        print(response)
+
+        if len(response) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "User does not have any saved meal plans"
+                }
+            )
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "response": response
+            }
+        )
+    except Exception as e:
+        print(f"Error retrieving meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error retrieving meal plan"
             }
         )

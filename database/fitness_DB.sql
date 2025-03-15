@@ -16,6 +16,13 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create mealplan table
+CREATE TABLE mealplans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(255) UNIQUE NOT NULL,
+    mealplan VARCHAR(65000) NOT NULL
+);
+
 -- Create MySQL user for application
 CREATE USER 'fitness_user'@'localhost' IDENTIFIED BY 'fitness123';
 
