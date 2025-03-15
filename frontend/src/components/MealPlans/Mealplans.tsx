@@ -8,6 +8,7 @@ import {
   FormRow,
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
+import { useAuth } from "../../context/Auth/AuthProvider";
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
@@ -24,6 +25,7 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
+  const { user } = useAuth();
 
   const handleGenerateMealPlan = async () => {
     const requestData = {
@@ -39,6 +41,7 @@ export default function Mealplans() {
       availableIngredients,
       budget,
       groceryStores,
+      id: user?.id,
     };
 
     try {
