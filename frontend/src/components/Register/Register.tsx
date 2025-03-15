@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import "../../styles/Register.css";
 import { registerUser } from "../../utilities/api";
+import { useAuth } from "../../context/Auth/AuthProvider";
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -9,6 +10,7 @@ const Register: React.FC = () => {
   const [checkPassword, setCheckPassword] = useState("");
   const [finalPassword, setFinalPassword] = useState("");
   const history = useHistory();
+  const { loginUser: authLogin } = useAuth();
 
   const handleRegister = async () => {
     const userData = {
@@ -24,6 +26,7 @@ const Register: React.FC = () => {
 
     const response = await registerUser(userData);
     if (response.status === 200) {
+      authLogin(response.user);
       alert("User registered successfully");
       history.push("/");
     } else {

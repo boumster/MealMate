@@ -56,14 +56,21 @@ async def register_user(user_data: UserData) -> JSONResponse:
         # Execute the query
         try:
             db.execute_query(query, values)
+            query = """
+                SELECT * FROM users 
+                WHERE username = %s
+            """
+            response = db.execute_query(query, (user_data.username,))
+            user_data = response[0]
             return JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
                     "status": status.HTTP_200_OK,
                     "message": "User registered successfully",
                     "user": {
-                        "username": user_data.username,
-                        "email": user_data.email
+                        "id": user_data[0],
+                        "username": user_data[1],
+                        "email": user_data[2],
                     }
                 }
             )
@@ -161,29 +168,6 @@ async def login_user(user_data: LoginData) -> JSONResponse:
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "An unexpected error occurred"
-            }
-        )
-
-@app.post("/generate-gemini")
-async def generate_gemini(prompt: str) -> JSONResponse:
-    try:
-        prompt = "Generate a recipe for a vegan dinner with high protein."
-        response = ai_model.generate_completion(prompt)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status": status.HTTP_200_OK,
-                "message": "Text generated successfully",
-                "response": response
-            }
-        )
-    except Exception as e:
-        print(f"Error generating text: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating text"
             }
         )
 
