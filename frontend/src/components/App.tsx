@@ -9,6 +9,7 @@ import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
 import Login from "./Login/Login";
 import Register from "./Register/Register";
+import ImageUpload from "./ImageUpload/ImageUpload";
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {
@@ -26,25 +27,26 @@ export default function App() {
   }, []);
 
   return (
-    <div className="App">
-      {location.pathname !== "/login" && location.pathname !== "/register" && (
-        <Header />
-      )}
-      <Switch>
-        {/* Public Routes */}
-        <Route exact path="/login" render={(props) => <Login />} />
-        <Route exact path="/register" render={(props) => <Register />} />
-        <Route
-          exact
-          path="/"
-          render={(props) => <Home {...props} message={message} />}
-        />
-        <Route path="/about" render={(props) => <About />} />
+      <div className="App">
+        {location.pathname !== "/login" && location.pathname !== "/register" && (
+            <Header />
+        )}
+        <Switch>
+          {/* Public Routes */}
+          <Route exact path="/login" render={(props) => <Login />} />
+          <Route exact path="/register" render={(props) => <Register />} />
+          <Route
+              exact
+              path="/"
+              render={(props) => <Home {...props} message={message} />}
+          />
+          <Route path="/about" render={(props) => <About />} />
+          <Route path="/calculate-calories" render={(props) => <ImageUpload />} />
 
-        {/* Protected Routes */}
-        <PrivateRoute path="/contact" component={Contact} />
-        <PrivateRoute path="/mealplans" component={Mealplans} />
-      </Switch>
-    </div>
+          {/* Protected Routes */}
+          <PrivateRoute path="/contact" component={Contact} />
+          <PrivateRoute path="/mealplans" component={Mealplans} />
+        </Switch>
+      </div>
   );
 }

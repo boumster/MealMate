@@ -1,4 +1,4 @@
-# Fitness pal
+ # Fitness pal
 
 This is a simple React application built with TypeScript. It serves as a template for creating React applications with a structured folder layout.
 
