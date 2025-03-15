@@ -24,3 +24,6 @@ class MealPlanRequest(BaseModel):
     budget: Optional[str] = None
     grocery_stores: Optional[str] = None
     id: int
+    
+class MealPlanRetrieve(BaseModel):
+    id: int

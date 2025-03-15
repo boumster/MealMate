@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData, MealPlanRequest
+from models import UserData, LoginData, MealPlanRequest, MealPlanRetrieve
 from LLM import GeminiLLM
 
 app = FastAPI()
@@ -265,16 +265,15 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
     
 # create another function that does retrieval of meal plan based on user ID
 @app.post("/retrieve_mealplan")
-async def retrieve_user_mealplan(request) -> JSONResponse:
+async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
     try:
         query = """
             SELECT * FROM mealplans 
             WHERE user_id = %s
         """
-        values = (request.id) 
+        values = (request.id,) 
 
         response = db.execute_query(query, values)
-        print(response)
 
         if len(response) == 0:
             return JSONResponse(
