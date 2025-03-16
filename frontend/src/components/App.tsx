@@ -7,6 +7,7 @@ import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
 import Register from "./Register/Register";
 import Login from "./Login/Login"
+import Profile from "./Profile/Profile"
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {
@@ -31,6 +32,8 @@ export default function App() {
         {/* Protected Routes */}
         <PrivateRoute path="/contact" component={Contact} />
         <PrivateRoute path="/mealplans" component={Mealplans} />
+        <PrivateRoute path="/profile" component={Profile} />
+
       </Switch>
     </div>
   );
