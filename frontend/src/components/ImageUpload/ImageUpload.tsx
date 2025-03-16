@@ -175,7 +175,7 @@ export default function ImageUpload() {
                 backgroundColor: "lightgray",
                 borderRadius: "8px",
                 height: "fit-content",
-                border: "2px solid black",
+                border: "2px solid blue",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
               }}
           >
