@@ -34,6 +34,9 @@ export default function ImageUpload() {
   ) => {
     e.preventDefault();
     setIsLoading(true);
+    setExpandedStates({}); // Reset expanded states
+    setCalories(""); // Clear previous calories data
+
     if (!image) {
       setError("Please select an image to upload");
       setIsLoading(false);
@@ -53,14 +56,6 @@ export default function ImageUpload() {
     }
     setIsLoading(false);
   };
-
-  useEffect(() => {
-    return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
 
   const toggleExpand = (index: number) => {
     setExpandedStates(prev => ({
@@ -139,7 +134,7 @@ export default function ImageUpload() {
             {ingredientLines.map((line, index) => {
               if (line.includes("Here's the breakdown")) {
                 return (
-                    <p key={index} style={{ margin: "8px 0", fontWeight: "bold" }}>
+                    <p key={index} style={{ margin: "-10px 0", fontWeight: "bold", paddingBottom: "10px" }}>
                       {line}
                     </p>
                 );
@@ -223,8 +218,8 @@ export default function ImageUpload() {
 
   return (
       <Container style={{ maxWidth: "800px", margin: "0 auto", padding: "40px", textAlign: "center" }}>
-        <h1 style={{fontSize: "2.5em", marginBottom: "20px", textShadow: "1px 1px 2px #000000"}}>Image to Calories Calculator</h1>
-        <div style={{paddingBottom: "20px"}}>
+        <h1 style={{fontSize: "2.5em", marginBottom: "10px", textShadow: "1px 1px 2px #000000"}}>Image to Calories Calculator</h1>
+        <div style={{paddingBottom: "30px"}}>
           Upload an image of your food to calculate its calories
         </div>
         {imagePreview && (
@@ -240,19 +235,23 @@ export default function ImageUpload() {
             />
         )}
         <Form>
-          <FormRow style={{ justifyContent: "center", textAlign: "center", paddingRight: "320px", fontSize: "0.9em" }}>
-            <Label htmlFor="image" style={{ fontSize: "1.2em" }}></Label>
-            <Input
-                type="file"
-                id="image"
-                name="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ fontSize: "1.2em", display: "block" }}
-            />
-          </FormRow>
-          <p style={{ fontSize: "0.8em" }}>Supported image formats: .jpg, .jpeg, .png, .webp</p>
-          <Button onClick={handleCalculateCalories} style={{ fontSize: "1.2em", padding: "10px 20px", marginTop: "20px", fontWeight: "bold" }}>
+            <FormRow style={{ justifyContent: "center", textAlign: "center", paddingRight: "320px", fontSize: "0.9em" }}>
+                <Label htmlFor="image" style={{ fontSize: "1.2em" }}></Label>
+                <div>
+                    <Input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        style={{ fontSize: "1.2em", display: "block", marginBottom: "4px" }}
+                    />
+                    <p style={{ fontSize: "0.9em", margin: "0", textAlign: "center" }}>
+                        Supported formats: .jpg, .jpeg, .png, .webp, .heic, .gif
+                    </p>
+                </div>
+            </FormRow>
+          <Button onClick={handleCalculateCalories} style={{ fontSize: "1.2em", padding: "10px 20px", marginTop: "10px", fontWeight: "bold" }}>
             Calculate Calories
           </Button>
           {error && <p style={{ color: "red", fontSize: "1.2em" }}>{error}</p>}
