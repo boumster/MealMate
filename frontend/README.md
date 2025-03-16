@@ -1,4 +1,4 @@
-# Fitness pal
+# MealMate
 
 This is a simple React application built with TypeScript. It serves as a template for creating React applications with a structured folder layout.
 
@@ -18,7 +18,7 @@ To get started with this project, follow these steps:
 
 3. **Run the application:**
    ```
-   npm start
+   npm run start
    ```
 
 4. **Open your browser:**
