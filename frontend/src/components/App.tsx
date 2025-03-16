@@ -7,6 +7,7 @@ import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
 import Login from "./Login/Login";
 import Register from "./Register/Register";
+import ImageUpload from "./ImageUpload/ImageUpload";
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {
@@ -28,10 +29,11 @@ export default function App() {
         />
         <Route path="/about" render={(props) => <About />} />
 
-        {/* Protected Routes */}
-        <PrivateRoute path="/contact" component={Contact} />
-        <PrivateRoute path="/mealplans" component={Mealplans} />
-      </Switch>
-    </div>
+          {/* Protected Routes */}
+          <PrivateRoute path="/contact" component={Contact} />
+          <PrivateRoute path="/mealplans" component={Mealplans} />
+          <PrivateRoute path="/calculate-calories" component={ImageUpload} />
+        </Switch>
+      </div>
   );
 }

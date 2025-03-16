@@ -69,3 +69,24 @@ export async function generateMealPlan(mealPlan) {
     console.error("Error generating meal plan:", error);
   }
 }
+
+export async function calculateCalories(file) {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/calculate-calories`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
