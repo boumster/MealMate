@@ -242,7 +242,7 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             }
         )
 
-import logging
+
 
 @app.post("/calculate-calories")
 async def calculate_calories(file: UploadFile = File(...)) -> JSONResponse:

@@ -1,10 +1,11 @@
+import json
+import base64
 from dotenv import load_dotenv
 import os
 from typing import Optional, Dict, Any
 from google import genai
 from google.genai import types
 
-import PIL.Image
     
 class GeminiLLM:
     _instance: Optional['GeminiLLM'] = None
@@ -16,7 +17,7 @@ class GeminiLLM:
         return cls._instance
 
     def _initialize(self) -> None:
-        load_dotenv('API.env')
+        load_dotenv('.env')
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("GOOGLE_API_KEY not found in environment variables")
@@ -33,15 +34,22 @@ class GeminiLLM:
         )
         return response.text
 
-    def calculate_calories(self, image_data: bytes) -> int:
-        if not self._client:
-            raise RuntimeError("Google AI client not initialized")
 
-        # Send the image data to Google Gemini for calorie calculation
-        response = self._client.models.generate_content(
-            model="gemini-2.0-flash", contents=image_data, content_type=types.ContentType.IMAGE
+    def calculate_calories(self, image_data: bytes) -> Dict[str, Any]:
+        encoded_data = base64.b64encode(image_data).decode("ascii")
+        prompt = (
+            "Calculate the calories in this image:\n"
+            "Return response in this format:\n"
+            "Ingredient: Calories\n"
+            "Total Calories: Total Calories\n"
+            f"![image](data:image/jpeg;base64,{encoded_data})"
         )
-
-        # Extract the calorie information from the response
-        calories = response.calories
-        return calories
+    
+        response = self._client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        print("Raw response text:", response.text)
+        return response.text
+    
+        
