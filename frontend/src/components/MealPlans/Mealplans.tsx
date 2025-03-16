@@ -6,8 +6,12 @@ import {
   Form,
   Label,
   FormRow,
+  DropDown
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
+import "../../styles/Mealplans.css";
+import Select from "react-select";
+
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
@@ -24,6 +28,22 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
+  const [selectedCuisines, setSelectedCuisines] = useState([]);
+
+  const cuisineOptions = [
+    { value: "all", label: "All" },
+    { value: "italian", label: "Italian" },
+    { value: "indian", label: "Indian" },
+    { value: "mexican", label: "Mexican" },
+    { value: "mediterranean", label: "Mediterranean" },
+    { value: "middle_eastern", label: "Middle Eastern" },
+    { value: "caribbean", label: "Caribbean" },
+    { value: "japanese", label: "Japanese" },
+  ];
+
+  const handleCuisineChange = (selectedCuisine) => {
+    setSelectedCuisines(selectedCuisine)
+  }
 
   const handleGenerateMealPlan = async () => {
     const requestData = {
@@ -100,7 +120,7 @@ export default function Mealplans() {
     <Container>
       <h2>Meal Plans</h2>
       {!mealPlan && (
-        <p>
+        <p className="container-header">
           Please fill out the form below with your preferences and requirements
           to generate a personalized meal plan.
         </p>
@@ -126,7 +146,7 @@ export default function Mealplans() {
               />
             </Label>
             <Label>
-              Calories:
+              Calories Per Day:
               <Input
                 type="number"
                 value={calories}
@@ -138,12 +158,14 @@ export default function Mealplans() {
           <FormRow>
             <Label>
               Preferred Meal Types:
-              <Input
-                type="text"
-                value={mealType}
-                onChange={(e) => setMealType(e.target.value)}
-                placeholder="Enter preferred meal types (e.g., breakfast, lunch, dinner, snacks)"
-              />
+              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+                <option value="">Select a meal type</option>
+                <option value="all meal types">All</option>
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snacks">Snacks</option>
+              </DropDown>
             </Label>
             <Label>
               Number of Meals per Day:
@@ -156,23 +178,25 @@ export default function Mealplans() {
             </Label>
           </FormRow>
           <FormRow>
-            <Label>
               Cuisine Preferences:
-              <Input
-                type="text"
-                value={cuisine}
-                onChange={(e) => setCuisine(e.target.value)}
-                placeholder="Enter cuisine preferences (e.g., Italian, Indian)"
-              />
-            </Label>
+              <Select
+              options={cuisineOptions}
+              isMulti={true}
+              value={selectedCuisines}
+              onChange={handleCuisineChange}
+              placeholder="Select cuisine preferences"
+            />
             <Label>
-              Favorite Ingredients:
-              <Input
-                type="text"
-                value={favoriteIngredients}
-                onChange={(e) => setFavoriteIngredients(e.target.value)}
-                placeholder="Enter favorite ingredients"
-              />
+              Dietary Restrictions:
+              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+                <option value="">Select a dietary restriction</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="gluten-free">Gluten-Free</option>
+                <option value="halal">Halal</option>
+                <option value="kosher">Kosher</option>
+                <option value="no restrictions">No Restrictions</option>
+              </DropDown>
             </Label>
           </FormRow>
           <FormRow>
@@ -187,23 +211,23 @@ export default function Mealplans() {
             </Label>
             <Label>
               Cooking Skill Level:
-              <Input
-                type="text"
-                value={cookingSkill}
-                onChange={(e) => setCookingSkill(e.target.value)}
-                placeholder="Enter cooking skill level (beginner, intermediate, expert)"
-              />
+              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+                <option value="">Select a cooking level</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+              </DropDown>
             </Label>
           </FormRow>
           <FormRow>
             <Label>
               Time Available for Cooking:
-              <Input
-                type="text"
-                value={cookingTime}
-                onChange={(e) => setCookingTime(e.target.value)}
-                placeholder="Enter time available for cooking (quick meals vs. elaborate meals)"
-              />
+              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+                <option value="">Select time available for cooking</option>
+                <option value="quick">Quick Meals (≤ 15 min)</option>
+                <option value="moderate">Moderate (30-60 min)</option>
+                <option value="elaborate">Elaborate (60+ min)</option>
+              </DropDown>
             </Label>
             <Label>
               Available Ingredients in the Kitchen:

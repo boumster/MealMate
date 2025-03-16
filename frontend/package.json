@@ -6,7 +6,8 @@
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
     "test": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-macos": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start"
   },
   "dependencies": {
     "@types/styled-components": "^5.1.34",

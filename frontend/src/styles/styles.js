@@ -4,7 +4,7 @@ const Container = styled.div`
     background-color: #f0f0f0;
     padding: 2rem;
     margin: 2rem auto;
-    max-width: 50rem;
+    max-width: 75rem;
     border-radius: 0.5rem;
     box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
     display: flex;
@@ -77,4 +77,20 @@ const FormRow = styled.div`
     }
 `;
 
-export { Container, Input, Button, Form, Label, FormRow };
+const DropDown = styled.select`
+    padding: 1rem;
+    margin: 0.5rem 0;
+    width: 100%;
+    max-width: 20rem;
+    border: 0.1rem solid #ccc;
+    border-radius: 0.4rem;
+    background-color: white;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #3f51b5;
+    }
+`;
+
+export { Container, Input, Button, Form, Label, FormRow, DropDown };
