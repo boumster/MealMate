@@ -193,7 +193,7 @@ export default function ImageUpload() {
                 borderRadius: "8px",
                 height: "fit-content",
                 border: "2px solid #3d7cc9",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
               }}
           >
             {totalLines.map((line, index) => {
