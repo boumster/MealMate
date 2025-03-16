@@ -14,9 +14,8 @@ import { Multiselect } from "multiselect-react-dropdown";
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
-  const [calories, setCalories] = useState("");
+  const [caloriesPerDay, setCaloriesPerDay] = useState("");
   const [mealPlan, setMealPlan] = useState("");
-  const [mealType, setMealType] = useState("");
   const [mealsPerDay, setMealsPerDay] = useState("");
   const [dislikedIngredients, setDislikedIngredients] = useState("");
   const [cookingSkill, setCookingSkill] = useState("");
@@ -24,13 +23,13 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
-  const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState([]);
   const [dietaryRestriction, setDietaryRestriction] = useState("");
-  const [selectedMealTypes, setSelectedMealTypes] = useState([]);
-  const [selectedCookingTimes, setSelectedCookingTimes] = useState([]);
+  const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState<{ name: string; value: string }[]>([]);
+  const [selectedMealTypes, setSelectedMealTypes] = useState<{ name: string; value: string }[]>([]);
+  const [selectedCookingTimes, setSelectedCookingTimes] = useState<{ name: string; value: string }[]>([]);
 
   const cuisineOptions = [
-    { name: "All", value: "italian, indian, mexican, mediterranean, middle eastern, caribbean, japanese" },
+    { name: "All", value: "italian, indian, mexican, mediterranean, middle eastern, caribbean, and japanese" },
     { name: "Italian", value: "italian" },
     { name: "Indian", value: "indian" },
     { name: "Mexican", value: "mexican" },
@@ -41,14 +40,14 @@ export default function Mealplans() {
   ];
 
   const cookingTimeOptions = [
-    { name: "All", value: "quick, moderate, elaborate" },
+    { name: "All", value: "quick, moderate, and elaborate" },
     { name: "Quick Meals (≤ 15 min)", value: "quick" },
     { name: "Moderate (30-60 min)", value: "moderate" },
     { name: "Elaborate (60+ min)", value: "elaborate" }
   ];
 
   const mealTypeOptions = [
-    { name: "All", value: "breakfast, lunch, dinner, snacks" },
+    { name: "All", value: "breakfast, lunch, dinner, and snacks" },
     { name: "Breakfast", value: "breakfast" },
     { name: "Lunch", value: "lunch" },
     { name: "Dinner", value: "dinner" },
@@ -56,17 +55,68 @@ export default function Mealplans() {
   ];
   const [activeTab, setActiveTab] = useState("mealPlan");
 
+
+  // Filter all for cuisine selection
+  const handleCuisineSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+    if (selectedItem.name === "All") {
+        setSelectedCuisinePreferences([selectedItem]);
+    } else {
+        const filteredList = selectedList.filter(item => item.name !== "All");
+        setSelectedCuisinePreferences(filteredList);
+    }
+  };
+
+  const handleCuisineRemove = (selectedList: { name: string; value: string }[]) => {
+    setSelectedCuisinePreferences(selectedList);
+  };
+
+
+  // Filter all for cooking time selection
+  const handleCookingTimeSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+    if (selectedItem.name === "All") {
+      setSelectedCookingTimes([selectedItem]);
+    } else {
+        const filteredList = selectedList.filter(item => item.name !== "All");
+        setSelectedCookingTimes(filteredList);
+    }
+  };
+
+  const handleCookingTimeRemove = (selectedList: { name: string; value: string }[]) => {
+      setSelectedCookingTimes(selectedList);
+  };
+  
+
+  // Filter all for meal types selection
+  const handleMealTypesSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+    if (selectedItem.name === "All") {
+      setSelectedMealTypes([selectedItem]);
+    } else {
+        const filteredList = selectedList.filter(item => item.name !== "All");
+        setSelectedMealTypes(filteredList);
+    }
+  };
+
+  const handleMealTypesRemove = (selectedList: { name: string; value: string }[]) => {
+    setSelectedMealTypes(selectedList);
+  };
+
+
   const handleGenerateMealPlan = async () => {
+
+    const mealTypes = selectedMealTypes.map(mealType => mealType.value).join(', ');
+    const cuisinePreferences = selectedCuisinePreferences.map(cuisinePreference => cuisinePreference.value).join(', ');
+    const cookingTimes = selectedCookingTimes.map(cookingTime => cookingTime.value).join(', ');
+
     const requestData = {
       ingredients,
-      calories,
-      mealType,
+      caloriesPerDay,
+      mealTypes,
       mealsPerDay,
-      selectedCuisinePreferences,
+      cuisinePreferences,
       dietaryRestriction,
       dislikedIngredients,
       cookingSkill,
-      selectedCookingTimes,
+      cookingTimes,
       availableIngredients,
       budget,
       groceryStores,
@@ -160,6 +210,7 @@ export default function Mealplans() {
     );
   };
 
+
   return (
     <Container>
       <h2>Meal Plans</h2>
@@ -217,8 +268,8 @@ export default function Mealplans() {
               Calories Per Day:
               <Input
                 type="number"
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
+                value={caloriesPerDay}
+                onChange={(e) => setCaloriesPerDay(e.target.value)}
                 placeholder="Enter desired calories"
               />
             </Label>
@@ -229,8 +280,8 @@ export default function Mealplans() {
               <Multiselect
                 options={mealTypeOptions} 
                 selectedValues={selectedMealTypes} 
-                onSelect={setSelectedMealTypes} 
-                onRemove={setSelectedMealTypes} 
+                onSelect={handleMealTypesSelect} 
+                onRemove={handleMealTypesRemove} 
                 displayValue="name"
                 placeholder="Select Meal Preferences"
                 showArrow={true}
@@ -252,8 +303,8 @@ export default function Mealplans() {
               <Multiselect
                 options={cuisineOptions} 
                 selectedValues={selectedCuisinePreferences} 
-                onSelect={setSelectedCuisinePreferences} 
-                onRemove={setSelectedCuisinePreferences} 
+                onSelect={handleCuisineSelect} 
+                onRemove={handleCuisineRemove} 
                 displayValue="name"
                 placeholder="Select Cuisine Preferences"
                 showArrow={true}
@@ -298,8 +349,8 @@ export default function Mealplans() {
               <Multiselect
                 options={cookingTimeOptions} 
                 selectedValues={selectedCookingTimes} 
-                onSelect={setSelectedCookingTimes} 
-                onRemove={setSelectedCookingTimes} 
+                onSelect={handleCookingTimeSelect} 
+                onRemove={handleCookingTimeRemove} 
                 displayValue="name"
                 placeholder="Select Cooking Times"
                 showArrow={true}
