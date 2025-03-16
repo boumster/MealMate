@@ -1,12 +1,15 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
 from models import UserData, LoginData, MealPlanRequest
 from LLM import GeminiLLM
+import logging
 
 app = FastAPI()
+db = DatabaseConnection()
+ai_model = GeminiLLM()
 
 # Add CORS middleware
 app.add_middleware(
@@ -16,10 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-db = DatabaseConnection()
-ai_model = GeminiLLM()
-
 
 @app.get("/")
 def root() -> dict[str, str]:
@@ -241,4 +240,31 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "Error generating meal plan"
             }
+        )
+
+
+
+@app.post("/calculate-calories")
+async def calculate_calories(file: UploadFile = File(...)) -> JSONResponse:
+    try:
+        # Log the file details
+        logging.info(f"Received file: {file.filename}, content type: {file.content_type}")
+
+        # Read the image data
+        image_data = file.file.read()
+        logging.info(f"Read {len(image_data)} bytes from the file")
+
+        # Calculate calories using the AI model
+        calories = ai_model.calculate_calories(image_data)
+        logging.info(f"Calculated calories: {calories}")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"status": status.HTTP_200_OK, "calories": calories}
+        )
+    except Exception as e:
+        logging.error(f"Error in /calculate-calories endpoint: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
         )

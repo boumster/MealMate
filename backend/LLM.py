@@ -1,7 +1,11 @@
+import json
+import base64
 from dotenv import load_dotenv
 import os
 from typing import Optional, Dict, Any
 from google import genai
+from google.genai import types
+
     
 class GeminiLLM:
     _instance: Optional['GeminiLLM'] = None
@@ -29,3 +33,23 @@ class GeminiLLM:
             model="gemini-2.0-flash", contents=formatted_prompt
         )
         return response.text
+
+
+    def calculate_calories(self, image_data: bytes) -> Dict[str, Any]:
+        encoded_data = base64.b64encode(image_data).decode("ascii")
+        prompt = (
+            "Calculate the calories in this image:\n"
+            "Return response in this format:\n"
+            "Ingredient: Calories\n"
+            "Total Calories: Total Calories\n"
+            f"![image](data:image/jpeg;base64,{encoded_data})"
+        )
+    
+        response = self._client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+        print("Raw response text:", response.text)
+        return response.text
+    
+        
