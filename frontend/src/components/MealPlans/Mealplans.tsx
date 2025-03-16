@@ -10,8 +10,12 @@ import {
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
 import "../../styles/Mealplans.css";
-import Select from "react-select";
+import Select, {MultiValue, ActionMeta} from "react-select";
 
+interface CuisineOption {
+  value: string;
+  label: string;
+}
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
@@ -28,7 +32,7 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
-  const [selectedCuisines, setSelectedCuisines] = useState([]);
+  const [selectedCuisines, setSelectedCuisines] = useState<CuisineOption[]>([]);
 
   const cuisineOptions = [
     { value: "all", label: "All" },
@@ -41,9 +45,13 @@ export default function Mealplans() {
     { value: "japanese", label: "Japanese" },
   ];
 
-  const handleCuisineChange = (selectedCuisine) => {
-    setSelectedCuisines(selectedCuisine)
-  }
+  const handleCuisineChange = (
+    newValue: MultiValue<CuisineOption>,
+    actionMeta: ActionMeta<CuisineOption>
+  ) => {
+    setSelectedCuisines(newValue as CuisineOption[]);
+  };
+
 
   const handleGenerateMealPlan = async () => {
     const requestData = {
@@ -181,10 +189,6 @@ export default function Mealplans() {
               Cuisine Preferences:
               <Select
               options={cuisineOptions}
-              isMulti={true}
-              value={selectedCuisines}
-              onChange={handleCuisineChange}
-              placeholder="Select cuisine preferences"
             />
             <Label>
               Dietary Restrictions:
