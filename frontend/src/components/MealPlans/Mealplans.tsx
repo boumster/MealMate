@@ -10,7 +10,8 @@ import {
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
 import "../../styles/Mealplans.css";
-import Select from "react-select";
+import { Multiselect } from "multiselect-react-dropdown";
+
 
 
 export default function Mealplans() {
@@ -19,31 +20,42 @@ export default function Mealplans() {
   const [mealPlan, setMealPlan] = useState("");
   const [mealType, setMealType] = useState("");
   const [mealsPerDay, setMealsPerDay] = useState("");
-  const [cuisine, setCuisine] = useState("");
-  const [favoriteIngredients, setFavoriteIngredients] = useState("");
   const [dislikedIngredients, setDislikedIngredients] = useState("");
   const [cookingSkill, setCookingSkill] = useState("");
-  const [cookingTime, setCookingTime] = useState("");
   const [availableIngredients, setAvailableIngredients] = useState("");
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
-  const [selectedCuisines, setSelectedCuisines] = useState([]);
+  const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState([]);
+  const [dietaryRestriction, setDietaryRestriction] = useState("");
+  const [selectedMealTypes, setSelectedMealTypes] = useState([]);
+  const [selectedCookingTimes, setSelectedCookingTimes] = useState([]);
 
   const cuisineOptions = [
-    { value: "all", label: "All" },
-    { value: "italian", label: "Italian" },
-    { value: "indian", label: "Indian" },
-    { value: "mexican", label: "Mexican" },
-    { value: "mediterranean", label: "Mediterranean" },
-    { value: "middle_eastern", label: "Middle Eastern" },
-    { value: "caribbean", label: "Caribbean" },
-    { value: "japanese", label: "Japanese" },
+    { name: "All", value: "italian, indian, mexican, mediterranean, middle eastern, caribbean, japanese" },
+    { name: "Italian", value: "italian" },
+    { name: "Indian", value: "indian" },
+    { name: "Mexican", value: "mexican" },
+    { name: "Mediterranean", value: "mediterranean" },
+    { name: "Middle Eastern", value: "middle eastern" },
+    { name: "Caribbean", value: "caribbean" },
+    { name: "Japanese", value: "japanese" }
   ];
 
-  const handleCuisineChange = (selectedCuisine) => {
-    setSelectedCuisines(selectedCuisine)
-  }
+  const cookingTimeOptions = [
+    { name: "All", value: "quick, moderate, elaborate" },
+    { name: "Quick Meals (≤ 15 min)", value: "quick" },
+    { name: "Moderate (30-60 min)", value: "moderate" },
+    { name: "Elaborate (60+ min)", value: "elaborate" }
+  ];
+
+  const mealTypeOptions = [
+    { name: "All", value: "breakfast, lunch, dinner, snacks" },
+    { name: "Breakfast", value: "breakfast" },
+    { name: "Lunch", value: "lunch" },
+    { name: "Dinner", value: "dinner" },
+    { name: "Snacks", value: "snacks" },
+  ];
 
   const handleGenerateMealPlan = async () => {
     const requestData = {
@@ -51,11 +63,11 @@ export default function Mealplans() {
       calories,
       mealType,
       mealsPerDay,
-      cuisine,
-      favoriteIngredients,
+      selectedCuisinePreferences,
+      dietaryRestriction,
       dislikedIngredients,
       cookingSkill,
-      cookingTime,
+      selectedCookingTimes,
       availableIngredients,
       budget,
       groceryStores,
@@ -158,14 +170,15 @@ export default function Mealplans() {
           <FormRow>
             <Label>
               Preferred Meal Types:
-              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
-                <option value="">Select a meal type</option>
-                <option value="all meal types">All</option>
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="snacks">Snacks</option>
-              </DropDown>
+              <Multiselect
+                options={mealTypeOptions} 
+                selectedValues={selectedMealTypes} 
+                onSelect={setSelectedMealTypes} 
+                onRemove={setSelectedMealTypes} 
+                displayValue="name"
+                placeholder="Select Meal Preferences"
+                showArrow={true}
+              />
             </Label>
             <Label>
               Number of Meals per Day:
@@ -178,17 +191,21 @@ export default function Mealplans() {
             </Label>
           </FormRow>
           <FormRow>
+            <Label>
               Cuisine Preferences:
-              <Select
-              options={cuisineOptions}
-              isMulti={true}
-              value={selectedCuisines}
-              onChange={handleCuisineChange}
-              placeholder="Select cuisine preferences"
-            />
+              <Multiselect
+                options={cuisineOptions} 
+                selectedValues={selectedCuisinePreferences} 
+                onSelect={setSelectedCuisinePreferences} 
+                onRemove={setSelectedCuisinePreferences} 
+                displayValue="name"
+                placeholder="Select Cuisine Preferences"
+                showArrow={true}
+              />
+            </Label>
             <Label>
               Dietary Restrictions:
-              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+              <DropDown value={dietaryRestriction} onChange={(e) => setDietaryRestriction(e.target.value)}>
                 <option value="">Select a dietary restriction</option>
                 <option value="vegetarian">Vegetarian</option>
                 <option value="vegan">Vegan</option>
@@ -211,7 +228,7 @@ export default function Mealplans() {
             </Label>
             <Label>
               Cooking Skill Level:
-              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
+              <DropDown value={cookingSkill} onChange={(e) => setCookingSkill(e.target.value)}>
                 <option value="">Select a cooking level</option>
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
@@ -222,12 +239,15 @@ export default function Mealplans() {
           <FormRow>
             <Label>
               Time Available for Cooking:
-              <DropDown value={mealType} onChange={(e) => setMealType(e.target.value)}>
-                <option value="">Select time available for cooking</option>
-                <option value="quick">Quick Meals (≤ 15 min)</option>
-                <option value="moderate">Moderate (30-60 min)</option>
-                <option value="elaborate">Elaborate (60+ min)</option>
-              </DropDown>
+              <Multiselect
+                options={cookingTimeOptions} 
+                selectedValues={selectedCookingTimes} 
+                onSelect={setSelectedCookingTimes} 
+                onRemove={setSelectedCookingTimes} 
+                displayValue="name"
+                placeholder="Select Cooking Times"
+                showArrow={true}
+              />
             </Label>
             <Label>
               Available Ingredients in the Kitchen:
