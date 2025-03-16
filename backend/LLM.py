@@ -83,4 +83,24 @@ class GeminiLLM:
         except Exception as e:
             logging.error(f"Error in calculate_calories: {str(e)}")
             raise RuntimeError(f"Failed to process image: {str(e)}")
-                
+
+
+    def generate_image(self, prompt: str) -> bytes:
+        try:
+            response = self._client.models.generate_content(
+                model="gemini-2.0-flash-exp-image-generation",
+                contents=prompt,
+                config=genai.types.GenerateContentConfig(
+                    response_modalities=['Text', 'Image']
+                )
+            )
+    
+            for part in response.candidates[0].content.parts:
+                if part.inline_data is not None:
+                    return part.inline_data.data
+    
+            raise ValueError("No image was generated in the response")
+    
+        except Exception as e:
+            logging.error(f"Error in generate_image: {str(e)}")
+            raise RuntimeError(f"Failed to generate image: {str(e)}")

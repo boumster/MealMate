@@ -1,3 +1,5 @@
+import base64
+
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -201,12 +203,18 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             prompt += f" with grocery stores: {request.grocery_stores}"
         
         response = ai_model.generate_completion(prompt, role="meal planner")
+
+        image_prompt = f"Generate a photorealistic image of a complete meal plated beautifully with {response}"
+        image_data = ai_model.generate_image(image_prompt)
+
+        image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan generated successfully",
-                "response": response
+                "response": response,
+                "image": image_base64
             }
         )
     except Exception as e:
