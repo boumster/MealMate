@@ -67,8 +67,16 @@ export async function generateMealPlan(mealPlan) {
     return data;
   } catch (error) {
     console.error("Error generating meal plan:", error);
+    return {
+      status: 500,
+      message: "Error generating meal plan",
+      response: null,
+      image: null
+    };
   }
 }
+  
+
 
 export async function calculateCalories(file) {
   try {

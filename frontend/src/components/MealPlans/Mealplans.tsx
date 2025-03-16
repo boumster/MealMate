@@ -9,6 +9,7 @@ import {
   DropDown
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
+import Loading from "../Loading/Loading";
 import "../../styles/Mealplans.css";
 import { Multiselect } from "multiselect-react-dropdown";
 
@@ -54,6 +55,8 @@ export default function Mealplans() {
     { name: "Snacks", value: "snacks" },
   ];
   const [activeTab, setActiveTab] = useState("mealPlan");
+  const [mealPlanImage, setMealPlanImage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
 
   // Filter all for cuisine selection
@@ -102,6 +105,7 @@ export default function Mealplans() {
 
 
   const handleGenerateMealPlan = async () => {
+    setIsLoading(true);
 
     const mealTypes = selectedMealTypes.map(mealType => mealType.value).join(', ');
     const cuisinePreferences = selectedCuisinePreferences.map(cuisinePreference => cuisinePreference.value).join(', ');
@@ -110,103 +114,99 @@ export default function Mealplans() {
     const requestData = {
       ingredients,
       caloriesPerDay,
-      mealTypes,
+      meal_type: mealTypes,
       mealsPerDay,
-      cuisinePreferences,
-      dietaryRestriction,
-      dislikedIngredients,
-      cookingSkill,
-      cookingTimes,
-      availableIngredients,
+      cuisine: cuisinePreferences,
+      favorite_ingredients: dietaryRestriction,
+      disliked_ingredients: dislikedIngredients,
+      cooking_skill: cookingSkill,
+      cooking_time: cookingTimes,
+      available_ingredients: availableIngredients,
       budget,
-      groceryStores,
+      grocery_stores: groceryStores,
     };
 
     try {
-      // Call the API utility function
-      const data = await generateMealPlan(requestData); // Assuming `generateMealPlan` already parses the JSON
-      console.log(data);
-
+      const data = await generateMealPlan(requestData);
       if (data.status === 200) {
-        setMealPlan(data.response); // Use the parsed response directly
+        setMealPlan(data.response);
+        setMealPlanImage(data.image);
       } else {
         console.error("Failed to generate meal plan:", data.message);
       }
     } catch (error) {
       console.error("Error generating meal plan:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const renderMealPlan = () => {
     if (!mealPlan) return null;
 
-    // Find the start of the "Recipes" section
     const recipesIndex = mealPlan.indexOf("Recipes");
-    const daysContent =
-      recipesIndex !== -1 ? mealPlan.slice(0, recipesIndex).trim() : mealPlan;
-
-    // Split the days content into individual days
+    const daysContent = recipesIndex !== -1 ? mealPlan.slice(0, recipesIndex).trim() : mealPlan;
     const days = daysContent.split(/\*\*Day \d+:\*\*/).slice(1);
     const currentDayContent = days[currentDay - 1]?.trim() || "";
 
     return (
-      <div>
-        <h3>Generated Meal Plan</h3>
-        <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-          <p
-            dangerouslySetInnerHTML={{
-              __html: currentDayContent.replace(
-                /\*\*(.*?)\*\*/g,
-                "<strong>$1</strong>"
-              ),
-            }}
-          ></p>
+        <div>
+          <h3>Generated Meal Plan</h3>
+          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
+            <p
+                dangerouslySetInnerHTML={{
+                  __html: currentDayContent.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
+                }}
+            ></p>
+          </div>
+          {mealPlanImage && (
+              <div style={{ marginTop: "20px" }}>
+                <h4>Meal Preview</h4>
+                <img
+                    src={`data:image/jpeg;base64,${mealPlanImage}`}
+                    alt="Generated meal preview"
+                    style={{ maxWidth: "100%", height: "auto" }}
+                />
+              </div>
+          )}
+          <div style={{ marginTop: "20px" }}>
+            <Button
+                onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
+                disabled={currentDay === 1}
+            >
+              Previous Day
+            </Button>
+            <Button
+                onClick={() => setCurrentDay((prev) => Math.min(prev + 1, days.length))}
+                disabled={currentDay === days.length}
+                style={{ marginLeft: "10px" }}
+            >
+              Next Day
+            </Button>
+          </div>
         </div>
-        <div style={{ marginTop: "20px" }}>
-          <Button
-            onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
-            disabled={currentDay === 1}
-          >
-            Previous Day
-          </Button>
-          <Button
-            onClick={() =>
-              setCurrentDay((prev) => Math.min(prev + 1, days.length))
-            }
-            disabled={currentDay === days.length}
-            style={{ marginLeft: "10px" }}
-          >
-            Next Day
-          </Button>
-        </div>
-      </div>
     );
   };
 
   const renderRecipes = () => {
     if (!mealPlan) return null;
 
-    // Extract the "Recipes" section from the meal plan
     const recipesIndex = mealPlan.indexOf("Recipes");
-    const recipesContent =
-      recipesIndex !== -1
+    const recipesContent = recipesIndex !== -1
         ? mealPlan.slice(recipesIndex).trim()
         : "No recipes found.";
 
     return (
-      <div>
-        <h3>Recipes</h3>
-        <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-          <p
-            dangerouslySetInnerHTML={{
-              __html: recipesContent.replace(
-                /\*\*(.*?)\*\*/g,
-                "<strong>$1</strong>"
-              ),
-            }}
-          ></p>
+        <div>
+          <h3>Recipes</h3>
+          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
+            <p
+                dangerouslySetInnerHTML={{
+                  __html: recipesContent.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
+                }}
+            ></p>
+          </div>
         </div>
-      </div>
     );
   };
 
