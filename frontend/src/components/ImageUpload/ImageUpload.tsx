@@ -90,9 +90,26 @@ export default function ImageUpload() {
 
     const getIngredientDetails = (startIndex: number) => {
       const details = [];
+      let unitFound = false;
+
       for (let i = startIndex + 1; i < ingredientLines.length; i++) {
-        if (ingredientLines[i].includes("Ingredient:")) break;
-        details.push(ingredientLines[i]);
+        const line = ingredientLines[i];
+        if (line.includes("Ingredient:")) break;
+
+        // Add values with their units
+        if (line.includes("Calories:") ||
+            line.includes("Proteins:") ||
+            line.includes("Fats:") ||
+            line.includes("Carbohydrates:")) {
+          if (!line.includes("g") && !line.includes("kcal")) {
+            // Add units if missing
+            details.push(line + (line.includes("Calories") ? " kcal" : " g"));
+          } else {
+            details.push(line);
+          }
+        } else {
+          details.push(line);
+        }
       }
       return details;
     };
@@ -175,21 +192,30 @@ export default function ImageUpload() {
                 backgroundColor: "lightgray",
                 borderRadius: "8px",
                 height: "fit-content",
-                border: "2px solid blue",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
+                border: "2px solid #3d7cc9",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
               }}
           >
-            {totalLines.map((line, index) => (
-                <p
-                    key={index}
-                    style={{
-                      margin: "8px 0",
-                      fontWeight: "bold",
-                    }}
-                >
-                  {line}
-                </p>
-            ))}
+            {totalLines.map((line, index) => {
+              // Add units if they're missing
+              let displayLine = line;
+              if (line.includes("Total")) {
+                if (!line.includes("g") && !line.includes("kcal")) {
+                  displayLine = line + (line.includes("Calories") ? " kcal" : " g");
+                }
+              }
+              return (
+                  <p
+                      key={index}
+                      style={{
+                        margin: "8px 0",
+                        fontWeight: "bold",
+                      }}
+                  >
+                    {displayLine}
+                  </p>
+              );
+            })}
           </div>
         </div>
     );
