@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import "../styles/App.css";
 import Header from "./Header/Header";
@@ -12,25 +11,23 @@ import ImageUpload from "./ImageUpload/ImageUpload";
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 
 export default function App() {
-  const [message, setMessage] = useState<string>("");
   const location = useLocation();
 
   return (
-      <div className="App">
-        {location.pathname !== "/login" && location.pathname !== "/register" && (
-            <Header />
-        )}
-        <Switch>
-          {/* Public Routes */}
-          <Route exact path="/login" render={(props) => <Login />} />
-          <Route exact path="/register" render={(props) => <Register />} />
-          <Route
-              exact
-              path="/"
-              render={(props) => <Home {...props} message={message} />}
-          />
-          <Route path="/about" render={(props) => <About />} />
-          <Route path="/calculate-calories" render={(props) => <ImageUpload />} />
+    <div className="App">
+      {location.pathname !== "/login" && location.pathname !== "/register" && (
+        <Header />
+      )}
+      <Switch>
+        {/* Public Routes */}
+        <Route exact path="/login" render={(props) => <Login />} />
+        <Route exact path="/register" render={(props) => <Register />} />
+        <Route
+          exact
+          path="/"
+          render={(props) => <Home />}
+        />
+        <Route path="/about" render={(props) => <About />} />
 
           {/* Protected Routes */}
           <PrivateRoute path="/contact" component={Contact} />
