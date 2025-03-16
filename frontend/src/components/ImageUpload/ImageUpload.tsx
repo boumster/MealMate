@@ -10,6 +10,7 @@ import {
 import { calculateCalories } from "../../utilities/api";
 import Loading from "../Loading/Loading";
 
+
 export default function ImageUpload() {
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -17,7 +18,7 @@ export default function ImageUpload() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [expandedStates, setExpandedStates] = useState<{ [key: number]: boolean }>({});
-
+    const [showResults, setShowResults] = useState(false);
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
@@ -30,13 +31,12 @@ export default function ImageUpload() {
         }
     };
 
-    const handleCalculateCalories = async (
-        e: React.MouseEvent<HTMLButtonElement>
-    ) => {
+    const handleCalculateCalories = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setIsLoading(true);
-        setExpandedStates({}); // Reset expanded states
-        setCalories(""); // Clear previous calories data
+        setExpandedStates({});
+        setCalories("");
+        setShowResults(false); // Reset animation state
 
         if (!image) {
             setError("Please select an image to upload");
@@ -48,6 +48,8 @@ export default function ImageUpload() {
             if (data.status === 200) {
                 setCalories(data.calories);
                 setError(null);
+                // Trigger animation after data is loaded
+                setTimeout(() => setShowResults(true), 100);
             } else {
                 setError(data.message || "Failed to calculate calories");
             }
@@ -57,6 +59,7 @@ export default function ImageUpload() {
         }
         setIsLoading(false);
     };
+
 
     const toggleExpand = (index: number) => {
         setExpandedStates(prev => ({
@@ -116,6 +119,9 @@ export default function ImageUpload() {
                     margin: "20px 0",
                     fontSize: "1.2em",
                     alignItems: "flex-start",
+                    opacity: showResults ? 1 : 0,
+                    transform: `translateY(${showResults ? 0 : '20px'})`,
+                    transition: "opacity 0.5s ease-out, transform 0.5s ease-out",
                 }}
             >
                 {/* Left column */}
@@ -168,7 +174,7 @@ export default function ImageUpload() {
                                         maxHeight: isExpanded ? "500px" : "0",
                                         opacity: isExpanded ? 1 : 0,
                                         overflow: "hidden",
-                                        transition: "all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)", // Bounce effect
+                                        transition: "all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)", // Bounce effect
                                         margin: "0 0 0 20px"
                                     }}>
                                         {details.map((detail, i) => (
