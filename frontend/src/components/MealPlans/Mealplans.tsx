@@ -12,12 +12,6 @@ import { generateMealPlan } from "../../utilities/api";
 import "../../styles/Mealplans.css";
 import { Multiselect } from "multiselect-react-dropdown";
 
-
-interface CuisineOption {
-  value: string;
-  label: string;
-}
-
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
   const [calories, setCalories] = useState("");
