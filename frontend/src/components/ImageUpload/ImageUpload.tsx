@@ -78,7 +78,7 @@ export default function ImageUpload() {
             return (
               <p key={index} style={{ margin: "8px 0" }}>
                 <strong>{label}:</strong>
-                {value}
+                {" "}{value}
               </p>
             );
           }

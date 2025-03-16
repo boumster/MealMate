@@ -51,7 +51,6 @@ class GeminiLLM:
                             Format your response exactly like this:
                             Here's the breakdown of calories based on the image:
 
-                            Ingredient: Calories
                             [List each ingredient with its calories]
 
                             Total Calories: [Sum]
