@@ -1,12 +1,15 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
 from models import UserData, LoginData, MealPlanRequest
 from LLM import GeminiLLM
+import logging
 
 app = FastAPI()
+db = DatabaseConnection()
+ai_model = GeminiLLM()
 
 # Add CORS middleware
 app.add_middleware(
@@ -16,20 +19,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-db = DatabaseConnection()
-ai_model = GeminiLLM()
-
-
-@app.get("/")
-def root() -> dict[str, str]:
-    return {"message": "Hello"}
-
-
 # About page route
 @app.get("/about")
 def about() -> dict[str, str]:
-    db.execute_query("SELECT * FROM users")
     return {"message": "This is the about page."}
 
 @app.post("/register")
@@ -63,14 +55,21 @@ async def register_user(user_data: UserData) -> JSONResponse:
         # Execute the query
         try:
             db.execute_query(query, values)
+            query = """
+                SELECT * FROM users 
+                WHERE username = %s
+            """
+            response = db.execute_query(query, (user_data.username,))
+            user_data = response[0]
             return JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
                     "status": status.HTTP_200_OK,
                     "message": "User registered successfully",
                     "user": {
-                        "username": user_data.username,
-                        "email": user_data.email
+                        "id": user_data[0],
+                        "username": user_data[1],
+                        "email": user_data[2],
                     }
                 }
             )
@@ -171,29 +170,6 @@ async def login_user(user_data: LoginData) -> JSONResponse:
             }
         )
 
-@app.post("/generate-gemini")
-async def generate_gemini(prompt: str) -> JSONResponse:
-    try:
-        prompt = "Generate a recipe for a vegan dinner with high protein."
-        response = ai_model.generate_completion(prompt)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status": status.HTTP_200_OK,
-                "message": "Text generated successfully",
-                "response": response
-            }
-        )
-    except Exception as e:
-        print(f"Error generating text: {str(e)}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating text"
-            }
-        )
-
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
     try:
@@ -241,4 +217,31 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "Error generating meal plan"
             }
+        )
+
+
+
+@app.post("/calculate-calories")
+async def calculate_calories(file: UploadFile = File(...)) -> JSONResponse:
+    try:
+        # Log the file details
+        logging.info(f"Received file: {file.filename}, content type: {file.content_type}")
+
+        # Read the image data
+        image_data = file.file.read()
+        logging.info(f"Read {len(image_data)} bytes from the file")
+
+        # Calculate calories using the AI model
+        calories = ai_model.calculate_calories(image_data)
+        logging.info(f"Calculated calories: {calories}")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"status": status.HTTP_200_OK, "calories": calories}
+        )
+    except Exception as e:
+        logging.error(f"Error in /calculate-calories endpoint: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
         )
