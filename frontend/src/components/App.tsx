@@ -6,6 +6,7 @@ import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
 import Register from "./Register/Register";
+import ImageUpload from "./ImageUpload/ImageUpload";
 import Login from "./Login/Login"
 import Profile from "./Profile/Profile"
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
@@ -29,12 +30,12 @@ export default function App() {
         />
         <Route path="/about" render={(props) => <About />} />
 
-        {/* Protected Routes */}
-        <PrivateRoute path="/contact" component={Contact} />
-        <PrivateRoute path="/mealplans" component={Mealplans} />
-        <PrivateRoute path="/profile" component={Profile} />
-
-      </Switch>
-    </div>
+          {/* Protected Routes */}
+          <PrivateRoute path="/contact" component={Contact} />
+          <PrivateRoute path="/mealplans" component={Mealplans} />
+          <PrivateRoute path="/calculate-calories" component={ImageUpload} />
+          <PrivateRoute path="/profile" component={Profile} />
+        </Switch>
+      </div>
   );
 }
