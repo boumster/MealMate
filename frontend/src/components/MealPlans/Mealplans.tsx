@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Container,
   Input,
@@ -113,11 +113,11 @@ export default function Mealplans() {
 
     const requestData = {
       ingredients,
-      caloriesPerDay,
+      calories: caloriesPerDay,
       meal_type: mealTypes,
-      mealsPerDay,
+      meals_per_day: mealsPerDay,
       cuisine: cuisinePreferences,
-      favorite_ingredients: dietaryRestriction,
+      dietary_restriction: dietaryRestriction,
       disliked_ingredients: dislikedIngredients,
       cooking_skill: cookingSkill,
       cooking_time: cookingTimes,
@@ -261,7 +261,7 @@ export default function Mealplans() {
                 type="text"
                 value={ingredients}
                 onChange={(e) => setIngredients(e.target.value)}
-                placeholder="Enter ingredients you have"
+                placeholder="Enter ingredients you want"
               />
             </Label>
             <Label>
@@ -386,7 +386,9 @@ export default function Mealplans() {
               />
             </Label>
           </FormRow>
-          <Button type="submit">Generate Meal Plan</Button>
+          <Button type="submit" disabled={isLoading}>
+                 {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
+          </Button>
         </Form>
       )}
     </Container>
