@@ -1,10 +1,8 @@
-import json
 import base64
 from dotenv import load_dotenv
 import os
 from typing import Optional, Dict, Any
 from google import genai
-from google.genai import types
 import logging
 
     

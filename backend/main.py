@@ -19,10 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-db = DatabaseConnection()
-ai_model = GeminiLLM()
-
 # About page route
 @app.get("/about")
 def about() -> dict[str, str]:
