@@ -14,8 +14,8 @@ class DatabaseConnection:
         try:
             self.conn = mysql.connector.connect(
                 host="localhost",
-                user="root",
-                password="Goldexperience123!",
+                user="fitness_user",
+                password="fitness123",
                 database="fitnessdb",
                 port="3306"
             )

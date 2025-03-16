@@ -5,6 +5,7 @@ import os
 from typing import Optional, Dict, Any
 from google import genai
 from google.genai import types
+import logging
 
     
 class GeminiLLM:
@@ -36,20 +37,45 @@ class GeminiLLM:
 
 
     def calculate_calories(self, image_data: bytes) -> Dict[str, Any]:
-        encoded_data = base64.b64encode(image_data).decode("ascii")
-        prompt = (
-            "Calculate the calories in this image:\n"
-            "Return response in this format:\n"
-            "Ingredient: Calories\n"
-            "Total Calories: Total Calories\n"
-            f"![image](data:image/jpeg;base64,{encoded_data})"
-        )
-    
-        response = self._client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
-        print("Raw response text:", response.text)
-        return response.text
-    
-        
+        try:
+            vision_content = {
+                "parts": [
+                    {
+                        "text": """
+                            You are a precise nutrition assistant. Analyze this food image and:
+
+                            1. Identify each visible ingredient
+                            2. Calculate approximate calories for each ingredient
+                            3. Sum up the total calories
+
+                            Format your response exactly like this:
+                            Here's the breakdown of calories based on the image:
+
+                            Ingredient: Calories
+                            [List each ingredient with its calories]
+
+                            Total Calories: [Sum]
+                            """
+                    },
+                    {
+                        "inline_data": {
+                            "mime_type": "image/jpeg",
+                            "data": base64.b64encode(image_data).decode("utf-8")
+                        }
+                    }
+                ]
+            }
+
+            # Generate response
+            response = self._client.models.generate_content(
+                model="gemini-2.0-flash", contents=vision_content)
+                
+            if not response.text:
+                raise ValueError("No response generated from the model")
+                
+            return response.text
+
+        except Exception as e:
+            logging.error(f"Error in calculate_calories: {str(e)}")
+            raise RuntimeError(f"Failed to process image: {str(e)}")
+                
