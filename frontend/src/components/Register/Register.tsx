@@ -24,7 +24,7 @@ const Register: React.FC = () => {
     }
 
     const response = await registerUser(userData);
-    if (response.status === 201) {
+    if (response.status === 200) {
       alert("User registered successfully");
       history.push("/");
     } else {
