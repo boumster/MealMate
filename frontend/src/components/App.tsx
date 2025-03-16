@@ -32,6 +32,7 @@ export default function App() {
           {/* Protected Routes */}
           <PrivateRoute path="/contact" component={Contact} />
           <PrivateRoute path="/mealplans" component={Mealplans} />
+          <PrivateRoute path="/calculate-calories" component={ImageUpload} />
         </Switch>
       </div>
   );

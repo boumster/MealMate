@@ -8,12 +8,14 @@ import {
   FormRow,
 } from "../../styles/styles";
 import { calculateCalories } from "../../utilities/api";
+import Loading from "../Loading/Loading";
 
 export default function ImageUpload() {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [calories, setCalories] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -30,8 +32,10 @@ export default function ImageUpload() {
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
+    setIsLoading(true);
     if (!image) {
       setError("Please select an image to upload");
+      setIsLoading(false);
       return;
     }
     try {
@@ -46,6 +50,7 @@ export default function ImageUpload() {
       console.error("Error calculating calories:", error);
       setError("An error occurred while calculating calories");
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -77,8 +82,7 @@ export default function ImageUpload() {
             const [label, value] = line.split(":").map((str) => str.trim());
             return (
               <p key={index} style={{ margin: "8px 0" }}>
-                <strong>{label}:</strong>
-                {" "}{value}
+                <strong>{label}:</strong> {value}
               </p>
             );
           }
@@ -124,7 +128,8 @@ export default function ImageUpload() {
         </FormRow>
         <Button onClick={handleCalculateCalories}>Calculate Calories</Button>
         {error && <p>{error}</p>}
-        {renderCalories()}
+        {isLoading && <Loading />}
+        {calories && renderCalories()}
       </Form>
     </Container>
   );
