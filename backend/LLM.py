@@ -42,19 +42,27 @@ class GeminiLLM:
                 "parts": [
                     {
                         "text": """
-                            You are a precise nutrition assistant. Analyze this food image and:
+                        You are a precise nutrition assistant. Analyze this food image and:
 
-                            1. Identify each visible ingredient
-                            2. Calculate approximate calories for each ingredient
-                            3. Sum up the total calories
+                        1. Identify each visible ingredient
+                        2. Calculate approximate calories for each ingredient
+                        3. Calculate macros (proteins, fats, carbohydrates) for each ingredient
+                        4. Sum up the total calories and macros
 
-                            Format your response exactly like this:
-                            Here's the breakdown of calories based on the image:
+                        Format your response exactly like this:
+                        Here's the breakdown of calories and macros based on the image:
 
-                            [List each ingredient with its calories]
+                        Ingredient: [Ingredient Name]
+                        Calories: [Calories]
+                        Proteins: [Proteins]
+                        Fats: [Fats]
+                        Carbohydrates: [Carbohydrates]
 
-                            Total Calories: [Sum]
-                            """
+                        Total Calories: [Sum]
+                        Total Proteins: [Sum]
+                        Total Fats: [Sum]
+                        Total Carbohydrates: [Sum]
+                        """
                     },
                     {
                         "inline_data": {

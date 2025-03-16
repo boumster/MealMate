@@ -18,18 +18,19 @@ export default function ImageUpload() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
+    if (file) {
       setImage(file);
-      // Create image preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-      setError(null); // Clear any previous errors
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleCalculateCalories = async (
-    e: React.MouseEvent<HTMLButtonElement>
+      e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
     setIsLoading(true);
@@ -64,73 +65,106 @@ export default function ImageUpload() {
   const renderCalories = () => {
     if (!calories) return <p>No calories found</p>;
 
-    // Split the string by newlines and filter out empty lines
     const lines = calories.split("\n").filter((line) => line.trim());
+    const ingredientLines: string[] = [];
+    const totalLines: string[] = [];
+
+    let isTotalSection = false;
+    lines.forEach((line) => {
+      if (line.includes("Total")) {
+        isTotalSection = true;
+      }
+      if (isTotalSection) {
+        totalLines.push(line);
+      } else {
+        ingredientLines.push(line);
+      }
+    });
 
     return (
-      <div
-        style={{
-          padding: "20px",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "8px",
-          margin: "20px 0",
-        }}
-      >
-        {lines.map((line, index) => {
-          // Check if line contains a colon for ingredient:calorie pairs
-          if (line.includes(":")) {
-            const [label, value] = line.split(":").map((str) => str.trim());
-            return (
-              <p key={index} style={{ margin: "8px 0" }}>
-                <strong>{label}:</strong> {value}
+        <div
+            style={{
+              padding: "10px",
+              backgroundColor: "lightgray",
+              borderRadius: "10px",
+              margin: "10px 0",
+              fontSize: "1.2em",
+            }}
+        >
+          {ingredientLines.map((line, index) => {
+            if (line.includes("Here's the breakdown")) {
+              return (
+                  <p key={index} style={{ margin: "8px 0", fontWeight: "bold" }}>
+                    {line}
+                  </p>
+              );
+            }
+            if (line.includes("Ingredient:")) {
+              return (
+                  <div key={index}>
+                    {index !== 0 && (
+                        <hr style={{ margin: "10px -20px", border: "3px solid white" }} />
+                    )}
+                    <p style={{ margin: "8px 0", fontWeight: "bold" }}>{line}</p>
+                  </div>
+              );
+            }
+            return <p style={{ margin: "8px 0" }}>{line}</p>;
+          })}
+          <hr style={{ margin: "20px -20px", border: "3px solid white" }} />
+          {totalLines.map((line, index) => (
+              <p
+                  key={index}
+                  style={{
+                    margin: "8px 0",
+                    fontWeight: "bold",
+                  }}
+              >
+                {line}
               </p>
-            );
-          }
-          // For headers or total
-          return (
-            <p
-              key={index}
-              style={{
-                margin: index === 0 ? "0 0 16px 0" : "16px 0 0 0",
-                fontWeight: line.includes("Total") ? "bold" : "normal",
-              }}
-            >
-              {line}
-            </p>
-          );
-        })}
-      </div>
+          ))}
+        </div>
     );
   };
 
   return (
-    <Container>
-      <h1>Calculate Calories</h1>
-      {imagePreview && (
-        <img
-          src={imagePreview}
-          alt="Selected food"
-          style={{ maxWidth: "30%", height: "auto" }}
-        />
-      )}
-      <p>Upload an image to calculate calories</p>
-      <p>Supported image formats: .jpg, .jpeg, .png</p>
-      <Form>
-        <FormRow>
-          <Label htmlFor="image">Upload Food Image:</Label>
-          <Input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-        </FormRow>
-        <Button onClick={handleCalculateCalories}>Calculate Calories</Button>
-        {error && <p>{error}</p>}
-        {isLoading && <Loading />}
-        {calories && renderCalories()}
-      </Form>
-    </Container>
+      <Container style={{ maxWidth: "800px", margin: "0 auto", padding: "50px", textAlign: "center" }}>
+        <h1 style={{fontSize: "3em", marginBottom: "20px", textShadow: "1px 1px 2px #000000"}}>Image to Calories Calculator</h1>
+        <div style={{paddingBottom: "20px"}}>
+          Upload an image of your food to calculate its calories
+        </div>
+        {imagePreview && (
+            <img
+                src={imagePreview}
+                alt="Selected food"
+                style={{
+                  maxWidth: "30%",
+                  height: "auto",
+                  marginBottom: "20px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 1)"
+                }}
+            />
+        )}
+        <Form>
+          <FormRow style={{ justifyContent: "center", textAlign: "center", paddingRight: "320px", fontSize: "0.9em" }}>
+            <Label htmlFor="image" style={{ fontSize: "1.2em" }}></Label>
+            <Input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ fontSize: "1.2em", display: "block" }}
+            />
+          </FormRow>
+          <p style={{ fontSize: "0.8em" }}>Supported image formats: .jpg, .jpeg, .png, .webp</p>
+          <Button onClick={handleCalculateCalories} style={{ fontSize: "1.2em", padding: "10px 20px", marginTop: "20px", fontWeight: "bold" }}>
+            Calculate Calories
+          </Button>
+          {error && <p style={{ color: "red", fontSize: "1.2em" }}>{error}</p>}
+          {isLoading && <Loading />}
+          {calories && renderCalories()}
+        </Form>
+      </Container>
   );
 }
