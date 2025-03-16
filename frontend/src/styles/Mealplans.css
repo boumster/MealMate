@@ -6,7 +6,6 @@
     width: 100%;
     border-radius: 8px;
     background-color: white;
-    font-family: Arial, sans-serif;
     margin: 0.5rem 0;
   }
   
@@ -38,5 +37,9 @@
   
   .multiselect-container:focus {
     outline: none;
+  }
+
+  .fGksbF > div {
+    width: 100%;
   }
   
