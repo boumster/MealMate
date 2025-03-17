@@ -82,3 +82,16 @@ export async function generateMealPlan(mealPlan) {
     console.error("Error generating meal plan:", error);
   }
 }
+
+export async function fetchMealPlans() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/meal-plans`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching meal plans:", error);
+  }
+}
