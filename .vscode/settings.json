@@ -11,7 +11,8 @@
             "driver": "MySQL",
             "name": "fitnessdb",
             "database": "fitnessdb",
-            "username": "fitness_user"
+            "username": "fitness_user",
+            "password": "fitness123"
         }
     ]
 }

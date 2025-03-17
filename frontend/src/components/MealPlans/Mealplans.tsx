@@ -8,12 +8,14 @@ import {
   FormRow,
   DropDown,
 } from "../../styles/styles";
-import {generateMealImage, generateMealPlan} from "../../utilities/api";
+import { generateMealImage, generateMealPlan } from "../../utilities/api";
+import { useAuth } from "../../context/Auth/AuthProvider";
 import Loading from "../Loading/Loading";
 import "../../styles/Mealplans.css";
 import { Multiselect } from "multiselect-react-dropdown";
 
 export default function Mealplans() {
+  const { user } = useAuth();
   const [ingredients, setIngredients] = useState("");
   const [caloriesPerDay, setCaloriesPerDay] = useState("1800");
   const [mealPlan, setMealPlan] = useState("");
@@ -73,27 +75,27 @@ export default function Mealplans() {
   const [isLoading, setIsLoading] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   // Update multiselectStyles object
-const multiselectStyles = {
-  chips: {
-    background: "#007bff",
-  },
-  multiselectContainer: {
-    width: "22.125rem",
-    margin: "0.5rem 0"
-  },
-  searchBox: {
-    width: "22.125rem",
-    padding: "0.5rem",
-    border: "0.1rem solid #ccc",
-    borderRadius: "0.4rem"
-  },
-  optionContainer: {
-    width: "22.125rem"
-  },
-  inputField: {
-    margin: 0
-  }
-};
+  const multiselectStyles = {
+    chips: {
+      background: "#007bff",
+    },
+    multiselectContainer: {
+      width: "22.125rem",
+      margin: "0.5rem 0",
+    },
+    searchBox: {
+      width: "22.125rem",
+      padding: "0.5rem",
+      border: "0.1rem solid #ccc",
+      borderRadius: "0.4rem",
+    },
+    optionContainer: {
+      width: "22.125rem",
+    },
+    inputField: {
+      margin: 0,
+    },
+  };
 
   // Filter all for cuisine selection
   const handleCuisineSelect = (
@@ -133,7 +135,6 @@ const multiselectStyles = {
     setSelectedMealTypes(selectedList);
   };
 
-
   const handleDietaryRestrictionSelect = (
     selectedList: { name: string; value: string }[],
     selectedItem: { name: string; value: string }
@@ -141,7 +142,9 @@ const multiselectStyles = {
     if (selectedItem.name === "No Restrictions") {
       setDietaryRestriction([selectedItem]);
     } else {
-      const filteredList = selectedList.filter((item) => item.name !== "No Restrictions");
+      const filteredList = selectedList.filter(
+        (item) => item.name !== "No Restrictions"
+      );
       setDietaryRestriction(filteredList);
     }
   };
@@ -157,7 +160,7 @@ const multiselectStyles = {
     return match ? match[1].trim() : "";
   };
 
-// Add this function to load image for current day
+  // Add this function to load image for current day
   const loadCurrentDayImage = async (dayContent: string, dayIndex: number) => {
     if (!mealPlanImages[dayIndex]) {
       setIsImageLoading(true);
@@ -165,7 +168,7 @@ const multiselectStyles = {
       if (recipeName) {
         const response = await generateMealImage(dayIndex, recipeName);
         if (response?.image) {
-          setMealPlanImages(prev => {
+          setMealPlanImages((prev) => {
             const newImages = [...prev];
             newImages[dayIndex] = response.image;
             return newImages;
@@ -176,7 +179,7 @@ const multiselectStyles = {
     }
   };
 
-// Update currentDay setter to trigger image loading
+  // Update currentDay setter to trigger image loading
   const handleDayChange = (newDay: number) => {
     setCurrentDay(newDay);
     const days = mealPlan.split("Day").slice(1);
@@ -184,28 +187,34 @@ const multiselectStyles = {
     loadCurrentDayImage(dayContent, newDay);
   };
 
-
-
   const handleGenerateMealPlan = async () => {
     setIsLoading(true);
     setLoadingMessage("Cooking Up a Meal Plan...");
     loadingTimer = setTimeout(() => {
-      setLoadingMessage("A Perfect Meal Plan Takes Time, Please Be Patient While We Personalize You A Plan...");
+      setLoadingMessage(
+        "A Perfect Meal Plan Takes Time, Please Be Patient While We Personalize You A Plan..."
+      );
     }, 4000);
 
     // Scroll to the button with smooth animation
     setTimeout(() => {
       if (generateButtonRef.current) {
         generateButtonRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
+          behavior: "smooth",
+          block: "center",
         });
       }
-    }, 200); 
+    }, 200);
 
-    const mealTypes = selectedMealTypes.map((mealType) => mealType.value).join(", ");
-    const cuisinePreferences = selectedCuisinePreferences.map((cuisinePreference) => cuisinePreference.value).join(", ");
-    const dietaryRestrictions = dietaryRestriction.map((restriction) => restriction.value).join(", ");
+    const mealTypes = selectedMealTypes
+      .map((mealType) => mealType.value)
+      .join(", ");
+    const cuisinePreferences = selectedCuisinePreferences
+      .map((cuisinePreference) => cuisinePreference.value)
+      .join(", ");
+    const dietaryRestrictions = dietaryRestriction
+      .map((restriction) => restriction.value)
+      .join(", ");
 
     const requestData = {
       ingredients,
@@ -218,6 +227,7 @@ const multiselectStyles = {
       cooking_skill: cookingSkill,
       cooking_time: cookingTime,
       available_ingredients: availableIngredients,
+      id: user?.id,
     };
 
     try {
@@ -228,7 +238,7 @@ const multiselectStyles = {
         const days = data.response.split("Day").slice(1);
         const firstDayContent = days[1]?.trim() || "";
         loadCurrentDayImage(firstDayContent, 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (error) {
       console.error("Error generating meal plan:", error);
@@ -249,33 +259,38 @@ const multiselectStyles = {
     const currentDayContent = days[currentDay]?.trim() || "";
 
     return (
-        <div>
-          <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-            Generated Meal Plan ({dailyCalories} Calories Per Day)
-          </h3>
-          <div style={{ marginBottom: "20px" }}>
-            <Button
-                onClick={() => handleDayChange(Math.max(currentDay - 1, 1))}
-                disabled={currentDay === 1}
-            >
-              Previous Day
-            </Button>
-            <Button
-                onClick={() => handleDayChange(Math.min(currentDay + 1, days.length - 1))}
-                disabled={currentDay === days.length}
-                style={{ marginLeft: "10px" }}
-            >
-              Next Day
-            </Button>
-          </div>
+      <div>
+        <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+          Generated Meal Plan ({dailyCalories} Calories Per Day)
+        </h3>
+        <div style={{ marginBottom: "20px" }}>
+          <Button
+            onClick={() => handleDayChange(Math.max(currentDay - 1, 1))}
+            disabled={currentDay === 1}
+          >
+            Previous Day
+          </Button>
+          <Button
+            onClick={() =>
+              handleDayChange(Math.min(currentDay + 1, days.length - 1))
+            }
+            disabled={currentDay === days.length}
+            style={{ marginLeft: "10px" }}
+          >
+            Next Day
+          </Button>
+        </div>
 
-          <div style={{
+        <div
+          style={{
             display: "flex",
             gap: "2rem",
-            alignItems: "flex-start"
-          }}>
-            {/* Left Column: Meal Plan */}
-            <div style={{
+            alignItems: "flex-start",
+          }}
+        >
+          {/* Left Column: Meal Plan */}
+          <div
+            style={{
               flex: "1",
               whiteSpace: "pre-wrap",
               lineHeight: "1.5",
@@ -283,115 +298,160 @@ const multiselectStyles = {
               backgroundColor: "#fff",
               padding: "1.5rem",
               borderRadius: "0.5rem",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
-            }}>
-              <h4 style={{
+              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            <h4
+              style={{
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 marginTop: 0,
                 paddingBottom: "0.5rem",
                 borderBottom: "2px dashed #ccc",
-                marginBottom: "1rem"
-              }}>
-                Day {currentDay}
-              </h4>
-              <p
-                  dangerouslySetInnerHTML={{
-                    __html: currentDayContent
-                        .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
-                        .replace(/Recipe Name: (.+)/g, "<strong>Recipe Name:</strong> $1")
-                        .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
-                        .replace(/Instructions:/g, "<strong>Instructions:</strong>")
-                        .replace(/Calories:/g, "<strong>Calories:</strong>")
-                        .replace(/Proteins:/g, "<strong>Proteins:</strong>")
-                        .replace(/Fats:/g, "<strong>Fats:</strong>")
-                        .replace(/Carbohydrates:/g, "<strong>Carbohydrates:</strong>"),
-                  }}
-              />
-            </div>
+                marginBottom: "1rem",
+              }}
+            >
+              Day {currentDay}
+            </h4>
+            <p
+              dangerouslySetInnerHTML={{
+                __html: currentDayContent
+                  .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
+                  .replace(
+                    /Recipe Name: (.+)/g,
+                    "<strong>Recipe Name:</strong> $1"
+                  )
+                  .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
+                  .replace(/Instructions:/g, "<strong>Instructions:</strong>")
+                  .replace(/Calories:/g, "<strong>Calories:</strong>")
+                  .replace(/Proteins:/g, "<strong>Proteins:</strong>")
+                  .replace(/Fats:/g, "<strong>Fats:</strong>")
+                  .replace(
+                    /Carbohydrates:/g,
+                    "<strong>Carbohydrates:</strong>"
+                  ),
+              }}
+            />
+          </div>
 
-            {/* Right Column: Meal Preview */}
-            <div style={{
+          {/* Right Column: Meal Preview */}
+          <div
+            style={{
               width: "48%",
               position: "sticky",
-              top: "2rem"
-            }}>
-              <h4 style={{
+              top: "2rem",
+            }}
+          >
+            <h4
+              style={{
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 marginTop: 0,
-                marginBottom: "1rem"
-              }}>
-                Meal Preview for Day {currentDay}
-              </h4>
-              {mealPlanImages[currentDay] ? (
-                  <>
-                    <img
-                        src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
-                        alt={`Generated meal preview for Day ${currentDay}`}
-                        style={{
-                          width: "100%",
-                          height: "400px", 
-                          objectFit: "cover", 
-                          borderRadius: "0.5rem",
-                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                          opacity: 0.8,
-                          transition: "opacity 0.3s ease-in-out",
-                          cursor: "zoom-in"
-                        }}
-                        onLoad={(e) => {
-                          e.currentTarget.style.opacity = "1";
-                        }}
-                        onClick={() => setIsImageModalOpen(true)}
-                    />
-                    {isImageModalOpen && (
-                        <div
-                            className="modal-overlay"
-                            onClick={() => setIsImageModalOpen(false)}
-                        >
-                          <img
-                              src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
-                              alt={`Generated meal preview for Day ${currentDay}`}
-                              className="modal-image"
-                          />
-                        </div>
-                    )}
-                  </>
-              ) : (
-                  <div style={{
+                marginBottom: "1rem",
+              }}
+            >
+              Meal Preview for Day {currentDay}
+            </h4>
+            {mealPlanImages[currentDay] ? (
+              <>
+                <img
+                  src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
+                  alt={`Generated meal preview for Day ${currentDay}`}
+                  style={{
                     width: "100%",
-                    height: "400px", // Match the image height
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "0.5rem"
-                  }}>
-                    {isImageLoading ? (
-                        <Loading size="medium"/>
-                    ) : (
-                        <p>Image will be generated when you view this day</p>
-                    )}
+                    height: "400px",
+                    objectFit: "cover",
+                    borderRadius: "0.5rem",
+                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                    opacity: 0.8,
+                    transition: "opacity 0.3s ease-in-out",
+                    cursor: "zoom-in",
+                  }}
+                  onLoad={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  onClick={() => setIsImageModalOpen(true)}
+                />
+                {isImageModalOpen && (
+                  <div
+                    className="modal-overlay"
+                    onClick={() => setIsImageModalOpen(false)}
+                  >
+                    <img
+                      src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
+                      alt={`Generated meal preview for Day ${currentDay}`}
+                      className="modal-image"
+                    />
                   </div>
-              )}
-            </div>
+                )}
+              </>
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  height: "400px", // Match the image height
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: "0.5rem",
+                }}
+              >
+                {isImageLoading ? (
+                  <Loading size="medium" />
+                ) : (
+                  <p>Image will be generated when you view this day</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
+      </div>
     );
   };
 
   return (
-      <Container>
-        <h1>Meal Plans</h1>
-        {!mealPlan && (
-            <p className="container-header">
-              Please fill out the form below with your preferences and requirements
-              to generate a personalized meal plan.
-            </p>
-        )}
+    <Container>
+      <h1>Meal Plans</h1>
+      {!mealPlan && !isLoading && (
+        <p className="container-header">
+          Please fill out the form below with your preferences and requirements
+          to generate a personalized meal plan.
+        </p>
+      )}
 
-        {mealPlan ? (renderMealPlan()) : (
-            <Form
+      {mealPlan ? (
+        renderMealPlan()
+      ) : isLoading ? (
+        <>
+          <Loading />
+          {loadingMessage && (
+            <div
+              style={{
+                marginTop: "10px",
+                textAlign: "center",
+              }}
+            >
+              {loadingMessage.split("").map((char, index) => (
+                <span
+                  key={index}
+                  style={{
+                    display: "inline-block",
+                    color: "#666",
+                    fontSize: "1rem",
+                    animation: "waveText 2s ease-in-out infinite",
+                    animationDelay: `${index * 0.05}s`,
+                    marginLeft: char === " " ? "0.4em" : "0.1em",
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <Form
           onSubmit={(e) => {
             e.preventDefault();
             handleGenerateMealPlan();
@@ -414,10 +474,9 @@ const multiselectStyles = {
                 value={caloriesPerDay}
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  if (value > 0){
-                  setCaloriesPerDay(e.target.value)
-                }
-                  else {
+                  if (value > 0) {
+                    setCaloriesPerDay(e.target.value);
+                  } else {
                     setCaloriesPerDay("1");
                   }
                 }}
@@ -447,19 +506,16 @@ const multiselectStyles = {
               <Input
                 type="number"
                 value={mealsPerDay}
-                onChange={
-                  (e) => {
-                    let value = Number(e.target.value);
-                      if (value > 0 && value < 6){
-                        setMealsPerDay(e.target.value)
-                    }
-                    else if (value === 0) {
-                      setMealsPerDay("1");
-                    }
-                    else {
-                      setMealsPerDay("5");
-                    }
-                  }}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (value > 0 && value < 6) {
+                    setMealsPerDay(e.target.value);
+                  } else if (value === 0) {
+                    setMealsPerDay("1");
+                  } else {
+                    setMealsPerDay("5");
+                  }
+                }}
                 placeholder="Enter number of meals per day"
               />
               {!mealsPerDay && (
@@ -541,35 +597,13 @@ const multiselectStyles = {
               />
             </Label>
           </FormRow>
-          <Button 
-              ref={generateButtonRef}
+          <Button
+            ref={generateButtonRef}
             type="submit"
             disabled={isLoading || !caloriesPerDay || !mealsPerDay}
           >
-            {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
+            Generate Meal Plan
           </Button>
-              {loadingMessage && (
-                  <div style={{
-                    marginTop: "10px",
-                    textAlign: "center"
-                  }}>
-                    {loadingMessage.split('').map((char, index) => (
-                        <span
-                            key={index}
-                            style={{
-                              display: "inline-block",
-                              color: "#666",
-                              fontSize: "1rem",
-                              animation: "waveText 2s ease-in-out infinite",
-                              animationDelay: `${index * 0.05}s`,
-                              marginLeft: char === ' ' ? '0.4em' : '0.1em'
-                            }}
-                        >
-        {char}
-      </span>
-                    ))}
-                  </div>
-              )}
         </Form>
       )}
     </Container>

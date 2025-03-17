@@ -21,3 +21,13 @@ class MealPlanRequest(BaseModel):
     cooking_skill: Optional[str] = None
     cooking_time: Optional[str] = None
     available_ingredients: Optional[str] = None
+    budget: Optional[str] = None
+    grocery_stores: Optional[str] = None
+    id: int
+    
+class MealPlanRetrieve(BaseModel):
+    id: int
+    
+class IndividualMealPlanRetrieve(BaseModel):
+    id: int
+    meal_id: int
