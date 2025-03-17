@@ -413,7 +413,7 @@ export default function Mealplans() {
   return (
     <Container>
       <h1>Meal Plans</h1>
-      {!mealPlan && (
+      {!mealPlan && !isLoading && (
         <p className="container-header">
           Please fill out the form below with your preferences and requirements
           to generate a personalized meal plan.
@@ -422,6 +422,34 @@ export default function Mealplans() {
 
       {mealPlan ? (
         renderMealPlan()
+      ) : isLoading ? (
+        <>
+          <Loading />
+          {loadingMessage && (
+            <div
+              style={{
+                marginTop: "10px",
+                textAlign: "center",
+              }}
+            >
+              {loadingMessage.split("").map((char, index) => (
+                <span
+                  key={index}
+                  style={{
+                    display: "inline-block",
+                    color: "#666",
+                    fontSize: "1rem",
+                    animation: "waveText 2s ease-in-out infinite",
+                    animationDelay: `${index * 0.05}s`,
+                    marginLeft: char === " " ? "0.4em" : "0.1em",
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
       ) : (
         <Form
           onSubmit={(e) => {
@@ -574,32 +602,8 @@ export default function Mealplans() {
             type="submit"
             disabled={isLoading || !caloriesPerDay || !mealsPerDay}
           >
-            {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
+            Generate Meal Plan
           </Button>
-          {loadingMessage && (
-            <div
-              style={{
-                marginTop: "10px",
-                textAlign: "center",
-              }}
-            >
-              {loadingMessage.split("").map((char, index) => (
-                <span
-                  key={index}
-                  style={{
-                    display: "inline-block",
-                    color: "#666",
-                    fontSize: "1rem",
-                    animation: "waveText 2s ease-in-out infinite",
-                    animationDelay: `${index * 0.05}s`,
-                    marginLeft: char === " " ? "0.4em" : "0.1em",
-                  }}
-                >
-                  {char}
-                </span>
-              ))}
-            </div>
-          )}
         </Form>
       )}
     </Container>

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData, MealPlanRequest, MealPlanRetrieve
+from models import UserData, LoginData, MealPlanRequest, MealPlanRetrieve, IndividualMealPlanRetrieve
 from LLM import GeminiLLM
 import logging
 from datetime import datetime
@@ -300,6 +300,48 @@ async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
                 "mealPlans": []
             }
         )
+
+@app.post("/get-mealplan")
+async def retrieve_mealplan(request: IndividualMealPlanRetrieve) -> JSONResponse:
+    
+    try:
+        query = """
+            SELECT mealplan FROM mealplans 
+            WHERE id = %s and user_id = %s
+        """
+        values = (request.meal_id, request.id) 
+
+        response = db.execute_query(query, values)
+
+        if len(response) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "status": status.HTTP_404_NOT_FOUND,
+                    "message": "Meal plan not found"
+                }
+            )
+        
+        meal_plan = response[0][0]
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Meal plan retrieved successfully",
+                "mealPlan": meal_plan
+            }
+        )
+    except Exception as e:
+        print(f"Error retrieving meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error retrieving meal plan"
+            }
+        )
+    
 
 @app.post("/generate-meal-image/{day}")
 async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:

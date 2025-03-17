@@ -27,3 +27,7 @@ class MealPlanRequest(BaseModel):
     
 class MealPlanRetrieve(BaseModel):
     id: int
+    
+class IndividualMealPlanRetrieve(BaseModel):
+    id: int
+    meal_id: int

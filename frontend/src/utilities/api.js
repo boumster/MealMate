@@ -143,3 +143,27 @@ export async function fetchMealPlans(userData) {
     throw error; // Re-throw to handle in component
   }
 }
+
+export async function fetchMealPlan(mealPlanId, userId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/get-mealplan`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        meal_id: mealPlanId,
+        id: userId,
+      }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching meal plan:", error);
+    throw error;
+  }
+};
