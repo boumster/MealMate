@@ -272,6 +272,7 @@ export default function Mealplans() {
                 onChange={(e) => setCaloriesPerDay(e.target.value)}
                 placeholder="Enter desired calories"
               />
+              {!caloriesPerDay && <span className="error-message">This field is required</span>}
             </Label>
           </FormRow>
           <FormRow>
@@ -295,6 +296,7 @@ export default function Mealplans() {
                 onChange={(e) => setMealsPerDay(e.target.value)}
                 placeholder="Enter number of meals per day"
               />
+              {!mealsPerDay && <span className="error-message">This field is required</span>}
             </Label>
           </FormRow>
           <FormRow>
@@ -386,7 +388,7 @@ export default function Mealplans() {
               />
             </Label>
           </FormRow>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !caloriesPerDay || !mealsPerDay}>
                  {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
           </Button>
         </Form>
