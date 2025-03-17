@@ -194,18 +194,16 @@ const multiselectStyles = {
   const renderMealPlan = () => {
     if (!mealPlan) return null;
 
-    // Extract calorie count from the first line
     const firstLineMatch = mealPlan.match(/Meal Plan (\d+) Per Day/);
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
-    // Splitting the meal plan text by "Day X:"
     const days = mealPlan.split(/Day \d+:/).slice(1);
     const currentDayContent = days[currentDay - 1]?.trim() || "";
 
     return (
       <div>
         <h3 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-          Generated Meal Plan ({dailyCalories} Calories per day)
+          Generated Meal Plan ({dailyCalories} Calories Per Day)
         </h3>
         <h4
           style={{ fontSize: "1.75rem", fontWeight: "bold", marginTop: "10px" }}
@@ -213,7 +211,6 @@ const multiselectStyles = {
           Day {currentDay}
         </h4>
 
-        {/* Navigation Buttons ABOVE the Meal Preview */}
         <div style={{ marginBottom: "20px" }}>
           <Button
             onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
@@ -232,7 +229,6 @@ const multiselectStyles = {
           </Button>
         </div>
 
-        {/* Meal Plan Content */}
         <div
           style={{
             whiteSpace: "pre-wrap",
@@ -243,7 +239,7 @@ const multiselectStyles = {
           <p
             dangerouslySetInnerHTML={{
               __html: currentDayContent
-                .replace(/Meal \d+:/g, "<strong>$&</strong>")
+                .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
                 .replace(
                   /Recipe Name: (.+)/g,
                   "<strong>Recipe Name:</strong> $1"
@@ -258,7 +254,6 @@ const multiselectStyles = {
           ></p>
         </div>
 
-        {/* Meal Preview BELOW the Buttons */}
         {mealPlanImage && (
           <div style={{ marginTop: "20px" }}>
             <h4 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
@@ -275,35 +270,9 @@ const multiselectStyles = {
     );
   };
 
-  const renderRecipes = () => {
-    if (!mealPlan) return null;
-
-    const recipesIndex = mealPlan.indexOf("Recipes");
-    const recipesContent =
-      recipesIndex !== -1
-        ? mealPlan.slice(recipesIndex).trim()
-        : "No recipes found.";
-
-    return (
-      <div>
-        <h3>Recipes</h3>
-        <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-          <p
-            dangerouslySetInnerHTML={{
-              __html: recipesContent.replace(
-                /\*\*(.*?)\*\*/g,
-                "<strong>$1</strong>"
-              ),
-            }}
-          ></p>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <Container>
-      <h2>Meal Plans</h2>
+      <h1>Meal Plans</h1>
       {!mealPlan && (
         <p className="container-header">
           Please fill out the form below with your preferences and requirements
@@ -311,33 +280,7 @@ const multiselectStyles = {
         </p>
       )}
 
-      {mealPlan ? (
-        <div>
-          <div style={{ marginBottom: "20px" }}>
-            <Button
-              onClick={() => setActiveTab("mealPlan")}
-              style={{
-                marginRight: "10px",
-                backgroundColor: activeTab === "mealPlan" ? "#007bff" : "#ccc",
-                color: activeTab === "mealPlan" ? "#fff" : "#000",
-              }}
-            >
-              Meal Plan
-            </Button>
-            <Button
-              onClick={() => setActiveTab("recipes")}
-              style={{
-                backgroundColor: activeTab === "recipes" ? "#007bff" : "#ccc",
-                color: activeTab === "recipes" ? "#fff" : "#000",
-              }}
-            >
-              Recipes
-            </Button>
-          </div>
-          {activeTab === "mealPlan" && renderMealPlan()}
-          {activeTab === "recipes" && renderRecipes()}
-        </div>
-      ) : (
+      {mealPlan ? (renderMealPlan()) : (
         <Form
           onSubmit={(e) => {
             e.preventDefault();
