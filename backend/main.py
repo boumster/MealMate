@@ -198,30 +198,8 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
         if request.available_ingredients:
             prompt += f" with available ingredients: {request.available_ingredients}"
 
+
         response = ai_model.generate_completion(prompt, role="meal planner")
-
-        # Generate images for each day's meals
-        days = response.split("Day")[1:]  # Split by days
-        images = []
-
-        for day in days:
-            # Extract the recipe name for this day
-            recipe_name_match = day.split("Recipe Name:")[1].split("\n")[0].strip() if "Recipe Name:" in day else None
-
-            if recipe_name_match:
-                # Create a specific prompt for this meal
-                image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe_name_match}. "
-                                f"Show only the specified dish on a white plate, photographed from above or at "
-                                f"a 45-degree angle, with natural lighting and clear details. Present it in a "
-                                f"professional food photography style without any text or labels."
-                                f"Try not to make the food look plain or dry or unappetizing")
-
-                image_data = ai_model.generate_image(image_prompt)
-                image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
-                images.append(image_base64)
-            else:
-                # Fallback if no recipe name found
-                images.append(None)
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -229,7 +207,6 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan generated successfully",
                 "response": response,
-                "images": images
             }
         )
     except Exception as e:
@@ -239,6 +216,37 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "message": "Error generating meal plan"
+            }
+        )
+
+@app.post("/generate-meal-image/{day}")
+async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
+    try:
+        recipe = recipe_data.get('recipe', '')
+        image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe}. "
+                        f"Show only the specified dish on a white plate, photographed from above or at "
+                        f"a 45-degree angle if the food is inside a glass"
+                        f", with natural lighting and clear details. Present it in a "
+                        f"professional food photography style without any text or labels."
+                        f"Try not to make the food look plain or dry or unappetizing")
+
+        image_data = ai_model.generate_image(image_prompt)
+        image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "image": image_base64
+            }
+        )
+    except Exception as e:
+        print(f"Error generating meal image: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error generating meal image"
             }
         )
 

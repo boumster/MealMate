@@ -75,6 +75,28 @@ export async function generateMealPlan(mealPlan) {
     };
   }
 }
+
+export async function generateMealImage(day, recipe) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-meal-image/${day}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ recipe }), 
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error generating meal image:", error);
+    return null;
+  }
+}
   
 
 
