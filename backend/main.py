@@ -188,13 +188,13 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
         if request.cuisine:
             prompt += f" with {request.cuisine} cuisines"
         if request.dietary_restriction:
-            prompt += f" with dietary restriction: {request.dietary_restriction}"
+            prompt += f" with dietary restrictions: {request.dietary_restriction}"
         if request.disliked_ingredients:
             prompt += f" excluding ingredients: {request.disliked_ingredients}"
         if request.cooking_skill:
             prompt += f" for {request.cooking_skill} cooks"
         if request.cooking_time:
-            prompt += f" with {request.cooking_time} cooking times"
+            prompt += f" with a {request.cooking_time} cooking time"
         if request.available_ingredients:
             prompt += f" with available ingredients: {request.available_ingredients}"
         if request.budget:

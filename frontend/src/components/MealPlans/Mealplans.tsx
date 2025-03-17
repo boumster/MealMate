@@ -24,16 +24,16 @@ export default function Mealplans() {
   const [budget, setBudget] = useState("");
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
-  const [dietaryRestriction, setDietaryRestriction] = useState("");
+  const [dietaryRestriction, setDietaryRestriction] = useState<
+    { name: string; value: string }[]
+  >([]);
   const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState<
     { name: string; value: string }[]
   >([]);
   const [selectedMealTypes, setSelectedMealTypes] = useState<
     { name: string; value: string }[]
   >([]);
-  const [selectedCookingTimes, setSelectedCookingTimes] = useState<
-    { name: string; value: string }[]
-  >([]);
+  const [cookingTime, setCookingTime] = useState("");
 
   const cuisineOptions = [
     {
@@ -50,13 +50,6 @@ export default function Mealplans() {
     { name: "Japanese", value: "japanese" },
   ];
 
-  const cookingTimeOptions = [
-    { name: "All", value: "quick, moderate, and elaborate" },
-    { name: "Quick Meals (≤ 15 min)", value: "quick" },
-    { name: "Moderate (30-60 min)", value: "moderate" },
-    { name: "Elaborate (60+ min)", value: "elaborate" },
-  ];
-
   const mealTypeOptions = [
     { name: "All", value: "breakfast, lunch, dinner, and snacks" },
     { name: "Breakfast", value: "breakfast" },
@@ -64,6 +57,16 @@ export default function Mealplans() {
     { name: "Dinner", value: "dinner" },
     { name: "Snacks", value: "snacks" },
   ];
+
+  const dietaryRestrictionOptions = [
+    { name: "Vegetarian", value: "vegetarian" },
+    { name: "Vegan", value: "vegan" },
+    { name: "Gluten-Free", value: "gluten-free" },
+    { name: "Halal", value: "halal" },
+    { name: "Kosher", value: "kosher" },
+    { name: "No Restrictions", value: "no restrictions" },
+  ];
+
   const [activeTab, setActiveTab] = useState("mealPlan");
   const [mealPlanImage, setMealPlanImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -110,25 +113,6 @@ const multiselectStyles = {
     setSelectedCuisinePreferences(selectedList);
   };
 
-  // Filter all for cooking time selection
-  const handleCookingTimeSelect = (
-    selectedList: { name: string; value: string }[],
-    selectedItem: { name: string; value: string }
-  ) => {
-    if (selectedItem.name === "All") {
-      setSelectedCookingTimes([selectedItem]);
-    } else {
-      const filteredList = selectedList.filter((item) => item.name !== "All");
-      setSelectedCookingTimes(filteredList);
-    }
-  };
-
-  const handleCookingTimeRemove = (
-    selectedList: { name: string; value: string }[]
-  ) => {
-    setSelectedCookingTimes(selectedList);
-  };
-
   // Filter all for meal types selection
   const handleMealTypesSelect = (
     selectedList: { name: string; value: string }[],
@@ -148,6 +132,27 @@ const multiselectStyles = {
     setSelectedMealTypes(selectedList);
   };
 
+
+  const handleDietaryRestrictionSelect = (
+    selectedList: { name: string; value: string }[],
+    selectedItem: { name: string; value: string }
+  ) => {
+    if (selectedItem.name === "No Restrictions") {
+      setDietaryRestriction([selectedItem]);
+    } else {
+      const filteredList = selectedList.filter((item) => item.name !== "No Restrictions");
+      setDietaryRestriction(filteredList);
+    }
+  };
+
+  const handleDietaryRestrictionRemove = (
+    selectedList: { name: string; value: string }[]
+  ) => {
+    setDietaryRestriction(selectedList);
+  };
+
+
+
   const handleGenerateMealPlan = async () => {
     setIsLoading(true);
 
@@ -157,8 +162,8 @@ const multiselectStyles = {
     const cuisinePreferences = selectedCuisinePreferences
       .map((cuisinePreference) => cuisinePreference.value)
       .join(", ");
-    const cookingTimes = selectedCookingTimes
-      .map((cookingTime) => cookingTime.value)
+    const dietaryRestrictions = dietaryRestriction
+      .map((restriction) => restriction.value)
       .join(", ");
 
     const requestData = {
@@ -167,10 +172,10 @@ const multiselectStyles = {
       meal_type: mealTypes,
       meals_per_day: mealsPerDay,
       cuisine: cuisinePreferences,
-      dietary_restriction: dietaryRestriction,
+      dietary_restriction: dietaryRestrictions,
       disliked_ingredients: dislikedIngredients,
       cooking_skill: cookingSkill,
-      cooking_time: cookingTimes,
+      cooking_time: cookingTime,
       available_ingredients: availableIngredients,
       budget,
       grocery_stores: groceryStores,
@@ -353,18 +358,16 @@ const multiselectStyles = {
             </Label>
             <Label>
               Dietary Restrictions:
-              <DropDown
-                value={dietaryRestriction}
-                onChange={(e) => setDietaryRestriction(e.target.value)}
-              >
-                <option value="">Select a dietary restriction</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="vegan">Vegan</option>
-                <option value="gluten-free">Gluten-Free</option>
-                <option value="halal">Halal</option>
-                <option value="kosher">Kosher</option>
-                <option value="no restrictions">No Restrictions</option>
-              </DropDown>
+              <Multiselect
+                options={dietaryRestrictionOptions}
+                selectedValues={dietaryRestriction}
+                onSelect={handleDietaryRestrictionSelect}
+                onRemove={handleDietaryRestrictionRemove}
+                displayValue="name"
+                placeholder="Select Dietary Restriction"
+                showArrow={true}
+                style={multiselectStyles}
+              />
             </Label>
           </FormRow>
           <FormRow>
@@ -383,7 +386,7 @@ const multiselectStyles = {
                 value={cookingSkill}
                 onChange={(e) => setCookingSkill(e.target.value)}
               >
-                <option value="">Select a cooking level</option>
+                <option value="">Select cooking skill</option>
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
                 <option value="expert">Expert</option>
@@ -393,16 +396,15 @@ const multiselectStyles = {
           <FormRow>
             <Label>
               Time Available for Cooking:
-              <Multiselect
-                options={cookingTimeOptions}
-                selectedValues={selectedCookingTimes}
-                onSelect={handleCookingTimeSelect}
-                onRemove={handleCookingTimeRemove}
-                displayValue="name"
-                placeholder="Select Cooking Times"
-                showArrow={true}
-                style={multiselectStyles}
-              />
+              <DropDown
+                value={cookingTime}
+                onChange={(e) => setCookingTime(e.target.value)}
+              >
+                <option value="">Select meal times</option>
+                <option value="quick">Quick Meals (≤ 15 min)</option>
+                <option value="moderate">Moderate (30-60 min)</option>
+                <option value="elaborate">Elaborate (60+ min)</option>
+              </DropDown>
             </Label>
             <Label>
               Available Ingredients in the Kitchen:
