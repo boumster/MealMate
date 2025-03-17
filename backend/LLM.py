@@ -36,7 +36,7 @@ class GeminiLLM:
 
         Format your response exactly like this:
 
-        Meal Plan [Number of Calories per day]
+        Meal Plan [Number of Calories per day] Per Day
     
         Day [Number]:
         Meal [Number]:

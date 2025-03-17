@@ -144,32 +144,25 @@ export default function Mealplans() {
   const renderMealPlan = () => {
     if (!mealPlan) return null;
 
-    const recipesIndex = mealPlan.indexOf("Recipes");
-    const daysContent = recipesIndex !== -1 ? mealPlan.slice(0, recipesIndex).trim() : mealPlan;
-    const days = daysContent.split(/\*\*Day \d+:\*\*/).slice(1);
+    // Extract calorie count from the first line
+    const firstLineMatch = mealPlan.match(/Meal Plan (\d+) Per Day/);
+    const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
+
+    // Splitting the meal plan text by "Day X:"
+    const days = mealPlan.split(/Day \d+:/).slice(1); 
     const currentDayContent = days[currentDay - 1]?.trim() || "";
 
     return (
         <div>
-          <h3>Generated Meal Plan</h3>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-            <p
-                dangerouslySetInnerHTML={{
-                  __html: currentDayContent.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
-                }}
-            ></p>
-          </div>
-          {mealPlanImage && (
-              <div style={{ marginTop: "20px" }}>
-                <h4>Meal Preview</h4>
-                <img
-                    src={`data:image/jpeg;base64,${mealPlanImage}`}
-                    alt="Generated meal preview"
-                    style={{ maxWidth: "100%", height: "auto" }}
-                />
-              </div>
-          )}
-          <div style={{ marginTop: "20px" }}>
+          <h3 style={{ fontSize: "2rem", fontWeight: "bold" }}>
+            Generated Meal Plan ({dailyCalories} Calories per day)
+          </h3>
+          <h4 style={{ fontSize: "1.75rem", fontWeight: "bold", marginTop: "10px" }}>
+            Day {currentDay}
+          </h4>
+          
+          {/* Navigation Buttons ABOVE the Meal Preview */}
+          <div style={{ marginBottom: "20px" }}>
             <Button
                 onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
                 disabled={currentDay === 1}
@@ -184,9 +177,43 @@ export default function Mealplans() {
               Next Day
             </Button>
           </div>
+
+          {/* Meal Plan Content */}
+          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5", fontSize: "1.2rem" }}>
+            <p
+                dangerouslySetInnerHTML={{
+                  __html: currentDayContent
+                    .replace(/Meal \d+:/g, "<strong>$&</strong>")
+                    .replace(/Recipe Name: (.+)/g, "<strong>Recipe Name:</strong> $1")
+                    .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
+                    .replace(/Instructions:/g, "<strong>Instructions:</strong>")
+                    .replace(/Calories:/g, "<strong>Calories:</strong>")
+                    .replace(/Proteins:/g, "<strong>Proteins:</strong>")
+                    .replace(/Fats:/g, "<strong>Fats:</strong>")
+                    .replace(/Carbohydrates:/g, "<strong>Carbohydrates:</strong>")
+                }}
+            ></p>
+          </div>
+
+          {/* Meal Preview BELOW the Buttons */}
+          {mealPlanImage && (
+              <div style={{ marginTop: "20px" }}>
+                <h4 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Meal Preview</h4>
+                <img
+                    src={`data:image/jpeg;base64,${mealPlanImage}`}
+                    alt="Generated meal preview"
+                    style={{ maxWidth: "100%", height: "auto" }}
+                />
+              </div>
+          )}
         </div>
     );
-  };
+};
+
+
+
+
+
 
   const renderRecipes = () => {
     if (!mealPlan) return null;
