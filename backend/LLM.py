@@ -26,7 +26,42 @@ class GeminiLLM:
     def generate_completion(self, prompt: str, role: str = "recipe assistant") -> str:
         if not self._client:
             raise RuntimeError("Google AI client not initialized")
-        formatted_prompt = f"[{role}]: {prompt}"
+        formatted_prompt = f"""
+        "text": \"\"\"
+        You are a [{role}]. You will create a week long meal plan based on the given prompt. DO NOT ADD ANY EXTRA INFORMATION. 
+        
+        Follow the instructions carefully.
+
+        [{prompt}]
+
+        Format your response exactly like this:
+
+        Meal Plan [Number of Calories per day]
+    
+        Day [Number]:
+        Meal [Number]:
+        Recipe Name: [Recipe Name]
+        Ingredients: 
+        - [Ingredient 1]
+        - [Ingredient 2]
+        - [Ingredient 3]
+        - [Remaining Ingredients]
+        
+        Instructions:
+        1. Step 1
+        2. Step 2
+        3. Step 3
+        [Remaining Steps]
+        
+        Calories: [Total Calories]
+        Proteins: [Total Proteins]g
+        Fats: [Total Fats]g
+        Carbohydrates: [Total Carbohydrates]g
+
+        ---------------------------------------------
+
+        \"\"\"
+        """
         
         response = self._client.models.generate_content(
             model="gemini-2.0-flash", contents=formatted_prompt
