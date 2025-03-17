@@ -6,7 +6,7 @@ import {
   Form,
   Label,
   FormRow,
-  DropDown
+  DropDown,
 } from "../../styles/styles";
 import { generateMealPlan } from "../../utilities/api";
 import Loading from "../Loading/Loading";
@@ -25,26 +25,36 @@ export default function Mealplans() {
   const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
   const [dietaryRestriction, setDietaryRestriction] = useState("");
-  const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState<{ name: string; value: string }[]>([]);
-  const [selectedMealTypes, setSelectedMealTypes] = useState<{ name: string; value: string }[]>([]);
-  const [selectedCookingTimes, setSelectedCookingTimes] = useState<{ name: string; value: string }[]>([]);
+  const [selectedCuisinePreferences, setSelectedCuisinePreferences] = useState<
+    { name: string; value: string }[]
+  >([]);
+  const [selectedMealTypes, setSelectedMealTypes] = useState<
+    { name: string; value: string }[]
+  >([]);
+  const [selectedCookingTimes, setSelectedCookingTimes] = useState<
+    { name: string; value: string }[]
+  >([]);
 
   const cuisineOptions = [
-    { name: "All", value: "italian, indian, mexican, mediterranean, middle eastern, caribbean, and japanese" },
+    {
+      name: "All",
+      value:
+        "italian, indian, mexican, mediterranean, middle eastern, caribbean, and japanese",
+    },
     { name: "Italian", value: "italian" },
     { name: "Indian", value: "indian" },
     { name: "Mexican", value: "mexican" },
     { name: "Mediterranean", value: "mediterranean" },
     { name: "Middle Eastern", value: "middle eastern" },
     { name: "Caribbean", value: "caribbean" },
-    { name: "Japanese", value: "japanese" }
+    { name: "Japanese", value: "japanese" },
   ];
 
   const cookingTimeOptions = [
     { name: "All", value: "quick, moderate, and elaborate" },
     { name: "Quick Meals (≤ 15 min)", value: "quick" },
     { name: "Moderate (30-60 min)", value: "moderate" },
-    { name: "Elaborate (60+ min)", value: "elaborate" }
+    { name: "Elaborate (60+ min)", value: "elaborate" },
   ];
 
   const mealTypeOptions = [
@@ -58,58 +68,98 @@ export default function Mealplans() {
   const [mealPlanImage, setMealPlanImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Update multiselectStyles object
+const multiselectStyles = {
+  chips: {
+    background: "#007bff",
+  },
+  multiselectContainer: {
+    width: "22.125rem",
+    margin: "0.5rem 0"
+  },
+  searchBox: {
+    width: "22.125rem",
+    padding: "0.5rem",
+    border: "0.1rem solid #ccc",
+    borderRadius: "0.4rem"
+  },
+  optionContainer: {
+    width: "22.125rem"
+  },
+  inputField: {
+    margin: 0
+  }
+};
 
   // Filter all for cuisine selection
-  const handleCuisineSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+  const handleCuisineSelect = (
+    selectedList: { name: string; value: string }[],
+    selectedItem: { name: string; value: string }
+  ) => {
     if (selectedItem.name === "All") {
-        setSelectedCuisinePreferences([selectedItem]);
+      setSelectedCuisinePreferences([selectedItem]);
     } else {
-        const filteredList = selectedList.filter(item => item.name !== "All");
-        setSelectedCuisinePreferences(filteredList);
+      const filteredList = selectedList.filter((item) => item.name !== "All");
+      setSelectedCuisinePreferences(filteredList);
     }
   };
 
-  const handleCuisineRemove = (selectedList: { name: string; value: string }[]) => {
+  const handleCuisineRemove = (
+    selectedList: { name: string; value: string }[]
+  ) => {
     setSelectedCuisinePreferences(selectedList);
   };
 
-
   // Filter all for cooking time selection
-  const handleCookingTimeSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+  const handleCookingTimeSelect = (
+    selectedList: { name: string; value: string }[],
+    selectedItem: { name: string; value: string }
+  ) => {
     if (selectedItem.name === "All") {
       setSelectedCookingTimes([selectedItem]);
     } else {
-        const filteredList = selectedList.filter(item => item.name !== "All");
-        setSelectedCookingTimes(filteredList);
+      const filteredList = selectedList.filter((item) => item.name !== "All");
+      setSelectedCookingTimes(filteredList);
     }
   };
 
-  const handleCookingTimeRemove = (selectedList: { name: string; value: string }[]) => {
-      setSelectedCookingTimes(selectedList);
+  const handleCookingTimeRemove = (
+    selectedList: { name: string; value: string }[]
+  ) => {
+    setSelectedCookingTimes(selectedList);
   };
-  
 
   // Filter all for meal types selection
-  const handleMealTypesSelect = (selectedList: { name: string; value: string }[], selectedItem: { name: string; value: string }) => {
+  const handleMealTypesSelect = (
+    selectedList: { name: string; value: string }[],
+    selectedItem: { name: string; value: string }
+  ) => {
     if (selectedItem.name === "All") {
       setSelectedMealTypes([selectedItem]);
     } else {
-        const filteredList = selectedList.filter(item => item.name !== "All");
-        setSelectedMealTypes(filteredList);
+      const filteredList = selectedList.filter((item) => item.name !== "All");
+      setSelectedMealTypes(filteredList);
     }
   };
 
-  const handleMealTypesRemove = (selectedList: { name: string; value: string }[]) => {
+  const handleMealTypesRemove = (
+    selectedList: { name: string; value: string }[]
+  ) => {
     setSelectedMealTypes(selectedList);
   };
-
 
   const handleGenerateMealPlan = async () => {
     setIsLoading(true);
 
-    const mealTypes = selectedMealTypes.map(mealType => mealType.value).join(', ');
-    const cuisinePreferences = selectedCuisinePreferences.map(cuisinePreference => cuisinePreference.value).join(', ');
-    const cookingTimes = selectedCookingTimes.map(cookingTime => cookingTime.value).join(', ');
+    const mealTypes = selectedMealTypes
+      .map((mealType) => mealType.value)
+      .join(", ");
+    const cuisinePreferences = selectedCuisinePreferences
+      .map((cuisinePreference) => cuisinePreference.value)
+      .join(", ");
+    const cookingTimes = selectedCookingTimes
+      .map((cookingTime) => cookingTime.value)
+      .join(", ");
 
     const requestData = {
       ingredients,
@@ -149,94 +199,107 @@ export default function Mealplans() {
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
     // Splitting the meal plan text by "Day X:"
-    const days = mealPlan.split(/Day \d+:/).slice(1); 
+    const days = mealPlan.split(/Day \d+:/).slice(1);
     const currentDayContent = days[currentDay - 1]?.trim() || "";
 
     return (
-        <div>
-          <h3 style={{ fontSize: "2rem", fontWeight: "bold" }}>
-            Generated Meal Plan ({dailyCalories} Calories per day)
-          </h3>
-          <h4 style={{ fontSize: "1.75rem", fontWeight: "bold", marginTop: "10px" }}>
-            Day {currentDay}
-          </h4>
-          
-          {/* Navigation Buttons ABOVE the Meal Preview */}
-          <div style={{ marginBottom: "20px" }}>
-            <Button
-                onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
-                disabled={currentDay === 1}
-            >
-              Previous Day
-            </Button>
-            <Button
-                onClick={() => setCurrentDay((prev) => Math.min(prev + 1, days.length))}
-                disabled={currentDay === days.length}
-                style={{ marginLeft: "10px" }}
-            >
-              Next Day
-            </Button>
-          </div>
+      <div>
+        <h3 style={{ fontSize: "2rem", fontWeight: "bold" }}>
+          Generated Meal Plan ({dailyCalories} Calories per day)
+        </h3>
+        <h4
+          style={{ fontSize: "1.75rem", fontWeight: "bold", marginTop: "10px" }}
+        >
+          Day {currentDay}
+        </h4>
 
-          {/* Meal Plan Content */}
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5", fontSize: "1.2rem" }}>
-            <p
-                dangerouslySetInnerHTML={{
-                  __html: currentDayContent
-                    .replace(/Meal \d+:/g, "<strong>$&</strong>")
-                    .replace(/Recipe Name: (.+)/g, "<strong>Recipe Name:</strong> $1")
-                    .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
-                    .replace(/Instructions:/g, "<strong>Instructions:</strong>")
-                    .replace(/Calories:/g, "<strong>Calories:</strong>")
-                    .replace(/Proteins:/g, "<strong>Proteins:</strong>")
-                    .replace(/Fats:/g, "<strong>Fats:</strong>")
-                    .replace(/Carbohydrates:/g, "<strong>Carbohydrates:</strong>")
-                }}
-            ></p>
-          </div>
-
-          {/* Meal Preview BELOW the Buttons */}
-          {mealPlanImage && (
-              <div style={{ marginTop: "20px" }}>
-                <h4 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Meal Preview</h4>
-                <img
-                    src={`data:image/jpeg;base64,${mealPlanImage}`}
-                    alt="Generated meal preview"
-                    style={{ maxWidth: "100%", height: "auto" }}
-                />
-              </div>
-          )}
+        {/* Navigation Buttons ABOVE the Meal Preview */}
+        <div style={{ marginBottom: "20px" }}>
+          <Button
+            onClick={() => setCurrentDay((prev) => Math.max(prev - 1, 1))}
+            disabled={currentDay === 1}
+          >
+            Previous Day
+          </Button>
+          <Button
+            onClick={() =>
+              setCurrentDay((prev) => Math.min(prev + 1, days.length))
+            }
+            disabled={currentDay === days.length}
+            style={{ marginLeft: "10px" }}
+          >
+            Next Day
+          </Button>
         </div>
+
+        {/* Meal Plan Content */}
+        <div
+          style={{
+            whiteSpace: "pre-wrap",
+            lineHeight: "1.5",
+            fontSize: "1.2rem",
+          }}
+        >
+          <p
+            dangerouslySetInnerHTML={{
+              __html: currentDayContent
+                .replace(/Meal \d+:/g, "<strong>$&</strong>")
+                .replace(
+                  /Recipe Name: (.+)/g,
+                  "<strong>Recipe Name:</strong> $1"
+                )
+                .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
+                .replace(/Instructions:/g, "<strong>Instructions:</strong>")
+                .replace(/Calories:/g, "<strong>Calories:</strong>")
+                .replace(/Proteins:/g, "<strong>Proteins:</strong>")
+                .replace(/Fats:/g, "<strong>Fats:</strong>")
+                .replace(/Carbohydrates:/g, "<strong>Carbohydrates:</strong>"),
+            }}
+          ></p>
+        </div>
+
+        {/* Meal Preview BELOW the Buttons */}
+        {mealPlanImage && (
+          <div style={{ marginTop: "20px" }}>
+            <h4 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+              Meal Preview
+            </h4>
+            <img
+              src={`data:image/jpeg;base64,${mealPlanImage}`}
+              alt="Generated meal preview"
+              style={{ maxWidth: "100%", height: "auto" }}
+            />
+          </div>
+        )}
+      </div>
     );
-};
-
-
-
-
-
+  };
 
   const renderRecipes = () => {
     if (!mealPlan) return null;
 
     const recipesIndex = mealPlan.indexOf("Recipes");
-    const recipesContent = recipesIndex !== -1
+    const recipesContent =
+      recipesIndex !== -1
         ? mealPlan.slice(recipesIndex).trim()
         : "No recipes found.";
 
     return (
-        <div>
-          <h3>Recipes</h3>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-            <p
-                dangerouslySetInnerHTML={{
-                  __html: recipesContent.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"),
-                }}
-            ></p>
-          </div>
+      <div>
+        <h3>Recipes</h3>
+        <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
+          <p
+            dangerouslySetInnerHTML={{
+              __html: recipesContent.replace(
+                /\*\*(.*?)\*\*/g,
+                "<strong>$1</strong>"
+              ),
+            }}
+          ></p>
         </div>
+      </div>
     );
   };
-
 
   return (
     <Container>
@@ -299,20 +362,23 @@ export default function Mealplans() {
                 onChange={(e) => setCaloriesPerDay(e.target.value)}
                 placeholder="Enter desired calories"
               />
-              {!caloriesPerDay && <span className="error-message">This field is required</span>}
+              {!caloriesPerDay && (
+                <span className="error-message">This field is required</span>
+              )}
             </Label>
           </FormRow>
           <FormRow>
             <Label>
               Preferred Meal Types:
               <Multiselect
-                options={mealTypeOptions} 
-                selectedValues={selectedMealTypes} 
-                onSelect={handleMealTypesSelect} 
-                onRemove={handleMealTypesRemove} 
+                options={mealTypeOptions}
+                selectedValues={selectedMealTypes}
+                onSelect={handleMealTypesSelect}
+                onRemove={handleMealTypesRemove}
                 displayValue="name"
                 placeholder="Select Meal Preferences"
                 showArrow={true}
+                style={multiselectStyles}
               />
             </Label>
             <Label>
@@ -323,25 +389,31 @@ export default function Mealplans() {
                 onChange={(e) => setMealsPerDay(e.target.value)}
                 placeholder="Enter number of meals per day"
               />
-              {!mealsPerDay && <span className="error-message">This field is required</span>}
+              {!mealsPerDay && (
+                <span className="error-message">This field is required</span>
+              )}
             </Label>
           </FormRow>
           <FormRow>
             <Label>
               Cuisine Preferences:
               <Multiselect
-                options={cuisineOptions} 
-                selectedValues={selectedCuisinePreferences} 
-                onSelect={handleCuisineSelect} 
-                onRemove={handleCuisineRemove} 
+                options={cuisineOptions}
+                selectedValues={selectedCuisinePreferences}
+                onSelect={handleCuisineSelect}
+                onRemove={handleCuisineRemove}
                 displayValue="name"
                 placeholder="Select Cuisine Preferences"
                 showArrow={true}
+                style={multiselectStyles}
               />
             </Label>
             <Label>
               Dietary Restrictions:
-              <DropDown value={dietaryRestriction} onChange={(e) => setDietaryRestriction(e.target.value)}>
+              <DropDown
+                value={dietaryRestriction}
+                onChange={(e) => setDietaryRestriction(e.target.value)}
+              >
                 <option value="">Select a dietary restriction</option>
                 <option value="vegetarian">Vegetarian</option>
                 <option value="vegan">Vegan</option>
@@ -364,7 +436,10 @@ export default function Mealplans() {
             </Label>
             <Label>
               Cooking Skill Level:
-              <DropDown value={cookingSkill} onChange={(e) => setCookingSkill(e.target.value)}>
+              <DropDown
+                value={cookingSkill}
+                onChange={(e) => setCookingSkill(e.target.value)}
+              >
                 <option value="">Select a cooking level</option>
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
@@ -376,13 +451,14 @@ export default function Mealplans() {
             <Label>
               Time Available for Cooking:
               <Multiselect
-                options={cookingTimeOptions} 
-                selectedValues={selectedCookingTimes} 
-                onSelect={handleCookingTimeSelect} 
-                onRemove={handleCookingTimeRemove} 
+                options={cookingTimeOptions}
+                selectedValues={selectedCookingTimes}
+                onSelect={handleCookingTimeSelect}
+                onRemove={handleCookingTimeRemove}
                 displayValue="name"
                 placeholder="Select Cooking Times"
                 showArrow={true}
+                style={multiselectStyles}
               />
             </Label>
             <Label>
@@ -415,8 +491,11 @@ export default function Mealplans() {
               />
             </Label>
           </FormRow>
-          <Button type="submit" disabled={isLoading || !caloriesPerDay || !mealsPerDay}>
-                 {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
+          <Button
+            type="submit"
+            disabled={isLoading || !caloriesPerDay || !mealsPerDay}
+          >
+            {isLoading ? <Loading size="small" /> : "Generate Meal Plan"}
           </Button>
         </Form>
       )}
