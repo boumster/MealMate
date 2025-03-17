@@ -201,20 +201,40 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             prompt += f" with a budget of {request.budget}"
         if request.grocery_stores:
             prompt += f" with grocery stores: {request.grocery_stores}"
-        
+
         response = ai_model.generate_completion(prompt, role="meal planner")
 
-        image_prompt = f"Generate a photorealistic image of a complete meal plated beautifully with {response}"
-        image_data = ai_model.generate_image(image_prompt)
+        # Generate images for each day's meals
+        days = response.split("Day")[1:]  # Split by days
+        images = []
 
-        image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+        for day in days:
+            # Extract meals by looking for "Meal X:" pattern
+            meals = [m for m in day.split('\n') if m.strip().startswith('Meal')]
+            num_meals = len(meals)
+
+            # Create a more specific prompt based on the actual number of meals
+            if num_meals == 1:
+                image_prompt = ("Generate a photorealistic image of a single plated meal on a clean white plate, "
+                                "centered on a neutral background. Show only one beautifully presented dish without "
+                                "any text or labels.")
+            else:
+                image_prompt = (f"Generate a photorealistic image showing {num_meals} different plates of food "
+                                f"arranged side by side on a clean surface against a neutral background. Each plate "
+                                f"should contain a different meal, beautifully plated. Show only the plated food "
+                                f"without any text or labels.")
+
+            image_data = ai_model.generate_image(image_prompt)
+            image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+            images.append(image_base64)
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan generated successfully",
                 "response": response,
-                "image": image_base64
+                "images": images  # Array of images for each day
             }
         )
     except Exception as e:

@@ -1,5 +1,7 @@
 .container-header {
-    margin-bottom: 5%;
+  margin-bottom: 2%;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .multiselect-container {
@@ -46,7 +48,6 @@
   .error-message {
     color: red;
     font-size: 12px;
-    margin-top: 4px;
     display: block;
   }
   
