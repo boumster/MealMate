@@ -19,10 +19,6 @@ const Table = styled.table`
   border-collapse: collapse;
   margin-top: 1rem;
   border: 1px solid #ddd;
-
-  @media (max-width: 768px) {
-    display: none; /* Hide table on small screens */
-  }
 `;
 
 const TableRow = styled.tr`

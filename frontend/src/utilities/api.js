@@ -49,7 +49,7 @@ export async function loginUser(userData) {
   } catch (error) {
     console.error("Error logging in user:", error);
   }
-};
+}
 
 export async function generateMealPlan(mealPlan) {
   try {
@@ -71,7 +71,7 @@ export async function generateMealPlan(mealPlan) {
       status: 500,
       message: "Error generating meal plan",
       response: null,
-      image: null
+      image: null,
     };
   }
 }
@@ -83,7 +83,7 @@ export async function generateMealImage(day, recipe) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ recipe }), 
+      body: JSON.stringify({ recipe }),
     });
 
     if (!response.ok) {
@@ -97,13 +97,11 @@ export async function generateMealImage(day, recipe) {
     return null;
   }
 }
-  
-
 
 export async function calculateCalories(file) {
   try {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     const response = await fetch(`${API_BASE_URL}/calculate-calories`, {
       method: "POST",
@@ -121,15 +119,27 @@ export async function calculateCalories(file) {
   }
 }
 
-export async function fetchMealPlans() {
+export async function fetchMealPlans(userData) {
   try {
-    const response = await fetch(`${API_BASE_URL}/meal-plans`);
+    const response = await fetch(`${API_BASE_URL}/get-mealplans`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: userData.id  // Ensure id is properly passed
+      }),
+    });
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
+
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error fetching meal plans:", error);
+    throw error; // Re-throw to handle in component
   }
 }

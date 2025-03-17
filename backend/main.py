@@ -1,13 +1,13 @@
 import base64
-
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData, MealPlanRequest
+from models import UserData, LoginData, MealPlanRequest, MealPlanRetrieve
 from LLM import GeminiLLM
 import logging
+from datetime import datetime
 
 app = FastAPI()
 db = DatabaseConnection()
@@ -200,22 +200,104 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
 
 
         response = ai_model.generate_completion(prompt, role="meal planner")
+        
+        timestamp = datetime.now().strftime("%B %d, %Y")
+        title_parts = []
+        
+        if request.cuisine:
+            title_parts.append(request.cuisine.split(',')[0].strip())
+        if request.calories:
+            title_parts.append(f"{request.calories}cal")
+        if request.meal_type:
+            title_parts.append(request.meal_type.split(',')[0].strip())
+        if request.dietary_restriction:
+            title_parts.append(request.dietary_restriction.split(',')[0].strip())
+            
+        title = f"Meal Plan - {' '.join(title_parts)} - {timestamp}"
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status": status.HTTP_200_OK,
-                "message": "Meal plan generated successfully",
-                "response": response,
-            }
-        )
+        # store the user's meal plan into sql table
+        query = """
+            INSERT INTO mealplans (user_id, mealplan, title) 
+            VALUES (%s, %s, %s)
+        """
+        values = (request.id, response, title)
+
+        # Execute the query
+        try:
+            db.execute_query(query, values)
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "Meal plan generated and succesfully saved into database",
+                    "response": response
+                }
+            )
+        except Exception as db_error:
+            print(f"Mealplan Database error: {str(db_error)}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": "Meal plan generated successfully, but an error occurred while saving it to the database."
+                }
+            )
     except Exception as e:
         print(f"Error generating meal plan: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating meal plan"
+                "message": "An error occurred while generating the meal plan."
+            }
+        )
+    
+# create another function that does retrieval of meal plan based on user ID
+@app.post("/get-mealplans")
+async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
+    try:
+        query = """
+            SELECT id, title FROM mealplans 
+            WHERE user_id = %s
+        """
+        values = (request.id,) 
+
+        response = db.execute_query(query, values)
+
+        if len(response) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "User does not have any saved meal plans",
+                    "mealPlans": []
+                }
+            )
+        
+        # Format the response as an array of objects
+        meal_plans = [
+            {
+                "id": row[0],
+                "title": row[1]
+            } for row in response
+        ]
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Meal plans retrieved successfully",
+                "mealPlans": meal_plans
+            }
+        )
+    except Exception as e:
+        print(f"Error retrieving meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error retrieving meal plan",
+                "mealPlans": []
             }
         )
 

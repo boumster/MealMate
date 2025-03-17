@@ -16,6 +16,21 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create mealplan table with foreign key constraint
+CREATE TABLE mealplans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    mealplan LONGTEXT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- Drop MySQL user if exists
+DROP USER IF EXISTS 'fitness_user'@'localhost';
+
 -- Create MySQL user for application
 CREATE USER 'fitness_user'@'localhost' IDENTIFIED BY 'fitness123';
 
