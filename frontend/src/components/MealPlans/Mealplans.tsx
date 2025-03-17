@@ -15,7 +15,7 @@ import { Multiselect } from "multiselect-react-dropdown";
 
 export default function Mealplans() {
   const [ingredients, setIngredients] = useState("");
-  const [caloriesPerDay, setCaloriesPerDay] = useState("");
+  const [caloriesPerDay, setCaloriesPerDay] = useState("1800");
   const [mealPlan, setMealPlan] = useState("");
   const [mealsPerDay, setMealsPerDay] = useState("");
   const [dislikedIngredients, setDislikedIngredients] = useState("");
@@ -194,6 +194,7 @@ const multiselectStyles = {
     try {
       const data = await generateMealPlan(requestData);
       if (data.status === 200) {
+        console.log(data.response);
         setMealPlan(data.response);
         setMealPlanImages(data.images);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -216,7 +217,7 @@ const multiselectStyles = {
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
     const days = mealPlan.split("Day").slice(1);
-    const currentDayContent = days[currentDay - 1]?.trim() || "";
+    const currentDayContent = days[currentDay]?.trim() || "";
 
     return (
         <div>
@@ -231,7 +232,7 @@ const multiselectStyles = {
               Previous Day
             </Button>
             <Button
-                onClick={() => setCurrentDay((prev) => Math.min(prev + 1, days.length))}
+                onClick={() => setCurrentDay((prev) => Math.min(prev + 1, days.length - 1))}
                 disabled={currentDay === days.length}
                 style={{ marginLeft: "10px" }}
             >
@@ -287,7 +288,7 @@ const multiselectStyles = {
               position: "sticky",
               top: "2rem"
             }}>
-              {mealPlanImages.length > 0 && mealPlanImages[currentDay - 1] && (
+              {mealPlanImages.length > 0 && mealPlanImages[currentDay] && (
                   <>
                     <h4 style={{
                       fontSize: "1.2rem",
@@ -298,7 +299,7 @@ const multiselectStyles = {
                       Meal Preview for Day {currentDay}
                     </h4>
                     <img
-                        src={`data:image/jpeg;base64,${mealPlanImages[currentDay - 1]}`}
+                        src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
                         alt={`Generated meal preview for Day ${currentDay}`}
                         style={{
                           width: "100%",
@@ -352,7 +353,15 @@ const multiselectStyles = {
               <Input
                 type="number"
                 value={caloriesPerDay}
-                onChange={(e) => setCaloriesPerDay(e.target.value)}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (value > 0){
+                  setCaloriesPerDay(e.target.value)
+                }
+                  else {
+                    setCaloriesPerDay("1");
+                  }
+                }}
                 placeholder="Enter desired calories"
               />
               {!caloriesPerDay && (
@@ -379,7 +388,19 @@ const multiselectStyles = {
               <Input
                 type="number"
                 value={mealsPerDay}
-                onChange={(e) => setMealsPerDay(e.target.value)}
+                onChange={
+                  (e) => {
+                    let value = Number(e.target.value);
+                      if (value > 0 && value < 6){
+                        setMealsPerDay(e.target.value)
+                    }
+                    else if (value === 0) {
+                      setMealsPerDay("1");
+                    }
+                    else {
+                      setMealsPerDay("5");
+                    }
+                  }}
                 placeholder="Enter number of meals per day"
               />
               {!mealsPerDay && (
