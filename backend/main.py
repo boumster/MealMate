@@ -213,7 +213,8 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
                 image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe_name_match}. "
                                 f"Show only the specified dish on a white plate, photographed from above or at "
                                 f"a 45-degree angle, with natural lighting and clear details. Present it in a "
-                                f"professional food photography style without any text or labels.")
+                                f"professional food photography style without any text or labels."
+                                f"Try not to make the food look plain or dry or unappetizing")
 
                 image_data = ai_model.generate_image(image_prompt)
                 image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
