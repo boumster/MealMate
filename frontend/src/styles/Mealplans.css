@@ -1,0 +1,111 @@
+.container-header {
+  margin: 2%;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.multiselect-container {
+  width: 100%;
+  border-radius: 8px;
+  background-color: white;
+  margin: 0.5rem 0;
+}
+
+.multiselect-container .chip {
+  background-color: #3f51b5;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.multiselect-container .option {
+  padding: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.multiselect-container .option:hover {
+  background-color: #033D94;
+  color: white;
+}
+
+.multiselect-container input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-bottom: 2px solid #033D94;
+}
+
+.multiselect-container:focus {
+  outline: none;
+}
+
+.fGksbF > div {
+  width: 100%;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  display: block;
+}
+
+@keyframes waveText {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-5px);
+  }
+  35% {
+    transform: translateY(0);
+  }
+  65% {
+    transform: translateY(0);
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-image {
+  max-width: 90%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: zoom-out;
+  transition: transform 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}
