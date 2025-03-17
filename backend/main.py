@@ -175,7 +175,7 @@ async def login_user(user_data: LoginData) -> JSONResponse:
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
     try:
-        # Generate a prompt based on the request
+        # First generate the meal plan text
         prompt = "Generate a meal plan"
         if request.ingredients:
             prompt += f" using ingredients: {request.ingredients}"
@@ -209,24 +209,22 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
         images = []
 
         for day in days:
-            # Extract meals by looking for "Meal X:" pattern
-            meals = [m for m in day.split('\n') if m.strip().startswith('Meal')]
-            num_meals = len(meals)
+            # Extract the recipe name for this day
+            recipe_name_match = day.split("Recipe Name:")[1].split("\n")[0].strip() if "Recipe Name:" in day else None
 
-            # Create a more specific prompt based on the actual number of meals
-            if num_meals == 1:
-                image_prompt = ("Generate a photorealistic image of a single plated meal on a clean white plate, "
-                                "centered on a neutral background. Show only one beautifully presented dish without "
-                                "any text or labels.")
+            if recipe_name_match:
+                # Create a specific prompt for this meal
+                image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe_name_match}. "
+                                f"Show only the specified dish on a white plate, photographed from above or at "
+                                f"a 45-degree angle, with natural lighting and clear details. Present it in a "
+                                f"professional food photography style without any text or labels.")
+
+                image_data = ai_model.generate_image(image_prompt)
+                image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+                images.append(image_base64)
             else:
-                image_prompt = (f"Generate a photorealistic image showing {num_meals} different plates of food "
-                                f"arranged side by side on a clean surface against a neutral background. Each plate "
-                                f"should contain a different meal, beautifully plated. Show only the plated food "
-                                f"without any text or labels.")
-
-            image_data = ai_model.generate_image(image_prompt)
-            image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
-            images.append(image_base64)
+                # Fallback if no recipe name found
+                images.append(None)
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -234,7 +232,7 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan generated successfully",
                 "response": response,
-                "images": images  # Array of images for each day
+                "images": images
             }
         )
     except Exception as e:

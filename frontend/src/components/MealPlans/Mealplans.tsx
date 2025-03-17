@@ -215,7 +215,7 @@ const multiselectStyles = {
     const firstLineMatch = mealPlan.match(/Meal Plan (\d+) Per Day/);
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
-    const days = mealPlan.split(/Day \d+:/).slice(1);
+    const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay - 1]?.trim() || "";
 
     return (
@@ -256,7 +256,14 @@ const multiselectStyles = {
               boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
               
             }}>
-              <h4 style={{ fontSize: "1.2rem", fontWeight: "bold", marginTop: 0 }}>
+              <h4 style={{
+                fontSize: "1.2rem",
+                fontWeight: "bold",
+                marginTop: 0,
+                paddingBottom: "0.5rem",
+                borderBottom: "2px dashed #ccc",
+                marginBottom: "1rem"
+              }}>
                 Day {currentDay}
               </h4>
               <p
@@ -280,7 +287,7 @@ const multiselectStyles = {
               position: "sticky",
               top: "2rem"
             }}>
-              {mealPlanImages.length > 0 && (
+              {mealPlanImages.length > 0 && mealPlanImages[currentDay - 1] && (
                   <>
                     <h4 style={{
                       fontSize: "1.2rem",
@@ -314,17 +321,17 @@ const multiselectStyles = {
   };
 
   return (
-    <Container>
-      <h1>Meal Plans</h1>
-      {!mealPlan && (
-        <p className="container-header">
-          Please fill out the form below with your preferences and requirements
-          to generate a personalized meal plan.
-        </p>
-      )}
+      <Container>
+        <h1>Meal Plans</h1>
+        {!mealPlan && (
+            <p className="container-header">
+              Please fill out the form below with your preferences and requirements
+              to generate a personalized meal plan.
+            </p>
+        )}
 
-      {mealPlan ? (renderMealPlan()) : (
-        <Form
+        {mealPlan ? (renderMealPlan()) : (
+            <Form
           onSubmit={(e) => {
             e.preventDefault();
             handleGenerateMealPlan();
