@@ -238,7 +238,7 @@ const multiselectStyles = {
       setLoadingMessage(
         "A Perfect Meal Plan Takes Time, Please Be Patient While We Personalize You A Plan..."
       );
-    }, 4000);
+    }, 5000);
 
     // Scroll to the button with smooth animation
     setTimeout(() => {
