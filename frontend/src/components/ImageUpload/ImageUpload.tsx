@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
     Container,
     Input,
@@ -10,7 +10,6 @@ import {
 import { calculateCalories } from "../../utilities/api";
 import Loading from "../Loading/Loading";
 
-
 export default function ImageUpload() {
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -19,6 +18,8 @@ export default function ImageUpload() {
     const [isLoading, setIsLoading] = useState(false);
     const [expandedStates, setExpandedStates] = useState<{ [key: number]: boolean }>({});
     const [showResults, setShowResults] = useState(false);
+    const resultsRef = useRef<HTMLDivElement>(null);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files && e.target.files[0];
         if (file) {
@@ -36,7 +37,7 @@ export default function ImageUpload() {
         setIsLoading(true);
         setExpandedStates({});
         setCalories("");
-        setShowResults(false); // Reset animation state
+        setShowResults(false);
 
         if (!image) {
             setError("Please select an image to upload");
@@ -48,8 +49,21 @@ export default function ImageUpload() {
             if (data.status === 200) {
                 setCalories(data.calories);
                 setError(null);
-                // Trigger animation after data is loaded
-                setTimeout(() => setShowResults(true), 100);
+
+                // Delay to ensure DOM is updated
+                setTimeout(() => {
+                    setShowResults(true);
+                    // Scroll to results with offset
+                    if (resultsRef.current) {
+                        const elementRect = resultsRef.current.getBoundingClientRect();
+                        const absoluteElementTop = elementRect.top + window.pageYOffset;
+                        const offset = 50; // Adjust this value to control the gap from the top
+                        window.scrollTo({
+                            top: absoluteElementTop - offset,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 100);
             } else {
                 setError(data.message || "Failed to calculate calories");
             }
@@ -59,7 +73,6 @@ export default function ImageUpload() {
         }
         setIsLoading(false);
     };
-
 
     const toggleExpand = (index: number) => {
         setExpandedStates(prev => ({
@@ -89,8 +102,6 @@ export default function ImageUpload() {
 
         const getIngredientDetails = (startIndex: number) => {
             const details = [];
-            let unitFound = false;
-
             for (let i = startIndex + 1; i < ingredientLines.length; i++) {
                 const line = ingredientLines[i];
                 if (line.includes("Ingredient:")) break;
@@ -113,6 +124,7 @@ export default function ImageUpload() {
 
         return (
             <div
+                ref={resultsRef}
                 style={{
                     display: "flex",
                     gap: "20px",
@@ -163,7 +175,7 @@ export default function ImageUpload() {
                                     >
                                         <span style={{
                                             transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                                            transition: "transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)", // Bounce effect
+                                            transition: "transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
                                             display: "inline-block"
                                         }}>
                                             ▸
@@ -174,7 +186,7 @@ export default function ImageUpload() {
                                         maxHeight: isExpanded ? "500px" : "0",
                                         opacity: isExpanded ? 1 : 0,
                                         overflow: "hidden",
-                                        transition: "all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)", // Bounce effect
+                                        transition: "all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
                                         margin: "0 0 0 20px"
                                     }}>
                                         {details.map((detail, i) => (

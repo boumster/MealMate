@@ -261,46 +261,64 @@ async def update_password(change_data: ChangeData) -> JSONResponse:
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
     try:
-        # Generate a prompt based on the request
+        # First generate the meal plan text
         prompt = "Generate a meal plan"
         if request.ingredients:
             prompt += f" using ingredients: {request.ingredients}"
         if request.calories:
-            prompt += f" with {request.calories} calories"
+            prompt += f" with {request.calories} calories per day"
         if request.meal_type:
-            prompt += f" for {request.meal_type}"
+            prompt += f" for {request.meal_type} meal types"
         if request.meals_per_day:
             prompt += f" with {request.meals_per_day} meals per day"
         if request.cuisine:
-            prompt += f" with {request.cuisine} cuisine"
-        if request.favorite_ingredients:
-            prompt += f" with favorite ingredients: {request.favorite_ingredients}"
+            prompt += f" with {request.cuisine} cuisines"
+        if request.dietary_restriction:
+            prompt += f" with dietary restrictions: {request.dietary_restriction}"
         if request.disliked_ingredients:
             prompt += f" excluding ingredients: {request.disliked_ingredients}"
         if request.cooking_skill:
             prompt += f" for {request.cooking_skill} cooks"
         if request.cooking_time:
-            prompt += f" with {request.cooking_time} cooking time"
+            prompt += f" with a {request.cooking_time} cooking time"
         if request.available_ingredients:
             prompt += f" with available ingredients: {request.available_ingredients}"
         if request.budget:
             prompt += f" with a budget of {request.budget}"
         if request.grocery_stores:
             prompt += f" with grocery stores: {request.grocery_stores}"
-        
+
         response = ai_model.generate_completion(prompt, role="meal planner")
 
-        image_prompt = f"Generate a photorealistic image of a complete meal plated beautifully with {response}"
-        image_data = ai_model.generate_image(image_prompt)
+        # Generate images for each day's meals
+        days = response.split("Day")[1:]  # Split by days
+        images = []
 
-        image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+        for day in days:
+            # Extract the recipe name for this day
+            recipe_name_match = day.split("Recipe Name:")[1].split("\n")[0].strip() if "Recipe Name:" in day else None
+
+            if recipe_name_match:
+                # Create a specific prompt for this meal
+                image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe_name_match}. "
+                                f"Show only the specified dish on a white plate, photographed from above or at "
+                                f"a 45-degree angle, with natural lighting and clear details. Present it in a "
+                                f"professional food photography style without any text or labels.")
+
+                image_data = ai_model.generate_image(image_prompt)
+                image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+                images.append(image_base64)
+            else:
+                # Fallback if no recipe name found
+                images.append(None)
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan generated successfully",
                 "response": response,
-                "image": image_base64
+                "images": images
             }
         )
     except Exception as e:

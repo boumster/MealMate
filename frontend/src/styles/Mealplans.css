@@ -1,0 +1,53 @@
+.container-header {
+  margin-bottom: 2%;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.multiselect-container {
+    width: 100%;
+    border-radius: 8px;
+    background-color: white;
+    margin: 0.5rem 0;
+  }
+  
+  .multiselect-container .chip {
+    background-color: #3f51b5; 
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 5px;
+  }
+  
+  .multiselect-container .option {
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .multiselect-container .option:hover {
+    background-color: #033D94;
+    color: white;
+  }
+  
+  .multiselect-container input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 2px solid #033D94;
+  }
+  
+  .multiselect-container:focus {
+    outline: none;
+  }
+
+  .fGksbF > div {
+    width: 100%;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 12px;
+    display: block;
+  }
+  

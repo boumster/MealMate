@@ -22,7 +22,7 @@ class MealPlanRequest(BaseModel):
     meal_type: Optional[str] = None
     meals_per_day: Optional[int] = None
     cuisine: Optional[str] = None
-    favorite_ingredients: Optional[str] = None
+    dietary_restriction: Optional[str] = None
     disliked_ingredients: Optional[str] = None
     cooking_skill: Optional[str] = None
     cooking_time: Optional[str] = None
