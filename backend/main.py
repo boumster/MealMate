@@ -197,10 +197,6 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             prompt += f" with a {request.cooking_time} cooking time"
         if request.available_ingredients:
             prompt += f" with available ingredients: {request.available_ingredients}"
-        if request.budget:
-            prompt += f" with a budget of {request.budget}"
-        if request.grocery_stores:
-            prompt += f" with grocery stores: {request.grocery_stores}"
 
         response = ai_model.generate_completion(prompt, role="meal planner")
 

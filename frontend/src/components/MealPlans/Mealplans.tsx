@@ -21,8 +21,6 @@ export default function Mealplans() {
   const [dislikedIngredients, setDislikedIngredients] = useState("");
   const [cookingSkill, setCookingSkill] = useState("");
   const [availableIngredients, setAvailableIngredients] = useState("");
-  const [budget, setBudget] = useState("");
-  const [groceryStores, setGroceryStores] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
   const [loadingMessage, setLoadingMessage] = useState("");
   let loadingTimer: NodeJS.Timeout;
@@ -187,8 +185,6 @@ const multiselectStyles = {
       cooking_skill: cookingSkill,
       cooking_time: cookingTime,
       available_ingredients: availableIngredients,
-      budget,
-      grocery_stores: groceryStores,
     };
 
     try {
@@ -218,6 +214,7 @@ const multiselectStyles = {
 
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
+    console.log(currentDayContent);
 
     return (
         <div>
@@ -340,7 +337,7 @@ const multiselectStyles = {
         >
           <FormRow>
             <Label>
-              Ingredients:
+              Ingredients: (Opt.)
               <Input
                 type="text"
                 value={ingredients}
@@ -371,7 +368,7 @@ const multiselectStyles = {
           </FormRow>
           <FormRow>
             <Label>
-              Preferred Meal Types:
+              Preferred Meal Types: (Opt.)
               <Multiselect
                 options={mealTypeOptions}
                 selectedValues={selectedMealTypes}
@@ -410,7 +407,7 @@ const multiselectStyles = {
           </FormRow>
           <FormRow>
             <Label>
-              Cuisine Preferences:
+              Cuisine Preferences: (Opt.)
               <Multiselect
                 options={cuisineOptions}
                 selectedValues={selectedCuisinePreferences}
@@ -423,7 +420,7 @@ const multiselectStyles = {
               />
             </Label>
             <Label>
-              Dietary Restrictions:
+              Dietary Restrictions: (Opt.)
               <Multiselect
                 options={dietaryRestrictionOptions}
                 selectedValues={dietaryRestriction}
@@ -438,7 +435,7 @@ const multiselectStyles = {
           </FormRow>
           <FormRow>
             <Label>
-              Disliked Ingredients:
+              Disliked Ingredients: (Opt.)
               <Input
                 type="text"
                 value={dislikedIngredients}
@@ -447,7 +444,7 @@ const multiselectStyles = {
               />
             </Label>
             <Label>
-              Cooking Skill Level:
+              Cooking Skill Level: (Opt.)
               <DropDown
                 value={cookingSkill}
                 onChange={(e) => setCookingSkill(e.target.value)}
@@ -461,7 +458,7 @@ const multiselectStyles = {
           </FormRow>
           <FormRow>
             <Label>
-              Time Available for Cooking:
+              Time Available for Cooking: (Opt.)
               <DropDown
                 value={cookingTime}
                 onChange={(e) => setCookingTime(e.target.value)}
@@ -473,32 +470,12 @@ const multiselectStyles = {
               </DropDown>
             </Label>
             <Label>
-              Available Ingredients in the Kitchen:
+              Available Ingredients in the Kitchen: (Opt.)
               <Input
                 type="text"
                 value={availableIngredients}
                 onChange={(e) => setAvailableIngredients(e.target.value)}
                 placeholder="Enter available ingredients in the kitchen"
-              />
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Budget Constraints for Groceries:
-              <Input
-                type="number"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                placeholder="Enter budget constraints for groceries"
-              />
-            </Label>
-            <Label>
-              Preferred Grocery Stores or Brands:
-              <Input
-                type="text"
-                value={groceryStores}
-                onChange={(e) => setGroceryStores(e.target.value)}
-                placeholder="Enter preferred grocery stores or brands"
               />
             </Label>
           </FormRow>
