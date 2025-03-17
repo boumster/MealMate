@@ -5,7 +5,7 @@ import Home from "./Home/Home";
 import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
-import MyPlan from "./MyPlan/MyPlan";
+import MyPlans from "./MyPlans/MyPlans";
 import Login from "./Login/Login";
 import Register from "./Register/Register";
 import ImageUpload from "./ImageUpload/ImageUpload";
@@ -25,13 +25,13 @@ export default function App() {
         <Route exact path="/register" render={(props) => <Register />} />
         <Route exact path="/" render={(props) => <Home />} />
         <Route path="/about" render={(props) => <About />} />
-        <Route path="/myplan" render={(props) => <MyPlan/>} />
+        <Route path="/myplans" render={(props) => <MyPlans/>} />
 
         {/* Protected Routes */}
         <PrivateRoute path="/contact" component={Contact} />
         <PrivateRoute path="/mealplans" component={Mealplans} />
         <PrivateRoute path="/calculate-calories" component={ImageUpload} />
-        <PrivateRoute path="/myplans" component={MyPlan} />
+        <PrivateRoute path="/myplans" component={MyPlans} />
       </Switch>
     </div>
   );

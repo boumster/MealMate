@@ -110,4 +110,46 @@ const FormRow = styled.div`
     }
 `;
 
-export { Container, Input, Button, Form, Label, FormRow };
+const DropDown = styled.select`
+  padding: 1rem;
+  margin: 0.5rem 0;
+  width: 22.125rem;
+  border: 0.1rem solid #ccc;
+  border-radius: 0.4rem;
+  background-color: white;
+  cursor: pointer;
+  color: #6c757d;
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+`;
+
+const ResponsiveList = styled.div`
+  display: block; /* Always show list format */
+
+  & div {
+    margin-bottom: 1.5rem;
+  }
+
+  & h3 {
+    background-color: #3f51b5;
+    color: white;
+    padding: 0.8rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+  }
+
+  & p {
+    margin-left: 1rem;
+  }
+`;
+
+// Styled button for table actions (viewing plans)
+const ViewButton = styled(Button)`
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+`;
+
+export { Container, Input, Button, Form, Label, FormRow, Table, TableRow, TableHeader, TableCell, ViewButton, DropDown, ResponsiveList };

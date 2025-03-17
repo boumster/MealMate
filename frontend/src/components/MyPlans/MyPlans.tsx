@@ -2,7 +2,7 @@ import React from "react";
 
 import { Container, Table, TableRow, TableHeader, TableCell, ViewButton } from "../../styles/styles";
 
-export default function MyPlan() {
+export default function MyPlans() {
   const plans = [
     { name: "Plan A", id: "1" },
     { name: "Plan B", id: "2" },
