@@ -98,10 +98,16 @@ const Profile: React.FC = () => {
         <Label><b>Username:</b></Label>
         <EditInput type="text" value={user?.username || "User"} disabled />
 
-        <Label><b>Email:</b></Label>
+        <Label><b>Current Email:</b></Label>
+        <EditInput 
+          type="text" 
+          value={user?.email || "User"} disabled          
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+
+        <Label><b>Change Email:</b></Label>
         <EditInput 
           type="email" 
-          value={email} 
           onChange={(e) => setEmail(e.target.value)} 
           placeholder="Enter new email"
         />

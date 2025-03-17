@@ -9,6 +9,12 @@ class UserData(BaseModel):
 class LoginData(BaseModel):
     username: str
     password: str
+
+class ChangeData(BaseModel):
+    originalEmail: str
+    newEmail: str
+    originalPassword: str
+    newPassword: str
     
 class MealPlanRequest(BaseModel):
     ingredients: Optional[str] = None
