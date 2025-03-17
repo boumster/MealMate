@@ -258,6 +258,8 @@ export default function Mealplans() {
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
 
+    const cleanedDayContent = currentDayContent.replace(/^\d+:/, '');
+
     return (
       <div>
         <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
@@ -315,7 +317,7 @@ export default function Mealplans() {
             </h4>
             <p
               dangerouslySetInnerHTML={{
-                __html: currentDayContent
+                __html: cleanedDayContent
                   .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
                   .replace(
                     /Recipe Name: (.+)/g,
