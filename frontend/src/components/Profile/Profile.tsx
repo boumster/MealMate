@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Container, Button, Label, Input } from "../../styles/styles";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import styled from "styled-components";
+import { updateEmail, updatePassword } from "../../utilities/api"; 
 
 const ProfileImage = styled.img`
   width: 100px;
@@ -39,7 +40,6 @@ const Header = styled.h1`
   font-weight: normal;
 `;
 
-// Editable Info Container
 const EditContainer = styled.div`
   width: 70%;
   background: white;
@@ -66,23 +66,81 @@ const EditInput = styled(Input)`
   background-color: white;
 `;
 
-const inputContainer = styled.div`
+const ErrorText = styled.p`
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+`;
 
+const SuccessText = styled.p`
+  color: green;
+  font-size: 14px;
+  margin-top: 5px;
 `;
 
 const Profile: React.FC = () => {
   const history = useHistory();
-  const { isAuthenticated, user, logoutUser } = useAuth(); // Fetch auth state
+  const { isAuthenticated, user, logoutUser } = useAuth();
 
-  // Editable state
-  const [email, setEmail] = useState(user?.email || "");
+  const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Email validation
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Password validation (6+ chars, 1 uppercase, 1 number)
+  const isValidPassword = (password: string) => /^(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
+
+  // 🔹 Handle Email Update
+  const handleEmailUpdate = async () => {
+    let newErrors: { [key: string]: string } = {};
+
+    if (!isValidEmail(email)) {
+      newErrors.email = "Invalid email format.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      const response = await updateEmail(user?.username, email);
+      if (response.status === 200) {
+        setSuccessMessage("✅ Email updated successfully!");
+      } else {
+        setErrors({ email: response.message });
+      }
+      history.push("/profile");
+    }
+  };
+
+  // 🔹 Handle Password Update
+  const handlePasswordUpdate = async () => {
+    let newErrors: { [key: string]: string } = {};
+
+    if (!isValidPassword(newPassword)) {
+      newErrors.password = "Password must have at least 6 characters, one uppercase letter, and one number.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      const response = await updatePassword(user?.username, currentPassword, newPassword);
+      if (response.status === 200) {
+        setSuccessMessage("✅ Password updated successfully!");
+      } else {
+        setErrors({ password: response.message });
+      }
+      history.push("/profile");
+    }
+  };
 
   return (
     <Container>
       <Header>Hello <b>{user?.username || "User"}</b>, welcome to your personal page!</Header>
-      
+
       {/* Profile Card */}
       <ProfileCard>
         <ProfileImage src="/images/icons/profileIcon.png" alt="Profile" />
@@ -93,49 +151,47 @@ const Profile: React.FC = () => {
         </ProfileContent>
       </ProfileCard>
 
-      {/* Edit Personal Info */}
+      {/* Edit Email */}
       <EditContainer>
-        <Label><b>Username:</b></Label>
-        <EditInput type="text" value={user?.username || "User"} disabled />
-
         <Label><b>Current Email:</b></Label>
-        <EditInput 
-          type="text" 
-          value={user?.email || "User"} disabled          
-          onChange={(e) => setEmail(e.target.value)} 
-        />
+        <EditInput type="text" value={user?.email || "User"} disabled />
 
         <Label><b>Change Email:</b></Label>
         <EditInput 
           type="email" 
-          onChange={(e) => setEmail(e.target.value)} 
           placeholder="Enter new email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)} 
         />
+        {errors.email && <ErrorText>{errors.email}</ErrorText>}
+        {successMessage && <SuccessText>{successMessage}</SuccessText>}
 
-        <Button>Save Changes</Button>
+        <Button onClick={handleEmailUpdate}>Save Changes</Button>
       </EditContainer>
 
-      {/* Change Password Section */}
+      {/* Change Password */}
       <PasswordContainer>
         <Label><b>Change Password</b></Label>
 
         <Label>Current Password:</Label>
         <EditInput 
           type="password" 
+          placeholder="Enter current password"
           value={currentPassword} 
           onChange={(e) => setCurrentPassword(e.target.value)} 
-          placeholder="Enter current password"
         />
 
         <Label>New Password:</Label>
         <EditInput 
           type="password" 
+          placeholder="Enter new password"
           value={newPassword} 
           onChange={(e) => setNewPassword(e.target.value)} 
-          placeholder="Enter new password"
         />
+        {errors.password && <ErrorText>{errors.password}</ErrorText>}
+        {successMessage && <SuccessText>{successMessage}</SuccessText>}
 
-        <Button>Change Password</Button>
+        <Button onClick={handlePasswordUpdate}>Change Password</Button>
       </PasswordContainer>
     </Container>
   );

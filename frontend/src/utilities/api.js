@@ -98,3 +98,42 @@ export async function calculateCalories(file) {
     throw error;
   }
 }
+
+export async function updateEmail(username, newEmail) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/update-email`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, newEmail }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating email:", error);
+    return { status: "error", message: error.message };
+  }
+}
+
+
+export async function updatePassword(username, originalPassword, newPassword) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/update-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,  
+        originalPassword,
+        newPassword,
+      }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return { status: "error", message: error.message };
+  }
+}

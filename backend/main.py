@@ -16,7 +16,7 @@ ai_model = GeminiLLM()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to restrict allowed origins
+    allow_origins=["http://localhost:3000", "*"],  # Adjust this to restrict allowed origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -176,8 +176,8 @@ async def login_user(user_data: LoginData) -> JSONResponse:
 async def update_email(change_data: ChangeData) -> JSONResponse:
     try:
         # Fetch user by original email
-        query = "SELECT id, email FROM users WHERE email = %s"
-        response = db.execute_query(query, (change_data.originalEmail,))
+        query = "SELECT id, email FROM users WHERE username = %s"
+        response = db.execute_query(query, (change_data.username,))
         
         if not response:
             raise HTTPException(
@@ -216,8 +216,8 @@ async def update_email(change_data: ChangeData) -> JSONResponse:
 async def update_password(change_data: ChangeData) -> JSONResponse:
     try:
         # Fetch user by original email
-        query = "SELECT id, password FROM users WHERE email = %s"
-        response = db.execute_query(query, (change_data.originalEmail,))
+        query = "SELECT id, password FROM users WHERE username = %s"
+        response = db.execute_query(query, (change_data.username,))
         
         if not response:
             raise HTTPException(

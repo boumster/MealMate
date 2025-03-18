@@ -11,10 +11,11 @@ class LoginData(BaseModel):
     password: str
 
 class ChangeData(BaseModel):
-    originalEmail: str
-    newEmail: str
-    originalPassword: str
-    newPassword: str
+    username: str
+    originalEmail: str = None
+    newEmail: str = None
+    originalPassword: str = None
+    newPassword: str = None
     
 class MealPlanRequest(BaseModel):
     ingredients: Optional[str] = None

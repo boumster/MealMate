@@ -70,7 +70,10 @@ const Register: React.FC = () => {
 
     if (!username.trim()) {
       newErrors.username = "Username cannot be empty.";
+    } else if (/\s/.test(username)) {
+      newErrors.username = "Username cannot contain spaces.";
     }
+    
 
     if (!isValidEmail(email)) {
       newErrors.email = "Invalid email format.";
@@ -100,7 +103,7 @@ const Register: React.FC = () => {
         alert("User registered successfully");
         history.push("/");
       } else {
-        alert("User registration failed");
+        alert(response.message);
       }
     }
   };

@@ -18,6 +18,7 @@ const Login: React.FC = () => {
         username,
         password,
       };
+      setError("");
 
       const response = await loginUser(userData);
       
@@ -26,16 +27,17 @@ const Login: React.FC = () => {
         await authLogin(response.user);
         history.push("/");
       } else {
-        setError(response?.message || "Login failed");
+        setError(response?.message || "Login failed invalid credentials. Please Try Again.");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError("An error occurred during login");
     }
   };
+
   return (
     <Container className="login-container">
       <h2>Mealmate Login</h2>
+      {error && 
+      <p className="error">{error}</p>}
       <Input
         type="text"
         placeholder="Username"
