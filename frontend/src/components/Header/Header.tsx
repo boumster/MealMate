@@ -108,6 +108,7 @@ export default function Header() {
           <DropdownItem href="/about">About</DropdownItem>
           <DropdownItem href="/contact">Contact</DropdownItem>
           <DropdownItem href="/mealplans">Meal Plans</DropdownItem>
+          <DropdownItem href="/myplans">My Plans</DropdownItem>
           <DropdownItem href="/calculate-calories">Calculate Calories</DropdownItem>
         </MainDropdown>
 

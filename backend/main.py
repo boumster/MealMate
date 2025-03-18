@@ -1,13 +1,13 @@
 import base64
-
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData, MealPlanRequest, ChangeData
+from models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
 from LLM import GeminiLLM
 import logging
+from datetime import datetime
 
 app = FastAPI()
 db = DatabaseConnection()
@@ -283,51 +283,180 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
             prompt += f" with a {request.cooking_time} cooking time"
         if request.available_ingredients:
             prompt += f" with available ingredients: {request.available_ingredients}"
-        if request.budget:
-            prompt += f" with a budget of {request.budget}"
-        if request.grocery_stores:
-            prompt += f" with grocery stores: {request.grocery_stores}"
+
 
         response = ai_model.generate_completion(prompt, role="meal planner")
+        
+        timestamp = datetime.now().strftime("%B %d, %Y")
+        title_parts = []
+        
+        if request.cuisine:
+            title_parts.append(request.cuisine.split(',')[0].strip())
+        if request.calories:
+            title_parts.append(f"{request.calories}cal")
+        if request.meal_type:
+            title_parts.append(request.meal_type.split(',')[0].strip())
+        if request.dietary_restriction:
+            title_parts.append(request.dietary_restriction.split(',')[0].strip())
+            
+        title = f"Meal Plan - {' '.join(title_parts)} - {timestamp}"
 
-        # Generate images for each day's meals
-        days = response.split("Day")[1:]  # Split by days
-        images = []
+        # store the user's meal plan into sql table
+        query = """
+            INSERT INTO mealplans (user_id, mealplan, title) 
+            VALUES (%s, %s, %s)
+        """
+        values = (request.id, response, title)
 
-        for day in days:
-            # Extract the recipe name for this day
-            recipe_name_match = day.split("Recipe Name:")[1].split("\n")[0].strip() if "Recipe Name:" in day else None
-
-            if recipe_name_match:
-                # Create a specific prompt for this meal
-                image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe_name_match}. "
-                                f"Show only the specified dish on a white plate, photographed from above or at "
-                                f"a 45-degree angle, with natural lighting and clear details. Present it in a "
-                                f"professional food photography style without any text or labels.")
-
-                image_data = ai_model.generate_image(image_prompt)
-                image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
-                images.append(image_base64)
-            else:
-                # Fallback if no recipe name found
-                images.append(None)
-
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "status": status.HTTP_200_OK,
-                "message": "Meal plan generated successfully",
-                "response": response,
-                "images": images
-            }
-        )
+        # Execute the query
+        try:
+            db.execute_query(query, values)
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "Meal plan generated and succesfully saved into database",
+                    "response": response
+                }
+            )
+        except Exception as db_error:
+            print(f"Mealplan Database error: {str(db_error)}")
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": "Meal plan generated successfully, but an error occurred while saving it to the database."
+                }
+            )
     except Exception as e:
         print(f"Error generating meal plan: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating meal plan"
+                "message": "An error occurred while generating the meal plan."
+            }
+        )
+    
+# create another function that does retrieval of meal plan based on user ID
+@app.post("/get-mealplans")
+async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
+    try:
+        query = """
+            SELECT id, title FROM mealplans 
+            WHERE user_id = %s
+        """
+        values = (request.id,) 
+
+        response = db.execute_query(query, values)
+
+        if len(response) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={
+                    "status": status.HTTP_200_OK,
+                    "message": "User does not have any saved meal plans",
+                    "mealPlans": []
+                }
+            )
+        
+        # Format the response as an array of objects
+        meal_plans = [
+            {
+                "id": row[0],
+                "title": row[1]
+            } for row in response
+        ]
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Meal plans retrieved successfully",
+                "mealPlans": meal_plans
+            }
+        )
+    except Exception as e:
+        print(f"Error retrieving meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error retrieving meal plan",
+                "mealPlans": []
+            }
+        )
+
+@app.post("/get-mealplan")
+async def retrieve_mealplan(request: IndividualMealPlanRetrieve) -> JSONResponse:
+    
+    try:
+        query = """
+            SELECT mealplan FROM mealplans 
+            WHERE id = %s and user_id = %s
+        """
+        values = (request.meal_id, request.id) 
+
+        response = db.execute_query(query, values)
+
+        if len(response) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "status": status.HTTP_404_NOT_FOUND,
+                    "message": "Meal plan not found"
+                }
+            )
+        
+        meal_plan = response[0][0]
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "message": "Meal plan retrieved successfully",
+                "mealPlan": meal_plan
+            }
+        )
+    except Exception as e:
+        print(f"Error retrieving meal plan: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error retrieving meal plan"
+            }
+        )
+    
+
+@app.post("/generate-meal-image/{day}")
+async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
+    try:
+        recipe = recipe_data.get('recipe', '')
+        image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe}. "
+                        f"Show only the specified dish on a white plate, photographed from above or at "
+                        f"a 45-degree angle if the food is inside a glass"
+                        f", with natural lighting and clear details. Present it in a "
+                        f"professional food photography style without any text or labels."
+                        f"Try not to make the food look plain or dry or unappetizing")
+
+        image_data = ai_model.generate_image(image_prompt)
+        image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "image": image_base64
+            }
+        )
+    except Exception as e:
+        print(f"Error generating meal image: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "Error generating meal image"
             }
         )
 

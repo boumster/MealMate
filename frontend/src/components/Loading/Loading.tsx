@@ -26,23 +26,21 @@ interface LoadingProps {
   size?: "small" | "medium" | "large";
 }
 
-const Loading: React.FC<LoadingProps> = ({ size = "medium" }) => {
-    const getSize = () => {
-      switch (size) {
-        case "small":
-          return "20px";
-        case "large":
-          return "60px";
-        default:
-          return "40px";
-      }
-    };
-  
-    return (
-      <SpinnerContainer>
-        <Spinner style={{ width: getSize(), height: getSize() }} />
-      </SpinnerContainer>
-    );
+export default function Loading({ size = "medium" }: LoadingProps) {
+  const getSize = () => {
+    switch (size) {
+      case "small":
+        return "20px";
+      case "large":
+        return "60px";
+      default:
+        return "40px";
+    }
   };
 
-export default Loading;
+  return (
+    <SpinnerContainer>
+      <Spinner style={{ width: getSize(), height: getSize() }} />
+    </SpinnerContainer>
+  );
+}

@@ -5,8 +5,11 @@ import Home from "./Home/Home";
 import About from "./About/About";
 import Contact from "./Contact/Contact";
 import Mealplans from "./MealPlans/Mealplans";
+import MyPlans from "./MyPlans/MyPlans";
 import Register from "./Register/Register";
 import ImageUpload from "./ImageUpload/ImageUpload";
+import Plan from "./MyPlans/Plan";
+import NotFound from "./NotFound/NotFound";
 import Login from "./Login/Login"
 import Profile from "./Profile/Profile"
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
@@ -23,19 +26,21 @@ export default function App() {
         {/* Public Routes */}
         <Route exact path="/login" render={(props) => <Login />} />
         <Route exact path="/register" render={(props) => <Register />} />
-        <Route
-          exact
-          path="/"
-          render={(props) => <Home />}
-        />
+        <Route exact path="/" render={(props) => <Home />} />
         <Route path="/about" render={(props) => <About />} />
+        <Route path="/myplans" render={(props) => <MyPlans/>} />
 
-          {/* Protected Routes */}
-          <PrivateRoute path="/contact" component={Contact} />
-          <PrivateRoute path="/mealplans" component={Mealplans} />
-          <PrivateRoute path="/calculate-calories" component={ImageUpload} />
+        {/* Protected Routes */}
+        <PrivateRoute path="/contact" component={Contact} />
+        <PrivateRoute path="/mealplans" component={Mealplans} />
+        <PrivateRoute path="/calculate-calories" component={ImageUpload} />
           <PrivateRoute path="/profile" component={Profile} />
-        </Switch>
-      </div>
+        <PrivateRoute path="/myplans" component={MyPlans} />
+        <PrivateRoute path="/plan/:id" component={Plan} />
+
+        {/* 404 Route */}
+        <Route path="*" component={NotFound} />
+      </Switch>
+    </div>
   );
 }

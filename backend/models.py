@@ -30,3 +30,11 @@ class MealPlanRequest(BaseModel):
     available_ingredients: Optional[str] = None
     budget: Optional[str] = None
     grocery_stores: Optional[str] = None
+    id: str
+    
+class MealPlanRetrieve(BaseModel):
+    id: str
+    
+class IndividualMealPlanRetrieve(BaseModel):
+    id: str
+    meal_id: str
