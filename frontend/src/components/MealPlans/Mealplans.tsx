@@ -25,6 +25,8 @@ export default function Mealplans() {
   const [availableIngredients, setAvailableIngredients] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [dietaryGoals, setDietaryGoals] = useState("");
+  const [budgetConstraints, setBudgetConstraints] = useState("");
   let loadingTimer: NodeJS.Timeout;
   const [dietaryRestriction, setDietaryRestriction] = useState<
     { name: string; value: string }[]
@@ -271,6 +273,8 @@ const multiselectStyles = {
       cooking_skill: cookingSkill,
       cooking_time: cookingTime,
       available_ingredients: availableIngredients,
+      dietary_goals: dietaryGoals,
+      budget_constraints: budgetConstraints,
       id: user?.id,
     };
 
@@ -343,6 +347,9 @@ const multiselectStyles = {
     const firstLineMatch = mealPlan.match(/Meal Plan (\d+) Per Day/);
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
+    const costMatch = mealPlan.match(/Estimated Weekly Cost: \$(\d+)/);
+    const estimatedCost = costMatch ? `$${costMatch[1]}` : "Unknown";
+
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
 
@@ -351,7 +358,7 @@ const multiselectStyles = {
     return (
       <div>
         <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-          Generated Meal Plan ({dailyCalories} Calories Per Day)
+          Generated Meal Plan ({dailyCalories} Calories Per Day) - Estimated Weekly Cost: {estimatedCost}
         </h3>
         <div style={{ marginBottom: "20px" }}>
           <Button
@@ -686,6 +693,34 @@ const multiselectStyles = {
                 value={availableIngredients}
                 onChange={(e) => setAvailableIngredients(e.target.value)}
                 placeholder="Enter available ingredients in the kitchen"
+              />
+            </Label>
+          </FormRow>
+          <FormRow>
+            <Label>
+              Dietary Goals: (Opt.)
+              <Input
+                type="text"
+                value={dietaryGoals}
+                onChange={(e) => setDietaryGoals(e.target.value)}
+                placeholder="Enter any dietary goals you have (ex. weight loss)"
+              />
+            </Label>
+            <Label>
+              Budget Constraints: (Opt.)
+              <Input
+                type="text"
+                value={budgetConstraints}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (value >= 0){
+                  setBudgetConstraints(e.target.value)
+                }
+                  else {
+                    setBudgetConstraints("1");
+                  }
+                }}
+                placeholder="Enter any budget constraints you have"
               />
             </Label>
           </FormRow>
