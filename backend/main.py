@@ -347,12 +347,39 @@ async def retrieve_mealplan(request: IndividualMealPlanRetrieve) -> JSONResponse
 async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
     try:
         recipe = recipe_data.get('recipe', '')
-        image_prompt = (f"Generate a photorealistic image of this exact meal: {recipe}. "
-                        f"Show only the specified dish on a white plate, photographed from above or at "
-                        f"a 45-degree angle if the food is inside a glass"
-                        f", with natural lighting and clear details. Present it in a "
-                        f"professional food photography style without any text or labels."
-                        f"Try not to make the food look plain or dry or unappetizing")
+        meals = recipe.split("Meal ")[1:]  # Split by "Meal " and remove empty first element
+
+        if len(meals) > 1:
+            # Extract recipe names for both meals
+            meal_names = []
+            for meal in meals:
+                recipe_name = meal.split("Recipe Name: ")[1].split("\n")[0].strip() if "Recipe Name: " in meal else ""
+                if recipe_name:
+                    meal_names.append(recipe_name)
+
+            image_prompt = (
+                f"Generate a photorealistic image with these {len(meal_names)} meals arranged vertically: {', '.join(meal_names)}. "
+                f"Each meal should be plated on its own separate white plate. "
+                f"Arrange the plates vertically, one below the other, with clear borders or space separating each meal. "
+                f"Display meals in the order they appear in the recipe, from top to bottom. "
+                f"Use natural lighting and clear details. "
+                f"Present in a professional food photography style without text or labels. "
+                f"Each dish should look appetizing, properly garnished, and well-presented. "
+                f"Use a neutral light background to make each meal stand out. "
+                f"Make sure there's clear visual separation between meals with subtle shadows or spacing."
+            );
+            
+        else:
+            # Single meal
+            image_prompt = (
+                f"Generate a photorealistic image of this exact meal: {recipe}. "
+                f"Show ONLY ONE plate with this specific dish, photographed from above or at "
+                f"a 45-degree angle if the food is inside a glass. "
+                f"Use natural lighting and clear details on a white plate. "
+                f"Present it in a professional food photography style without any text or labels. "
+                f"Do not include multiple plates or other meals. "
+                f"Try not to make the food look plain, dry, or unappetizing."
+            )
 
         image_data = ai_model.generate_image(image_prompt)
         image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
