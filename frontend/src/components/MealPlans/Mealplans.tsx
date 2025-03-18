@@ -24,6 +24,7 @@ export default function Mealplans() {
   const [cookingSkill, setCookingSkill] = useState("");
   const [availableIngredients, setAvailableIngredients] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
+  const [planId, setPlanId] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
   let loadingTimer: NodeJS.Timeout;
   const [dietaryRestriction, setDietaryRestriction] = useState<
@@ -157,16 +158,13 @@ const multiselectStyles = {
     setDietaryRestriction(selectedList);
   };
 
-  const extractRecipeName = (dayContent: string): string => {
-    const match = dayContent.match(/Recipe Name: (.+?)(?:\n|$)/);
-    return match ? match[1].trim() : "";
-  };
-  
+
   const preloadNextImages = async (currentDay: number) => {
+    if (!planId) return; // Skip if no plan_id available
+
     for (let i = 1; i <= 4; i++) {
       const nextDay = currentDay + i;
       if (nextDay <= 7 && !mealPlanImages[nextDay] && !pendingImageRequests.has(nextDay)) {
-        // Get the days from meal plan
         const days = mealPlan.split("Day").slice(1);
         const nextDayContent = days[nextDay]?.trim();
 
@@ -178,7 +176,7 @@ const multiselectStyles = {
           });
 
           try {
-            const response = await generateMealImage(nextDay, nextDayContent);
+            const response = await generateMealImage(nextDay, nextDayContent, planId);
             if (response?.image) {
               setMealPlanImages(prev => {
                 const newImages = [...prev];
@@ -200,20 +198,18 @@ const multiselectStyles = {
     }
   };
 
-  const handleDayChange = (day: number) => {
-    setCurrentDay(day);
-
-    if (!mealPlanImages[day] && !pendingImageRequests.has(day) && mealPlan?.[day]) {
-      setPendingImageRequests(prev => new Set(prev).add(day));
-      const recipe = mealPlan[day].split('\n').join('\n');
+  const handleDayChange = (currentDay: number) => {
+    setCurrentDay(currentDay);
+    if (!mealPlanImages[currentDay] && !pendingImageRequests.has(currentDay) && mealPlan?.[currentDay]) {
+      setPendingImageRequests(prev => new Set(prev).add(currentDay));
+      const recipe = mealPlan[currentDay].split('\n').join('\n');
       setIsImageLoading(true);
-
-      generateMealImage(day, recipe)
+      generateMealImage(currentDay, recipe)
           .then(response => {
             if (response?.image) {
               setMealPlanImages(prev => {
                 const newImages = [...prev];
-                newImages[day] = response.image;
+                newImages[currentDay] = response.image;
                 return newImages;
               });
             }
@@ -222,15 +218,14 @@ const multiselectStyles = {
             setIsImageLoading(false);
             setPendingImageRequests(prev => {
               const newSet = new Set(prev);
-              newSet.delete(day);
+              newSet.delete(currentDay);
               return newSet;
             });
           });
     }
-    
-    preloadNextImages(day);
+    preloadNextImages(currentDay);
   };
-
+  
   const handleGenerateMealPlan = async () => {
     setIsLoading(true);
     setLoadingMessage("Cooking Up a Meal Plan...");
@@ -281,11 +276,11 @@ const multiselectStyles = {
         setMealPlanImages(new Array(7).fill(null));
         const days = data.response.split("Day").slice(1);
 
-        // Load first day image
+        // Generate first day image with plan_id
         const firstDayContent = days[1]?.trim() || "";
         if (firstDayContent) {
           setPendingImageRequests(new Set([1]));
-          const firstDayResponse = await generateMealImage(1, firstDayContent);
+          const firstDayResponse = await generateMealImage(1, firstDayContent, data.plan_id);
           if (firstDayResponse?.image) {
             setMealPlanImages(prev => {
               const newImages = [...prev];
@@ -296,8 +291,7 @@ const multiselectStyles = {
           setPendingImageRequests(new Set());
         }
 
-        // Start preloading next days
-        // Update the handleGenerateMealPlan function's preloading part
+        // Start preloading next days with plan_id
         for (let i = 2; i <= 4; i++) {
           if (days[i]) {
             const dayContent = days[i].trim();
@@ -306,7 +300,7 @@ const multiselectStyles = {
               newSet.add(i);
               return newSet;
             });
-            generateMealImage(i, dayContent)
+            generateMealImage(i, dayContent, data.plan_id)
                 .then(response => {
                   if (response?.image) {
                     setMealPlanImages(prev => {
@@ -319,14 +313,13 @@ const multiselectStyles = {
                 .finally(() => {
                   setPendingImageRequests(prev => {
                     const newSet = new Set(Array.from(prev));
-                    newSet.delete(i);
+                    const nextDay = currentDay + i;
+                    newSet.delete(nextDay);
                     return newSet;
                   });
                 });
           }
         }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error("Error generating meal plan:", error);

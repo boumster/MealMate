@@ -217,20 +217,26 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
 
         # store the user's meal plan into sql table
         query = """
-            INSERT INTO mealplans (user_id, mealplan, title) 
+            INSERT INTO mealplans (user_id, mealplan, title)
             VALUES (%s, %s, %s)
-        """
+            """
         values = (request.id, response, title)
+        db.execute_query(query, values)
+
+        # Get the last inserted ID
+        query = "SELECT LAST_INSERT_ID()"
+        result = db.execute_query(query)
+        plan_id = result[0][0] if result else None
 
         # Execute the query
         try:
-            db.execute_query(query, values)
             return JSONResponse(
                 status_code=status.HTTP_200_OK,
                 content={
                     "status": status.HTTP_200_OK,
-                    "message": "Meal plan generated and succesfully saved into database",
-                    "response": response
+                    "message": "Meal plan generated and successfully saved into database",
+                    "response": response,
+                    "plan_id": plan_id
                 }
             )
         except Exception as db_error:
@@ -257,8 +263,8 @@ async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
 async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
     try:
         query = """
-            SELECT id, title FROM mealplans 
-            WHERE user_id = %s
+        SELECT id, title FROM mealplans 
+        WHERE user_id = %s
         """
         values = (request.id,) 
 
@@ -303,14 +309,12 @@ async def retrieve_user_mealplan(request: MealPlanRetrieve) -> JSONResponse:
 
 @app.post("/get-mealplan")
 async def retrieve_mealplan(request: IndividualMealPlanRetrieve) -> JSONResponse:
-    
     try:
         query = """
-            SELECT mealplan FROM mealplans 
-            WHERE id = %s and user_id = %s
+            SELECT mealplan, day_images, title FROM mealplans
+            WHERE id = %s AND user_id = %s
         """
-        values = (request.meal_id, request.id) 
-
+        values = (request.meal_id, request.id)
         response = db.execute_query(query, values)
 
         if len(response) == 0:
@@ -321,24 +325,24 @@ async def retrieve_mealplan(request: IndividualMealPlanRetrieve) -> JSONResponse
                     "message": "Meal plan not found"
                 }
             )
-        
-        meal_plan = response[0][0]
-        
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
                 "message": "Meal plan retrieved successfully",
-                "mealPlan": meal_plan
+                "mealPlan": response[0][0],
+                "images": response[0][1] if response[0][1] else {},
+                "title": response[0][2]
             }
         )
     except Exception as e:
-        print(f"Error retrieving meal plan: {str(e)}")
+        logging.error(f"Error retrieving meal plan: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error retrieving meal plan"
+                "message": f"Error retrieving meal plan: {str(e)}"
             }
         )
     
@@ -348,6 +352,7 @@ async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
     try:
         recipe = recipe_data.get('recipe', '')
         meals = recipe.split("Meal ")[1:]  # Split by "Meal " and remove empty first element
+        plan_id = recipe_data.get('plan_id')
 
         if len(meals) > 1:
             # Extract recipe names for both meals
@@ -384,20 +389,34 @@ async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
         image_data = ai_model.generate_image(image_prompt)
         image_base64 = base64.b64encode(image_data).decode('utf-8') if image_data else None
 
+        query = """
+            UPDATE mealplans
+            SET day_images = JSON_MERGE_PATCH(
+                COALESCE(day_images, '{}'),
+                JSON_OBJECT(?, ?)
+            )
+            WHERE id = CAST(? AS CHAR(36))
+        """
+
+        # Use string values for all parameters
+        values = (str(day), image_base64, str(plan_id))
+        db.execute_query(query, values)
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={
                 "status": status.HTTP_200_OK,
+                "message": "Image generated successfully",
                 "image": image_base64
             }
         )
     except Exception as e:
-        print(f"Error generating meal image: {str(e)}")
+        logging.error(f"Error generating image: {str(e)}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                "message": "Error generating meal image"
+                "message": f"Error generating image: {str(e)}"
             }
         )
 

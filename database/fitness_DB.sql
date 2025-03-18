@@ -23,6 +23,7 @@ CREATE TABLE mealplans (
     mealplan LONGTEXT NOT NULL,
     title VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    day_images LONGTEXT DEFAULT NULL CHECK (JSON_VALID(day_images)),
     FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE

@@ -37,7 +37,6 @@ export async function loginUser(userData) {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
@@ -76,25 +75,29 @@ export async function generateMealPlan(mealPlan) {
   }
 }
 
-export async function generateMealImage(day, recipe) {
+export async function generateMealImage(day, recipe, planId) {
   try {
     const response = await fetch(`${API_BASE_URL}/generate-meal-image/${day}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ recipe }),
+      body: JSON.stringify({
+        recipe,
+        plan_id: planId  // Add this line to include plan_id
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error generating meal image:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -166,4 +169,4 @@ export async function fetchMealPlan(mealPlanId, userId) {
     console.error("Error fetching meal plan:", error);
     throw error;
   }
-};
+}
