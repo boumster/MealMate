@@ -25,7 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("user");
+      const storedUser = sessionStorage.getItem("user");
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     } catch (error) {
       console.error("Error parsing stored user:", error);
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
       setIsAuthenticated(false);
     }
   }, []);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setUser(userData);
       setIsAuthenticated(true);
-      localStorage.setItem("user", JSON.stringify(userData));
+      sessionStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
       console.error("Error during login:", error);
       setIsAuthenticated(false);
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logoutUser = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
   };
 
   const value = {
