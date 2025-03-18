@@ -175,88 +175,64 @@ async def login_user(user_data: LoginData) -> JSONResponse:
 @app.put("/update-email")
 async def update_email(change_data: ChangeData) -> JSONResponse:
     try:
-        # Fetch user by original email
+        # Fetch user ID and current email
         query = "SELECT id, email FROM users WHERE username = %s"
-        response = db.execute_query(query, (change_data.username,))
-        
-        if not response:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        user_id, current_email = response[0]
+        result = db.execute_query(query, (change_data.username,))
 
-        # Check if new email is different and not already in use
+        if not result:
+            return JSONResponse(status_code=404, content={"error": "User not found"})
+
+        user_id, current_email = result[0]
+
+        # Validate if the new email is different and available
         if change_data.newEmail and change_data.newEmail != current_email:
-            query = "SELECT * FROM users WHERE email = %s"
+            query = "SELECT 1 FROM users WHERE email = %s"
             email_exists = db.execute_query(query, (change_data.newEmail,))
-            if email_exists:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email already in use"
-                )
             
+            if email_exists:
+                return JSONResponse(status_code=400, content={"error": "Email already in use"})
+
+            # Update email
             query = "UPDATE users SET email = %s WHERE id = %s"
             db.execute_query(query, (change_data.newEmail, user_id))
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Email updated successfully"}
-        )
-    
+            return JSONResponse(status_code=200, content={"message": "Email updated successfully"})
+
+        return JSONResponse(status_code=400, content={"error": "New email is the same as the current email"})
+
     except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": f"An unexpected error occurred: {str(e)}"}
-        )
+        return JSONResponse(status_code=500, content={"error": f"Unexpected error: {str(e)}"})
 
 
 @app.put("/update-password")
 async def update_password(change_data: ChangeData) -> JSONResponse:
     try:
-        # Fetch user by original email
+        # Fetch user ID and current hashed password
         query = "SELECT id, password FROM users WHERE username = %s"
-        response = db.execute_query(query, (change_data.username,))
-        
-        if not response:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        user_id, hashed_password = response[0]
+        result = db.execute_query(query, (change_data.username,))
 
-        # Verify current password
-        if not bcrypt.checkpw(change_data.originalPassword.encode("utf-8"), hashed_password.encode("utf-8")):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Incorrect password"
-            )
-        
-        # Ensure new password is different from the old one
+        if not result:
+            return JSONResponse(status_code=404, content={"error": "User not found"})
+
+        user_id, hashed_password = result[0]
+
+        # Validate current password
+        if not bcrypt.checkpw(change_data.originalPassword.encode(), hashed_password.encode()):
+            return JSONResponse(status_code=400, content={"error": "Incorrect password"})
+
+        # Ensure new password is different
         if change_data.originalPassword == change_data.newPassword:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="New password cannot be the same as the old password"
-            )
-        
+            return JSONResponse(status_code=400, content={"error": "New password must be different from the old password"})
+
         # Hash and update new password
-        new_hashed_password = bcrypt.hashpw(change_data.newPassword.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        new_hashed_password = bcrypt.hashpw(change_data.newPassword.encode(), bcrypt.gensalt()).decode()
         query = "UPDATE users SET password = %s WHERE id = %s"
         db.execute_query(query, (new_hashed_password, user_id))
-        
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Password updated successfully"}
-        )
-    
-    except Exception as e:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": f"An unexpected error occurred: {str(e)}"}
-        )
 
+        return JSONResponse(status_code=200, content={"message": "Password updated successfully"})
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Unexpected error: {str(e)}"})
 
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:

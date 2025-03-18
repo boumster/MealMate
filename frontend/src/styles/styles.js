@@ -148,7 +148,6 @@ const ListItem = styled.li`
   margin: 0.5rem 0;
 `;
 
-export { Container, Input, Button, Form, Label, FormRow, Title, Paragraph, List, ListItem, DropDown };
 
 const ResponsiveList = styled.div`
   display: block; /* Always show list format */
@@ -176,4 +175,4 @@ const ViewButton = styled(Button)`
   font-size: 1rem;
 `;
 
-export { Container, Input, Button, Form, Label, FormRow, Table, TableRow, TableHeader, TableCell, ViewButton, DropDown, ResponsiveList };
+export {Container, List, ListItem, Paragraph, Title, Input, Button, Form, Label, FormRow, Table, TableRow, TableHeader, TableCell, ViewButton, DropDown, ResponsiveList };

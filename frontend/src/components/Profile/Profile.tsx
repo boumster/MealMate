@@ -98,43 +98,55 @@ const Profile: React.FC = () => {
   // 🔹 Handle Email Update
   const handleEmailUpdate = async () => {
     let newErrors: { [key: string]: string } = {};
-
+  
     if (!isValidEmail(email)) {
       newErrors.email = "Invalid email format.";
     }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      const response = await updateEmail(user?.username, email);
-      if (response.status === 200) {
-        setSuccessMessage("✅ Email updated successfully!");
-      } else {
-        setErrors({ email: response.message });
-      }
-      history.push("/profile");
+  
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setSuccessMessage(""); // Clear success message on error
+      return;
     }
-  };
+  
+    const response = await updateEmail(user?.username, email);
+    
+    if (response.status === 200) {
+      setSuccessMessage(response.message); // ✅ Show actual success message from backend
+      setErrors({}); // Clear errors on success
+    } else {
+      setErrors({ email: response.message });
+      setSuccessMessage(""); // Clear success message on error
+    }
 
+  };
+  
   // 🔹 Handle Password Update
   const handlePasswordUpdate = async () => {
     let newErrors: { [key: string]: string } = {};
-
+  
     if (!isValidPassword(newPassword)) {
       newErrors.password = "Password must have at least 6 characters, one uppercase letter, and one number.";
     }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      const response = await updatePassword(user?.username, currentPassword, newPassword);
-      if (response.status === 200) {
-        setSuccessMessage("✅ Password updated successfully!");
-      } else {
-        setErrors({ password: response.message });
-      }
-      history.push("/profile");
+  
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setSuccessMessage(""); // Clear success message on error
+      return;
     }
+  
+    const response = await updatePassword(user?.username, currentPassword, newPassword);
+  
+    if (response.status === 200) {
+      setSuccessMessage(response.message); // ✅ Show actual success message from backend
+      setErrors({}); // Clear errors on success
+    } else {
+      setErrors({ password: response.message });
+      setSuccessMessage(""); // Clear success message on error
+    }
+    history.push("/login");
+    logoutUser();
+
   };
 
   return (
