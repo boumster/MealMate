@@ -7,19 +7,19 @@ CREATE DATABASE fitnessdb;
 -- Use the database
 USE fitnessdb;
 
--- Create users table
+-- Create users table with UUID
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create mealplan table with foreign key constraint
+-- Create mealplan table with UUID and foreign key constraint
 CREATE TABLE mealplans (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id CHAR(36) NOT NULL,
     mealplan LONGTEXT NOT NULL,
     title VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

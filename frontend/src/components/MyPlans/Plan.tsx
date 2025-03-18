@@ -17,7 +17,6 @@ export default function Plan() {
 
   useEffect(() => {
     // Fetch the plan data using the id from the URL
-    console.log("Fetching plan with id:", id);
     if (id && user) fetchPlan();
   }, [id]);
 
