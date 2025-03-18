@@ -28,7 +28,6 @@ export default function App() {
         <Route exact path="/register" render={(props) => <Register />} />
         <Route exact path="/" render={(props) => <Home />} />
         <Route path="/about" render={(props) => <About />} />
-        <Route path="/myplans" render={(props) => <MyPlans/>} />
 
         {/* Protected Routes */}
         <PrivateRoute path="/contact" component={Contact} />

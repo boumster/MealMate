@@ -25,6 +25,8 @@ export default function Mealplans() {
   const [availableIngredients, setAvailableIngredients] = useState("");
   const [currentDay, setCurrentDay] = useState(1);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [dietaryGoals, setDietaryGoals] = useState("");
+  const [budgetConstraints, setBudgetConstraints] = useState("");
   let loadingTimer: NodeJS.Timeout;
   const [dietaryRestriction, setDietaryRestriction] = useState<
     { name: string; value: string }[]
@@ -73,29 +75,30 @@ export default function Mealplans() {
   const [mealPlanImages, setMealPlanImages] = useState<(string | null)[]>([]);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingImageRequests, setPendingImageRequests] = useState<Set<number>>(new Set());
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   // Update multiselectStyles object
-  const multiselectStyles = {
-    chips: {
-      background: "#007bff",
-    },
-    multiselectContainer: {
-      width: "22.125rem",
-      margin: "0.5rem 0",
-    },
-    searchBox: {
-      width: "22.125rem",
-      padding: "0.5rem",
-      border: "0.1rem solid #ccc",
-      borderRadius: "0.4rem",
-    },
-    optionContainer: {
-      width: "22.125rem",
-    },
-    inputField: {
-      margin: 0,
-    },
-  };
+const multiselectStyles = {
+  chips: {
+    background: "#007bff",
+  },
+  multiselectContainer: {
+    width: "22.125rem",
+    margin: "0.5rem 0"
+  },
+  searchBox: {
+    width: "22.125rem",
+    padding: "0.5rem",
+    border: "0.1rem solid #ccc",
+    borderRadius: "0.4rem"
+  },
+  optionContainer: {
+    width: "22.125rem"
+  },
+  inputField: {
+    margin: 0
+  }
+};
 
   // Filter all for cuisine selection
   const handleCuisineSelect = (
@@ -135,6 +138,7 @@ export default function Mealplans() {
     setSelectedMealTypes(selectedList);
   };
 
+
   const handleDietaryRestrictionSelect = (
     selectedList: { name: string; value: string }[],
     selectedItem: { name: string; value: string }
@@ -159,32 +163,74 @@ export default function Mealplans() {
     const match = dayContent.match(/Recipe Name: (.+?)(?:\n|$)/);
     return match ? match[1].trim() : "";
   };
+  
+  const preloadNextImages = async (currentDay: number) => {
+    for (let i = 1; i <= 4; i++) {
+      const nextDay = currentDay + i;
+      if (nextDay <= 7 && !mealPlanImages[nextDay] && !pendingImageRequests.has(nextDay)) {
+        // Get the days from meal plan
+        const days = mealPlan.split("Day").slice(1);
+        const nextDayContent = days[nextDay]?.trim();
 
-  // Add this function to load image for current day
-  const loadCurrentDayImage = async (dayContent: string, dayIndex: number) => {
-    if (!mealPlanImages[dayIndex]) {
-      setIsImageLoading(true);
-      const recipeName = extractRecipeName(dayContent);
-      if (recipeName) {
-        const response = await generateMealImage(dayIndex, recipeName);
-        if (response?.image) {
-          setMealPlanImages((prev) => {
-            const newImages = [...prev];
-            newImages[dayIndex] = response.image;
-            return newImages;
+        if (nextDayContent) {
+          setPendingImageRequests(prev => {
+            const newSet = new Set(Array.from(prev));
+            newSet.add(nextDay);
+            return newSet;
           });
+
+          try {
+            const response = await generateMealImage(nextDay, nextDayContent);
+            if (response?.image) {
+              setMealPlanImages(prev => {
+                const newImages = [...prev];
+                newImages[nextDay] = response.image;
+                return newImages;
+              });
+            }
+          } catch (error) {
+            console.error(`Failed to preload image for day ${nextDay}:`, error);
+          } finally {
+            setPendingImageRequests(prev => {
+              const newSet = new Set(Array.from(prev));
+              newSet.delete(nextDay);
+              return newSet;
+            });
+          }
         }
       }
-      setIsImageLoading(false);
     }
   };
 
-  // Update currentDay setter to trigger image loading
-  const handleDayChange = (newDay: number) => {
-    setCurrentDay(newDay);
-    const days = mealPlan.split("Day").slice(1);
-    const dayContent = days[newDay]?.trim() || "";
-    loadCurrentDayImage(dayContent, newDay);
+  const handleDayChange = (day: number) => {
+    setCurrentDay(day);
+
+    if (!mealPlanImages[day] && !pendingImageRequests.has(day) && mealPlan?.[day]) {
+      setPendingImageRequests(prev => new Set(prev).add(day));
+      const recipe = mealPlan[day].split('\n').join('\n');
+      setIsImageLoading(true);
+
+      generateMealImage(day, recipe)
+          .then(response => {
+            if (response?.image) {
+              setMealPlanImages(prev => {
+                const newImages = [...prev];
+                newImages[day] = response.image;
+                return newImages;
+              });
+            }
+          })
+          .finally(() => {
+            setIsImageLoading(false);
+            setPendingImageRequests(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(day);
+              return newSet;
+            });
+          });
+    }
+    
+    preloadNextImages(day);
   };
 
   const handleGenerateMealPlan = async () => {
@@ -194,17 +240,17 @@ export default function Mealplans() {
       setLoadingMessage(
         "A Perfect Meal Plan Takes Time, Please Be Patient While We Personalize You A Plan..."
       );
-    }, 4000);
+    }, 5000);
 
     // Scroll to the button with smooth animation
     setTimeout(() => {
       if (generateButtonRef.current) {
         generateButtonRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
+          behavior: 'smooth',
+          block: 'center'
         });
       }
-    }, 200);
+    }, 200); 
 
     const mealTypes = selectedMealTypes
       .map((mealType) => mealType.value)
@@ -227,6 +273,8 @@ export default function Mealplans() {
       cooking_skill: cookingSkill,
       cooking_time: cookingTime,
       available_ingredients: availableIngredients,
+      dietary_goals: dietaryGoals,
+      budget_constraints: budgetConstraints,
       id: user?.id,
     };
 
@@ -236,9 +284,53 @@ export default function Mealplans() {
         setMealPlan(data.response);
         setMealPlanImages(new Array(7).fill(null));
         const days = data.response.split("Day").slice(1);
+
+        // Load first day image
         const firstDayContent = days[1]?.trim() || "";
-        loadCurrentDayImage(firstDayContent, 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        if (firstDayContent) {
+          setPendingImageRequests(new Set([1]));
+          const firstDayResponse = await generateMealImage(1, firstDayContent);
+          if (firstDayResponse?.image) {
+            setMealPlanImages(prev => {
+              const newImages = [...prev];
+              newImages[1] = firstDayResponse.image;
+              return newImages;
+            });
+          }
+          setPendingImageRequests(new Set());
+        }
+
+        // Start preloading next days
+        // Update the handleGenerateMealPlan function's preloading part
+        for (let i = 2; i <= 4; i++) {
+          if (days[i]) {
+            const dayContent = days[i].trim();
+            setPendingImageRequests(prev => {
+              const newSet = new Set(Array.from(prev));
+              newSet.add(i);
+              return newSet;
+            });
+            generateMealImage(i, dayContent)
+                .then(response => {
+                  if (response?.image) {
+                    setMealPlanImages(prev => {
+                      const newImages = [...prev];
+                      newImages[i] = response.image;
+                      return newImages;
+                    });
+                  }
+                })
+                .finally(() => {
+                  setPendingImageRequests(prev => {
+                    const newSet = new Set(Array.from(prev));
+                    newSet.delete(i);
+                    return newSet;
+                  });
+                });
+          }
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error("Error generating meal plan:", error);
@@ -255,6 +347,9 @@ export default function Mealplans() {
     const firstLineMatch = mealPlan.match(/Meal Plan (\d+) Per Day/);
     const dailyCalories = firstLineMatch ? firstLineMatch[1] : "Unknown";
 
+    const costMatch = mealPlan.match(/Estimated Weekly Cost: \$(\d+)/);
+    const estimatedCost = costMatch ? `$${costMatch[1]}` : "Unknown";
+
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
 
@@ -263,7 +358,7 @@ export default function Mealplans() {
     return (
       <div>
         <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-          Generated Meal Plan ({dailyCalories} Calories Per Day)
+          Generated Meal Plan ({dailyCalories} Calories Per Day) - Estimated Weekly Cost: {estimatedCost}
         </h3>
         <div style={{ marginBottom: "20px" }}>
           <Button
@@ -361,7 +456,8 @@ export default function Mealplans() {
                   alt={`Generated meal preview for Day ${currentDay}`}
                   style={{
                     width: "100%",
-                    height: "400px",
+                    minHeight: "600px",
+                    maxHeight: "800px",
                     objectFit: "cover",
                     borderRadius: "0.5rem",
                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
@@ -476,9 +572,10 @@ export default function Mealplans() {
                 value={caloriesPerDay}
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  if (value > 0) {
-                    setCaloriesPerDay(e.target.value);
-                  } else {
+                  if (value > 0){
+                  setCaloriesPerDay(e.target.value)
+                }
+                  else {
                     setCaloriesPerDay("1");
                   }
                 }}
@@ -599,6 +696,34 @@ export default function Mealplans() {
               />
             </Label>
           </FormRow>
+          <FormRow>
+            <Label>
+              Dietary Goals: (Opt.)
+              <Input
+                type="text"
+                value={dietaryGoals}
+                onChange={(e) => setDietaryGoals(e.target.value)}
+                placeholder="Enter any dietary goals you have (ex. weight loss)"
+              />
+            </Label>
+            <Label>
+              Budget Constraints: (Opt.)
+              <Input
+                type="text"
+                value={budgetConstraints}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (value >= 0){
+                  setBudgetConstraints(e.target.value)
+                }
+                  else {
+                    setBudgetConstraints("1");
+                  }
+                }}
+                placeholder="Enter any budget constraints you have"
+              />
+            </Label>
+          </FormRow>
           <Button
             ref={generateButtonRef}
             type="submit"
@@ -606,6 +731,28 @@ export default function Mealplans() {
           >
             Generate Meal Plan
           </Button>
+              {loadingMessage && (
+                  <div style={{
+                    marginTop: "10px",
+                    textAlign: "center"
+                  }}>
+                    {loadingMessage.split('').map((char, index) => (
+                        <span
+                            key={index}
+                            style={{
+                              display: "inline-block",
+                              color: "#666",
+                              fontSize: "1rem",
+                              animation: "waveText 2s ease-in-out infinite",
+                              animationDelay: `${index * 0.05}s`,
+                              marginLeft: char === ' ' ? '0.4em' : '0.1em'
+                            }}
+                        >
+        {char}
+      </span>
+                    ))}
+                  </div>
+              )}
         </Form>
       )}
     </Container>

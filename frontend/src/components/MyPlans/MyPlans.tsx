@@ -19,10 +19,10 @@ interface PlanResponse {
 export default function MyPlans() {
   const { user } = useAuth();
   const [plans, setPlans] = useState<PlanResponse[]>([]);
+  
 
   useEffect(() => {
     if (user) {
-      console.log("Fetching meal plans for user:", user.id);
       fetchPlans();
     }
   }, [user]);
@@ -30,7 +30,6 @@ export default function MyPlans() {
   async function fetchPlans() {
     try {
       const response = await fetchMealPlans(user);
-      console.log("Fetched plans:", response);
       setPlans(response.mealPlans);
     } catch (error) {
       console.error("Error fetching plans:", error);

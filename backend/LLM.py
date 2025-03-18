@@ -37,6 +37,8 @@ class GeminiLLM:
         Format your response exactly like this:
 
         Meal Plan [Number of Calories per day] Per Day
+
+        Estimated Weekly Cost: [Estimated Weekly Cost]
     
         Day [Number]:
         Meal [Number]:

@@ -20,14 +20,23 @@ export default function Plan() {
     if (id && user) fetchPlan();
   }, [id]);
 
+  useEffect(() => {
+    if (mealPlan) {
+      const days = mealPlan.split("Day").slice(1);
+      const firstDayContent = days[1]?.trim() || "";
+      loadCurrentDayImage(firstDayContent, 1);
+    }
+  }, [mealPlan]);
+
   async function fetchPlan() {
+    setIsLoading(true);
     try {
       const response = await fetchMealPlan(id, user?.id);
-      console.log("Fetched plan:", response);
       setMealPlan(response.mealPlan);
     } catch (error) {
       console.error("Error fetching plan:", error);
     }
+    setIsLoading(false);
   }
 
   const handleDayChange = (newDay: number) => {
@@ -69,6 +78,8 @@ export default function Plan() {
 
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
+
+    const cleanedDayContent = currentDayContent.replace(/^\d+:/, '');
 
     return (
       <div>
@@ -127,7 +138,7 @@ export default function Plan() {
             </h4>
             <p
               dangerouslySetInnerHTML={{
-                __html: currentDayContent
+                __html: cleanedDayContent
                   .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
                   .replace(
                     /Recipe Name: (.+)/g,
