@@ -37,7 +37,6 @@ export async function loginUser(userData) {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
@@ -119,6 +118,30 @@ export async function calculateCalories(file) {
   }
 }
 
+export async function sendChatMessage(message) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: message,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error sending chat message:", error);
+    throw error;
+  }
+}
+
 export async function fetchMealPlans(userData) {
   try {
     const response = await fetch(`${API_BASE_URL}/get-mealplans`, {
@@ -166,8 +189,7 @@ export async function fetchMealPlan(mealPlanId, userId) {
     console.error("Error fetching meal plan:", error);
     throw error;
   }
-};
-
+}
 
 export async function updateEmail(username, newEmail) {
   try {
@@ -189,8 +211,6 @@ export async function updateEmail(username, newEmail) {
   }
 }
 
-
-
 export async function updatePassword(username, originalPassword, newPassword) {
   try {
     const response = await fetch(`${API_BASE_URL}/update-password`, {
@@ -203,7 +223,7 @@ export async function updatePassword(username, originalPassword, newPassword) {
       }),
     });
 
-    const data = await response.json(); 
+    const data = await response.json();
 
     return { status: response.status, ...data };
 
@@ -212,4 +232,3 @@ export async function updatePassword(username, originalPassword, newPassword) {
     return { status: "error", message: "Something went wrong. Please try again." };
   }
 }
-

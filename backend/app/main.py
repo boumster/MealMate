@@ -8,6 +8,7 @@ from .models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRe
 from .LLM import GeminiLLM
 import logging
 from datetime import datetime
+from pydantic import BaseModel
 
 app = FastAPI()
 db = DatabaseConnection()
@@ -21,6 +22,61 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class ChatMessage(BaseModel):
+    message: str
+
+@app.post("/chat")
+async def chat(message: ChatMessage) -> JSONResponse:
+    try:
+        if not message.message:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={
+                    "status": status.HTTP_400_BAD_REQUEST,
+                    "message": "Message cannot be empty"
+                }
+            )
+
+        response = ai_model.chat_completion(message.message)
+
+        if not response:
+            raise ValueError("Empty response from AI model")
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": status.HTTP_200_OK,
+                "response": response
+            }
+        )
+    except ValueError as ve:
+        logging.error(f"Value error in chat: {str(ve)}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "status": status.HTTP_400_BAD_REQUEST,
+                "message": str(ve)
+            }
+        )
+    except Exception as e:
+        logging.error(f"Error in chat: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "An error occurred while processing your message."
+            }
+        )
+    except Exception as e:
+        print(f"Error in chat: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "message": "An error occurred while processing your message."
+            }
+        )
 # About page route
 @app.get("/about")
 def about() -> dict[str, str]:
@@ -515,3 +571,5 @@ async def calculate_calories(file: UploadFile = File(...)) -> JSONResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
         )
+    
+    

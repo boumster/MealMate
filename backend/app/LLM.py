@@ -71,6 +71,19 @@ class GeminiLLM:
         return response.text
 
 
+    def chat_completion(self, prompt: str) -> str:
+        if not self._client:
+            raise RuntimeError("Google AI client not initialized")
+    
+        response = self._client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+    
+        if hasattr(response, 'text'):
+            return response.text
+        return "I'm sorry, I couldn't process your request."
+
     def calculate_calories(self, image_data: bytes) -> Dict[str, Any]:
         try:
             vision_content = {
