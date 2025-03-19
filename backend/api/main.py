@@ -2,10 +2,10 @@ import base64
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from .database import DatabaseConnection
+from api.database import DatabaseConnection
 import bcrypt
-from .models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
-from .LLM import GeminiLLM
+from api.models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
+from api.LLM import GeminiLLM
 import logging
 from datetime import datetime
 
@@ -16,7 +16,11 @@ ai_model = GeminiLLM()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "*"],  # Adjust this to restrict allowed origins
+    allow_origins=[
+        "http://localhost:3000",  # Development
+        "https://happy-flower-0c4c73b0f.6.azurestaticapps.net",  # Production
+        "https://seng401.vercel.app/"  # Vercel
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
