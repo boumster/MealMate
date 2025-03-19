@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://seng401-ajbhug30z-boumsters-projects.vercel.app";
+const API_BASE_URL = "https://seng401-3dxyapk2n-boumsters-projects.vercel.app/";
 
 export async function fetchAbout() {
   try {
