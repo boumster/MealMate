@@ -80,7 +80,7 @@ const SuccessText = styled.p`
 
 const Profile: React.FC = () => {
   const history = useHistory();
-  const { isAuthenticated, user, logoutUser } = useAuth();
+  const { isAuthenticated, user, logoutUser, setUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -110,16 +110,24 @@ const Profile: React.FC = () => {
     }
   
     const response = await updateEmail(user?.username, email);
-    
+  
     if (response.status === 200) {
       setSuccessMessage(response.message); // ✅ Show actual success message from backend
       setErrors({}); // Clear errors on success
-      
+  
+      // Safely update the user state if `setUser` exists
+      if (user && setUser) {
+        setUser({ ...user, email }); // Update the user's email in state
+      }
+  
+      setTimeout(() => { // Added 2s timeout to show success.
+        history.push("/profile");
+        setSuccessMessage(""); // Clear success message on error
+      }, 2000);
     } else {
       setErrors({ email: response.message });
       setSuccessMessage(""); // Clear success message on error
     }
-
   };
   
   // 🔹 Handle Password Update

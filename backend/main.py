@@ -180,7 +180,10 @@ async def update_email(change_data: ChangeData) -> JSONResponse:
         result = db.execute_query(query, (change_data.username,))
 
         if not result:
-            return JSONResponse(status_code=404, content={"error": "User not found"})
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"status": status.HTTP_404_NOT_FOUND, "message": "User not found"}
+            )
 
         user_id, current_email = result[0]
 
@@ -190,18 +193,30 @@ async def update_email(change_data: ChangeData) -> JSONResponse:
             email_exists = db.execute_query(query, (change_data.newEmail,))
             
             if email_exists:
-                return JSONResponse(status_code=400, content={"error": "Email already in use"})
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={"status": status.HTTP_400_BAD_REQUEST, "message": "Email already in use"}
+                )
 
             # Update email
             query = "UPDATE users SET email = %s WHERE id = %s"
             db.execute_query(query, (change_data.newEmail, user_id))
 
-            return JSONResponse(status_code=200, content={"message": "Email updated successfully"})
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"status": status.HTTP_200_OK, "message": "Email updated successfully"}
+            )
 
-        return JSONResponse(status_code=400, content={"error": "New email is the same as the current email"})
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"status": status.HTTP_400_BAD_REQUEST, "message": "New email is the same as the current email"}
+        )
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Unexpected error: {str(e)}"})
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": f"Unexpected error: {str(e)}"}
+        )
 
 
 @app.put("/update-password")

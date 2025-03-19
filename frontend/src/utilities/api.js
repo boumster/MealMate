@@ -177,14 +177,18 @@ export async function updateEmail(username, newEmail) {
       body: JSON.stringify({ username, newEmail }),
     });
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
 
-    return await response.json();
+    return {
+      status: response.status,
+      ...data, // Spread the JSON response (so message & errors remain intact)
+    };
   } catch (error) {
     console.error("Error updating email:", error);
-    return { status: "error", message: error.message };
+    return { status: 500, message: "An unexpected error occurred." };
   }
 }
+
 
 
 export async function updatePassword(username, originalPassword, newPassword) {
