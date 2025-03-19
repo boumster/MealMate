@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://4.156.210.85:8000";
 
 export async function fetchAbout() {
   try {
