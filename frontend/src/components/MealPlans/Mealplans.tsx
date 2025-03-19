@@ -76,6 +76,7 @@ export default function Mealplans() {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingImageRequests, setPendingImageRequests] = useState<Set<number>>(new Set());
+  const [contentFade, setContentFade] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   // Update multiselectStyles object
 const multiselectStyles = {
@@ -233,6 +234,15 @@ const multiselectStyles = {
     preloadNextImages(day);
   };
 
+  const handleDayTransition = (newDay: number) => {
+    setContentFade(true);
+
+    setTimeout(() => {
+      handleDayChange(newDay);
+      setContentFade(false);
+    }, 300);
+  };
+
   const handleGenerateMealPlan = async () => {
     setIsLoading(true);
     setLoadingMessage("Cooking Up a Meal Plan...");
@@ -352,409 +362,366 @@ const multiselectStyles = {
 
     const days = mealPlan.split("Day").slice(1);
     const currentDayContent = days[currentDay]?.trim() || "";
-
     const cleanedDayContent = currentDayContent.replace(/^\d+:/, '');
 
     return (
-      <div>
-        <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-          Generated Meal Plan ({dailyCalories} Calories Per Day) - Estimated Weekly Cost: {estimatedCost}
-        </h3>
-        <div style={{ marginBottom: "20px" }}>
-          <Button
-            onClick={() => handleDayChange(Math.max(currentDay - 1, 1))}
-            disabled={currentDay === 1}
-          >
-            Previous Day
-          </Button>
-          <Button
-            onClick={() =>
-              handleDayChange(Math.min(currentDay + 1, days.length - 1))
-            }
-            disabled={currentDay === days.length}
-            style={{ marginLeft: "10px" }}
-          >
-            Next Day
-          </Button>
-        </div>
+        <div>
+          <h3 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+            Generated Meal Plan ({dailyCalories} Calories Per Day) - Estimated Weekly Cost: {estimatedCost}
+          </h3>
+          <div style={{ marginBottom: "20px" }}>
+            <Button
+                onClick={() => handleDayTransition(Math.max(currentDay - 1, 1))}
+                disabled={currentDay === 1}
+            >
+              Previous Day
+            </Button>
+            <Button
+                onClick={() => handleDayTransition(Math.min(currentDay + 1, days.length - 1))}
+                disabled={currentDay === days.length}
+                style={{ marginLeft: "10px" }}
+            >
+              Next Day
+            </Button>
+          </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "2rem",
-            alignItems: "flex-start",
-          }}
-        >
-          {/* Left Column: Meal Plan */}
-          <div
-            style={{
-              flex: "1",
-              whiteSpace: "pre-wrap",
-              lineHeight: "1.5",
-              fontSize: "1rem",
-              backgroundColor: "#fff",
-              padding: "1.5rem",
-              borderRadius: "0.5rem",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
-            }}
-          >
-            <h4
-              style={{
+          <div className="container">
+            {/* Left Column: Meal Plan */}
+            <div className={`left-column day-content ${contentFade ? 'fade-out' : ''}`}>
+              <h4 style={{
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 marginTop: 0,
                 paddingBottom: "0.5rem",
                 borderBottom: "2px dashed #ccc",
                 marginBottom: "1rem",
-              }}
-            >
-              Day {currentDay}
-            </h4>
-            <p
-              dangerouslySetInnerHTML={{
+              }}>
+                Day {currentDay}
+              </h4>
+              <p dangerouslySetInnerHTML={{
                 __html: cleanedDayContent
-                  .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
-                  .replace(
-                    /Recipe Name: (.+)/g,
-                    "<strong>Recipe Name:</strong> $1"
-                  )
-                  .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
-                  .replace(/Instructions:/g, "<strong>Instructions:</strong>")
-                  .replace(/Calories:/g, "<strong>Calories:</strong>")
-                  .replace(/Proteins:/g, "<strong>Proteins:</strong>")
-                  .replace(/Fats:/g, "<strong>Fats:</strong>")
-                  .replace(
-                    /Carbohydrates:/g,
-                    "<strong>Carbohydrates:</strong>"
-                  ),
-              }}
-            />
-          </div>
+                    .replace(/Meal \d+:/g, "<strong>$&</strong><br>")
+                    .replace(/Recipe Name: (.+)/g, "<strong>Recipe Name:</strong> $1")
+                    .replace(/Ingredients:/g, "<strong>Ingredients:</strong>")
+                    .replace(/Instructions:/g, "<strong>Instructions:</strong>")
+                    .replace(/Calories:/g, "<strong>Calories:</strong>")
+                    .replace(/Proteins:/g, "<strong>Proteins:</strong>")
+                    .replace(/Fats:/g, "<strong>Fats:</strong>")
+                    .replace(/Carbohydrates:/g, "<strong>Carbohydrates:</strong>"),
+              }} />
+            </div>
 
-          {/* Right Column: Meal Preview */}
-          <div
-            style={{
-              width: "48%",
-              position: "sticky",
-              top: "2rem",
-            }}
-          >
-            <h4
-              style={{
+            {/* Right Column: Meal Preview */}
+            <div className={`right-column day-image-container ${contentFade ? 'fade-out' : ''}`}>
+              <h4 style={{
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 marginTop: 0,
                 marginBottom: "1rem",
-              }}
-            >
-              Meal Preview for Day {currentDay}
-            </h4>
-            {mealPlanImages[currentDay] ? (
-              <>
-                <img
-                  src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
-                  alt={`Generated meal preview for Day ${currentDay}`}
-                  style={{
-                    width: "100%",
-                    minHeight: "600px",
-                    maxHeight: "800px",
-                    objectFit: "cover",
-                    borderRadius: "0.5rem",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                    opacity: 0.8,
-                    transition: "opacity 0.3s ease-in-out",
-                    cursor: "zoom-in",
-                  }}
-                  onLoad={(e) => {
-                    e.currentTarget.style.opacity = "1";
-                  }}
-                  onClick={() => setIsImageModalOpen(true)}
-                />
-                {isImageModalOpen && (
-                  <div
-                    className="modal-overlay"
-                    onClick={() => setIsImageModalOpen(false)}
-                  >
+              }}>
+                Meal Preview for Day {currentDay}
+              </h4>
+              {mealPlanImages[currentDay] ? (
+                  <>
                     <img
-                      src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
-                      alt={`Generated meal preview for Day ${currentDay}`}
-                      className="modal-image"
+                        src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
+                        alt={`Generated meal preview for Day ${currentDay}`}
+                        style={{
+                          width: "100%",
+                          minHeight: "600px",
+                          maxHeight: "800px",
+                          objectFit: "cover",
+                          borderRadius: "0.5rem",
+                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                          opacity: 0.8,
+                          transition: "opacity 0.3s ease-in-out",
+                          cursor: "zoom-in",
+                        }}
+                        onLoad={(e) => {
+                          e.currentTarget.style.opacity = "1";
+                        }}
+                        onClick={() => setIsImageModalOpen(true)}
                     />
+                    {isImageModalOpen && (
+                        <div className="modal-overlay" onClick={() => setIsImageModalOpen(false)}>
+                          <img
+                              src={`data:image/jpeg;base64,${mealPlanImages[currentDay]}`}
+                              alt={`Generated meal preview for Day ${currentDay}`}
+                              className="modal-image"
+                          />
+                        </div>
+                    )}
+                  </>
+              ) : (
+                  <div style={{
+                    width: "100%",
+                    height: "400px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "0.5rem",
+                  }}>
+                    {isImageLoading ? (
+                        <Loading size="medium" />
+                    ) : (
+                        <p>Image will be generated when you view this day</p>
+                    )}
                   </div>
-                )}
-              </>
-            ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "400px", // Match the image height
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: "0.5rem",
-                }}
-              >
-                {isImageLoading ? (
-                  <Loading size="medium" />
-                ) : (
-                  <p>Image will be generated when you view this day</p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
     );
   };
 
-  return (
+return (
     <Container>
       <h1>Meal Plans</h1>
       {!mealPlan && !isLoading && (
-        <p className="container-header">
-          Please fill out the form below with your preferences and requirements
-          to generate a personalized meal plan.
-        </p>
+          <p className="container-header">
+            Please fill out the form below with your preferences and requirements
+            to generate a personalized meal plan.
+          </p>
       )}
 
       {mealPlan ? (
-        renderMealPlan()
+          renderMealPlan()
       ) : isLoading ? (
-        <>
-          <Loading />
-          {loadingMessage && (
-            <div
-              style={{
-                marginTop: "10px",
-                textAlign: "center",
-              }}
-            >
-              {loadingMessage.split("").map((char, index) => (
-                <span
-                  key={index}
-                  style={{
-                    display: "inline-block",
-                    color: "#666",
-                    fontSize: "1rem",
-                    animation: "waveText 2s ease-in-out infinite",
-                    animationDelay: `${index * 0.05}s`,
-                    marginLeft: char === " " ? "0.4em" : "0.1em",
-                  }}
+          <>
+            <Loading />
+            {loadingMessage && (
+                <div
+                    style={{
+                      marginTop: "10px",
+                      textAlign: "center",
+                    }}
                 >
+                  {loadingMessage.split("").map((char, index) => (
+                      <span
+                          key={index}
+                          style={{
+                            display: "inline-block",
+                            color: "#666",
+                            fontSize: "1rem",
+                            animation: "waveText 2s ease-in-out infinite",
+                            animationDelay: `${index * 0.05}s`,
+                            marginLeft: char === " " ? "0.4em" : "0.1em",
+                          }}
+                      >
                   {char}
                 </span>
-              ))}
-            </div>
-          )}
-        </>
+                  ))}
+                </div>
+            )}
+          </>
       ) : (
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleGenerateMealPlan();
-          }}
-        >
-          <FormRow>
-            <Label>
-              Ingredients: (Opt.)
-              <Input
-                type="text"
-                value={ingredients}
-                onChange={(e) => setIngredients(e.target.value)}
-                placeholder="Enter ingredients you want"
-              />
-            </Label>
-            <Label>
-              Calories Per Day:
-              <Input
-                type="number"
-                value={caloriesPerDay}
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value > 0){
-                  setCaloriesPerDay(e.target.value)
-                }
-                  else {
-                    setCaloriesPerDay("1");
-                  }
-                }}
-                placeholder="Enter desired calories"
-              />
-              {!caloriesPerDay && (
-                <span className="error-message">This field is required</span>
-              )}
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Preferred Meal Types: (Opt.)
-              <Multiselect
-                options={mealTypeOptions}
-                selectedValues={selectedMealTypes}
-                onSelect={handleMealTypesSelect}
-                onRemove={handleMealTypesRemove}
-                displayValue="name"
-                placeholder="Select Meal Preferences"
-                showArrow={true}
-                style={multiselectStyles}
-              />
-            </Label>
-            <Label>
-              Number of Meals per Day:
-              <Input
-                type="number"
-                value={mealsPerDay}
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value > 0 && value < 6) {
-                    setMealsPerDay(e.target.value);
-                  } else if (value === 0) {
-                    setMealsPerDay("1");
-                  } else {
-                    setMealsPerDay("5");
-                  }
-                }}
-                placeholder="Enter number of meals per day"
-              />
-              {!mealsPerDay && (
-                <span className="error-message">This field is required</span>
-              )}
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Cuisine Preferences: (Opt.)
-              <Multiselect
-                options={cuisineOptions}
-                selectedValues={selectedCuisinePreferences}
-                onSelect={handleCuisineSelect}
-                onRemove={handleCuisineRemove}
-                displayValue="name"
-                placeholder="Select Cuisine Preferences"
-                showArrow={true}
-                style={multiselectStyles}
-              />
-            </Label>
-            <Label>
-              Dietary Restrictions: (Opt.)
-              <Multiselect
-                options={dietaryRestrictionOptions}
-                selectedValues={dietaryRestriction}
-                onSelect={handleDietaryRestrictionSelect}
-                onRemove={handleDietaryRestrictionRemove}
-                displayValue="name"
-                placeholder="Select Dietary Restriction"
-                showArrow={true}
-                style={multiselectStyles}
-              />
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Disliked Ingredients: (Opt.)
-              <Input
-                type="text"
-                value={dislikedIngredients}
-                onChange={(e) => setDislikedIngredients(e.target.value)}
-                placeholder="Enter disliked ingredients"
-              />
-            </Label>
-            <Label>
-              Cooking Skill Level: (Opt.)
-              <DropDown
-                value={cookingSkill}
-                onChange={(e) => setCookingSkill(e.target.value)}
-              >
-                <option value="">Select cooking skill</option>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="expert">Expert</option>
-              </DropDown>
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Time Available for Cooking: (Opt.)
-              <DropDown
-                value={cookingTime}
-                onChange={(e) => setCookingTime(e.target.value)}
-              >
-                <option value="">Select meal times</option>
-                <option value="quick">Quick Meals (≤ 15 min)</option>
-                <option value="moderate">Moderate (30-60 min)</option>
-                <option value="elaborate">Elaborate (60+ min)</option>
-              </DropDown>
-            </Label>
-            <Label>
-              Available Ingredients in the Kitchen: (Opt.)
-              <Input
-                type="text"
-                value={availableIngredients}
-                onChange={(e) => setAvailableIngredients(e.target.value)}
-                placeholder="Enter available ingredients in the kitchen"
-              />
-            </Label>
-          </FormRow>
-          <FormRow>
-            <Label>
-              Dietary Goals: (Opt.)
-              <Input
-                type="text"
-                value={dietaryGoals}
-                onChange={(e) => setDietaryGoals(e.target.value)}
-                placeholder="Enter any dietary goals you have (ex. weight loss)"
-              />
-            </Label>
-            <Label>
-              Budget Constraints: (Opt.)
-              <Input
-                type="text"
-                value={budgetConstraints}
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value >= 0){
-                  setBudgetConstraints(e.target.value)
-                }
-                  else {
-                    setBudgetConstraints("1");
-                  }
-                }}
-                placeholder="Enter any budget constraints you have"
-              />
-            </Label>
-          </FormRow>
-          <Button
-            ref={generateButtonRef}
-            type="submit"
-            disabled={isLoading || !caloriesPerDay || !mealsPerDay}
+          <Form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleGenerateMealPlan();
+              }}
           >
-            Generate Meal Plan
-          </Button>
-              {loadingMessage && (
-                  <div style={{
-                    marginTop: "10px",
-                    textAlign: "center"
-                  }}>
-                    {loadingMessage.split('').map((char, index) => (
-                        <span
-                            key={index}
-                            style={{
-                              display: "inline-block",
-                              color: "#666",
-                              fontSize: "1rem",
-                              animation: "waveText 2s ease-in-out infinite",
-                              animationDelay: `${index * 0.05}s`,
-                              marginLeft: char === ' ' ? '0.4em' : '0.1em'
-                            }}
-                        >
+            <FormRow>
+              <Label>
+                Ingredients: (Opt.)
+                <Input
+                    type="text"
+                    value={ingredients}
+                    onChange={(e) => setIngredients(e.target.value)}
+                    placeholder="Enter ingredients you want"
+                />
+              </Label>
+              <Label>
+                Calories Per Day:
+                <Input
+                    type="number"
+                    value={caloriesPerDay}
+                    onChange={(e) => {
+                      let value = Number(e.target.value);
+                      if (value > 0){
+                        setCaloriesPerDay(e.target.value)
+                      }
+                      else {
+                        setCaloriesPerDay("1");
+                      }
+                    }}
+                    placeholder="Enter desired calories"
+                />
+                {!caloriesPerDay && (
+                    <span className="error-message">This field is required</span>
+                )}
+              </Label>
+            </FormRow>
+            <FormRow>
+              <Label>
+                Preferred Meal Types: (Opt.)
+                <Multiselect
+                    options={mealTypeOptions}
+                    selectedValues={selectedMealTypes}
+                    onSelect={handleMealTypesSelect}
+                    onRemove={handleMealTypesRemove}
+                    displayValue="name"
+                    placeholder="Select Meal Preferences"
+                    showArrow={true}
+                    style={multiselectStyles}
+                />
+              </Label>
+              <Label>
+                Number of Meals per Day:
+                <Input
+                    type="number"
+                    value={mealsPerDay}
+                    onChange={(e) => {
+                      let value = Number(e.target.value);
+                      if (value > 0 && value < 6) {
+                        setMealsPerDay(e.target.value);
+                      } else if (value === 0) {
+                        setMealsPerDay("1");
+                      } else {
+                        setMealsPerDay("5");
+                      }
+                    }}
+                    placeholder="Enter number of meals per day"
+                />
+                {!mealsPerDay && (
+                    <span className="error-message">This field is required</span>
+                )}
+              </Label>
+            </FormRow>
+            <FormRow>
+              <Label>
+                Cuisine Preferences: (Opt.)
+                <Multiselect
+                    options={cuisineOptions}
+                    selectedValues={selectedCuisinePreferences}
+                    onSelect={handleCuisineSelect}
+                    onRemove={handleCuisineRemove}
+                    displayValue="name"
+                    placeholder="Select Cuisine Preferences"
+                    showArrow={true}
+                    style={multiselectStyles}
+                />
+              </Label>
+              <Label>
+                Dietary Restrictions: (Opt.)
+                <Multiselect
+                    options={dietaryRestrictionOptions}
+                    selectedValues={dietaryRestriction}
+                    onSelect={handleDietaryRestrictionSelect}
+                    onRemove={handleDietaryRestrictionRemove}
+                    displayValue="name"
+                    placeholder="Select Dietary Restriction"
+                    showArrow={true}
+                    style={multiselectStyles}
+                />
+              </Label>
+            </FormRow>
+            <FormRow>
+              <Label>
+                Disliked Ingredients: (Opt.)
+                <Input
+                    type="text"
+                    value={dislikedIngredients}
+                    onChange={(e) => setDislikedIngredients(e.target.value)}
+                    placeholder="Enter disliked ingredients"
+                />
+              </Label>
+              <Label>
+                Cooking Skill Level: (Opt.)
+                <DropDown
+                    value={cookingSkill}
+                    onChange={(e) => setCookingSkill(e.target.value)}
+                >
+                  <option value="">Select cooking skill</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="expert">Expert</option>
+                </DropDown>
+              </Label>
+            </FormRow>
+            <FormRow>
+              <Label>
+                Time Available for Cooking: (Opt.)
+                <DropDown
+                    value={cookingTime}
+                    onChange={(e) => setCookingTime(e.target.value)}
+                >
+                  <option value="">Select meal times</option>
+                  <option value="quick">Quick Meals (≤ 15 min)</option>
+                  <option value="moderate">Moderate (30-60 min)</option>
+                  <option value="elaborate">Elaborate (60+ min)</option>
+                </DropDown>
+              </Label>
+              <Label>
+                Available Ingredients in the Kitchen: (Opt.)
+                <Input
+                    type="text"
+                    value={availableIngredients}
+                    onChange={(e) => setAvailableIngredients(e.target.value)}
+                    placeholder="Enter available ingredients in the kitchen"
+                />
+              </Label>
+            </FormRow>
+            <FormRow>
+              <Label>
+                Dietary Goals: (Opt.)
+                <Input
+                    type="text"
+                    value={dietaryGoals}
+                    onChange={(e) => setDietaryGoals(e.target.value)}
+                    placeholder="Enter any dietary goals you have (ex. weight loss)"
+                />
+              </Label>
+              <Label>
+                Budget Constraints: (Opt.)
+                <Input
+                    type="text"
+                    value={budgetConstraints}
+                    onChange={(e) => {
+                      let value = Number(e.target.value);
+                      if (value >= 0){
+                        setBudgetConstraints(e.target.value)
+                      }
+                      else {
+                        setBudgetConstraints("1");
+                      }
+                    }}
+                    placeholder="Enter any budget constraints you have"
+                />
+              </Label>
+            </FormRow>
+            <Button
+                ref={generateButtonRef}
+                type="submit"
+                disabled={isLoading || !caloriesPerDay || !mealsPerDay}
+            >
+              Generate Meal Plan
+            </Button>
+            {loadingMessage && (
+                <div style={{
+                  marginTop: "10px",
+                  textAlign: "center"
+                }}>
+                  {loadingMessage.split('').map((char, index) => (
+                      <span
+                          key={index}
+                          style={{
+                            display: "inline-block",
+                            color: "#666",
+                            fontSize: "1rem",
+                            animation: "waveText 2s ease-in-out infinite",
+                            animationDelay: `${index * 0.05}s`,
+                            marginLeft: char === ' ' ? '0.4em' : '0.1em'
+                          }}
+                      >
         {char}
       </span>
-                    ))}
-                  </div>
-              )}
-        </Form>
+                  ))}
+                </div>
+            )}
+          </Form>
       )}
     </Container>
-  );
+);
 }

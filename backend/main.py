@@ -424,7 +424,7 @@ async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
                     meal_names.append(recipe_name)
 
             image_prompt = (
-                f"Generate a photorealistic image with these {len(meal_names)} meals arranged vertically: {', '.join(meal_names)}. "
+                f"Generate a photorealistic image with these {len(meal_names)} meals MUST BE ARRANGED VERTICALLY: {', '.join(meal_names)}. "
                 f"Each meal should be plated on its own separate white plate. "
                 f"Arrange the plates vertically, one below the other, with clear borders or space separating each meal. "
                 f"Display meals in the order they appear in the recipe, from top to bottom. "
