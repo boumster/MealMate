@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NODE_ENV === "production" ? "http://34.215.30.142/api" : "http://localhost:8000"; // Adjust the URL if your backend is hosted elsewhere
+const API_BASE_URL = process.env.NODE_ENV === "production" ? "http://34.215.30.142/api" : "http://localhost:8000";
 
 export async function fetchAbout() {
   try {
@@ -167,3 +167,49 @@ export async function fetchMealPlan(mealPlanId, userId) {
     throw error;
   }
 };
+
+
+export async function updateEmail(username, newEmail) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/update-email`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, newEmail }),
+    });
+
+    const data = await response.json();
+
+    return {
+      status: response.status,
+      ...data, // Spread the JSON response (so message & errors remain intact)
+    };
+  } catch (error) {
+    console.error("Error updating email:", error);
+    return { status: 500, message: "An unexpected error occurred." };
+  }
+}
+
+
+
+export async function updatePassword(username, originalPassword, newPassword) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/update-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        originalPassword,
+        newPassword,
+      }),
+    });
+
+    const data = await response.json(); 
+
+    return { status: response.status, ...data };
+
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+}
+

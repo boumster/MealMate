@@ -122,6 +122,33 @@ const DropDown = styled.select`
   }
 `;
 
+const Title = styled.h2`
+  color: #333;
+  text-align: center;
+  margin-bottom: 1rem;
+`;
+
+const Paragraph = styled.p`
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 40rem;
+`;
+
+const List = styled.ul`
+  list-style: none;
+  padding: 0;
+  text-align: center;
+`;
+
+const ListItem = styled.li`
+  color: #444;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+`;
+
+
 const ResponsiveList = styled.div`
   display: block; /* Always show list format */
 
@@ -148,4 +175,4 @@ const ViewButton = styled(Button)`
   font-size: 1rem;
 `;
 
-export { Container, Input, Button, Form, Label, FormRow, Table, TableRow, TableHeader, TableCell, ViewButton, DropDown, ResponsiveList };
+export {Container, List, ListItem, Paragraph, Title, Input, Button, Form, Label, FormRow, Table, TableRow, TableHeader, TableCell, ViewButton, DropDown, ResponsiveList };

@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import "../../styles/Login.css";
 import { loginUser } from "../../utilities/api";
 import { useAuth } from "../../context/Auth/AuthProvider";
+import { Button, Container, Input } from "../../styles/styles";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -17,6 +18,7 @@ const Login: React.FC = () => {
         username,
         password,
       };
+      setError("");
 
       const response = await loginUser(userData);
       
@@ -25,43 +27,44 @@ const Login: React.FC = () => {
         await authLogin(response.user);
         history.push("/");
       } else {
-        setError(response?.message || "Login failed");
+        setError(response?.message || "Login failed invalid credentials. Please Try Again.");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError("An error occurred during login");
     }
   };
+
   return (
-    <div className="login-container">
+    <Container className="login-container">
       <h2>Mealmate Login</h2>
-      <input
+      {error && 
+      <p className="error">{error}</p>}
+      <Input
         type="text"
         placeholder="Username"
         className="login-input"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
-      <input
+      <Input
         type="password"
         placeholder="Password"
         className="login-input"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button className="login-button" onClick={handleLogin}>
+      <Button className="login-button" onClick={handleLogin}>
         Login
-      </button>
-      <button
+      </Button>
+      <Button
         className="login-button"
         onClick={() => history.push("/register")}
       >
         Register
-      </button>
-      <button className="login-button" onClick={() => history.push("/")}>
+      </Button>
+      <Button className="login-button" onClick={() => history.push("/")}>
         Return to Home
-      </button>
-    </div>
+      </Button>
+    </Container>
   );
 };
 

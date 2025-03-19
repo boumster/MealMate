@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from database import DatabaseConnection
 import bcrypt
-from models import UserData, LoginData, MealPlanRequest, MealPlanRetrieve, IndividualMealPlanRetrieve
+from models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
 from LLM import GeminiLLM
 import logging
 from datetime import datetime
@@ -16,7 +16,7 @@ ai_model = GeminiLLM()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to restrict allowed origins
+    allow_origins=["http://localhost:3000", "*"],  # Adjust this to restrict allowed origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -171,6 +171,92 @@ async def login_user(user_data: LoginData) -> JSONResponse:
                 "message": "An unexpected error occurred"
             }
         )
+
+@app.put("/update-email")
+async def update_email(change_data: ChangeData) -> JSONResponse:
+    try:
+        # Fetch user ID and current email
+        query = "SELECT id, email FROM users WHERE username = %s"
+        result = db.execute_query(query, (change_data.username,))
+
+        if not result:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"status": status.HTTP_404_NOT_FOUND, "message": "User not found"}
+            )
+
+        user_id, current_email = result[0]
+
+        # Validate if the new email is different and available
+        if change_data.newEmail and change_data.newEmail != current_email:
+            query = "SELECT 1 FROM users WHERE email = %s"
+            email_exists = db.execute_query(query, (change_data.newEmail,))
+            
+            if email_exists:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={"status": status.HTTP_400_BAD_REQUEST, "message": "Email already in use"}
+                )
+
+            # Update email
+            query = "UPDATE users SET email = %s WHERE id = %s"
+            db.execute_query(query, (change_data.newEmail, user_id))
+
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content={"status": status.HTTP_200_OK, "message": "Email updated successfully"}
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"status": status.HTTP_400_BAD_REQUEST, "message": "New email is the same as the current email"}
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": f"Unexpected error: {str(e)}"}
+        )
+
+
+@app.put("/update-password")
+async def update_password(change_data: ChangeData) -> JSONResponse:
+    try:
+        # Fetch user ID and current hashed password
+        query = "SELECT id, password FROM users WHERE username = %s"
+        result = db.execute_query(query, (change_data.username,))
+
+        if not result:
+            
+            #cleanup code
+            return JSONResponse(status_code=404, content={"error": "User not found"})
+
+        user_id, hashed_password = result[0]
+
+        # Validate current password
+        if not bcrypt.checkpw(change_data.originalPassword.encode(), hashed_password.encode()):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                content={"status": status.HTTP_400_BAD_REQUEST,
+                         "message": "Incorrect Password, please try again."}
+                )
+
+        # Ensure new password is different
+        if change_data.originalPassword == change_data.newPassword:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, 
+                                content={"status": status.HTTP_400_BAD_REQUEST,
+                                        "message": "New password must be different from the old password."})
+
+        # Hash and update new password
+        new_hashed_password = bcrypt.hashpw(change_data.newPassword.encode(), bcrypt.gensalt()).decode()
+        query = "UPDATE users SET password = %s WHERE id = %s"
+        db.execute_query(query, (new_hashed_password, user_id))
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"status": status.HTTP_200_OK,
+        "message": "Password updated successfully"})
+
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR,"message": f"Unexpected error: {str(e)}"})
 
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:
@@ -404,8 +490,6 @@ async def generate_meal_image(day: int, recipe_data: dict) -> JSONResponse:
                 "message": "Error generating meal image"
             }
         )
-
-
 
 @app.post("/calculate-calories")
 async def calculate_calories(file: UploadFile = File(...)) -> JSONResponse:

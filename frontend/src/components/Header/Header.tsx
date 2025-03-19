@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useAuth } from "../../context/Auth/AuthProvider";
+import { Button } from "../../styles/styles";
 
 const HeaderContainer = styled.header`
   background-color: #3f51b5;
@@ -22,10 +23,6 @@ const MenuButton = styled.button`
   cursor: pointer;
 `;
 
-const HeaderTitle = styled.h1`
-  margin: 0 0 0 10px;
-`;
-
 const LoginButton = styled.a`
   margin-left: auto;
   padding: 8px 16px;
@@ -42,14 +39,27 @@ const LoginButton = styled.a`
   }
 `;
 
+const HeaderTitle = styled.h1`
+  margin: 0 0 0 10px;
+`;
+
+const ProfileIcon = styled.img`
+  margin-left: auto;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  background-color: white;
+`;
+
 interface DropdownMenuProps {
   isOpen: boolean;
 }
 
 const DropdownMenu = styled.div<DropdownMenuProps>`
   position: absolute;
-  top: 40px;
-  left: 0;
   background-color: white;
   color: black;
   border: 1px solid #ccc;
@@ -57,6 +67,16 @@ const DropdownMenu = styled.div<DropdownMenuProps>`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: ${(props) => (props.isOpen ? "block" : "none")};
+`;
+
+const MainDropdown = styled(DropdownMenu)`
+  top: 40px;
+  left: 0;
+`;
+
+const ProfileDropdown = styled(DropdownMenu)`
+  top: 50px;
+  right: 10px;
 `;
 
 const DropdownItem = styled.a`
@@ -70,33 +90,45 @@ const DropdownItem = styled.a`
 `;
 
 export default function Header() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMainDropdownOpen, setIsMainDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { isAuthenticated, logoutUser } = useAuth();
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
 
   return (
     <HeaderContainer>
       <HeaderContent>
-        <MenuButton onClick={toggleDropdown}>&#9776;</MenuButton>
+  
+        <MenuButton onClick={() => setIsMainDropdownOpen(!isMainDropdownOpen)}>
+          &#9776;
+        </MenuButton>
         <HeaderTitle>MealMate</HeaderTitle>
-        {isAuthenticated ? (
-          <LoginButton href="/login" onClick={logoutUser}>
-            Logout
-          </LoginButton>
-        ) : (
-          <LoginButton href="/login">Login</LoginButton>
-        )}
-        <DropdownMenu isOpen={isDropdownOpen}>
+
+        <MainDropdown isOpen={isMainDropdownOpen}>
           <DropdownItem href="/">Home</DropdownItem>
           <DropdownItem href="/about">About</DropdownItem>
           <DropdownItem href="/contact">Contact</DropdownItem>
           <DropdownItem href="/mealplans">Meal Plans</DropdownItem>
           <DropdownItem href="/myplans">My Plans</DropdownItem>
           <DropdownItem href="/calculate-calories">Calculate Calories</DropdownItem>
-        </DropdownMenu>
+        </MainDropdown>
+
+        {isAuthenticated ? (
+          <>
+            <ProfileIcon
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              src="/images/icons/profileIcon.png"
+              alt="pfp"
+            />
+            <ProfileDropdown isOpen={isProfileDropdownOpen}>
+              <DropdownItem href="/profile">My Profile</DropdownItem>
+              <DropdownItem href="#" onClick={logoutUser}>
+                Logout
+              </DropdownItem>
+            </ProfileDropdown>
+          </>
+        ) : (
+          <LoginButton href="/login">Login</LoginButton>
+        )}
       </HeaderContent>
     </HeaderContainer>
   );
