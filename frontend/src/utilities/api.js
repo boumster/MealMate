@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://4.156.210.85:8000";
+const API_BASE_URL = "https://seng401.vercel.app";
 
 export async function fetchAbout() {
   try {
