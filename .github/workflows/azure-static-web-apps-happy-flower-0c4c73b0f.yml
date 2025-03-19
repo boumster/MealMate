@@ -19,6 +19,7 @@ jobs:
        contents: read
     env:
       NODE_OPTIONS: --openssl-legacy-provider
+      CI: false
     steps:
       - uses: actions/checkout@v3
         with:
