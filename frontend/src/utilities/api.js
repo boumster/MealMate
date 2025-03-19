@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NODE_ENV === "production" ? "http://34.215.30.142/api" : "http://localhost:8000";
+const API_BASE_URL = "http://4.156.210.85:8000"
 
 export async function fetchAbout() {
   try {
