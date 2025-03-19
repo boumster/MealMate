@@ -212,27 +212,36 @@ async def update_password(change_data: ChangeData) -> JSONResponse:
         result = db.execute_query(query, (change_data.username,))
 
         if not result:
+            
+            #cleanup code
             return JSONResponse(status_code=404, content={"error": "User not found"})
 
         user_id, hashed_password = result[0]
 
         # Validate current password
         if not bcrypt.checkpw(change_data.originalPassword.encode(), hashed_password.encode()):
-            return JSONResponse(status_code=400, content={"error": "Incorrect password"})
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                content={"status": status.HTTP_400_BAD_REQUEST,
+                         "message": "Incorrect Password, please try again."}
+                )
 
         # Ensure new password is different
         if change_data.originalPassword == change_data.newPassword:
-            return JSONResponse(status_code=400, content={"error": "New password must be different from the old password"})
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, 
+                                content={"status": status.HTTP_400_BAD_REQUEST,
+                                        "message": "New password must be different from the old password."})
 
         # Hash and update new password
         new_hashed_password = bcrypt.hashpw(change_data.newPassword.encode(), bcrypt.gensalt()).decode()
         query = "UPDATE users SET password = %s WHERE id = %s"
         db.execute_query(query, (new_hashed_password, user_id))
 
-        return JSONResponse(status_code=200, content={"message": "Password updated successfully"})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"status": status.HTTP_200_OK,
+        "message": "Password updated successfully"})
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Unexpected error: {str(e)}"})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"status": status.HTTP_500_INTERNAL_SERVER_ERROR,"message": f"Unexpected error: {str(e)}"})
 
 @app.post("/generate-meal-plan")
 async def generate_meal_plan(request: MealPlanRequest) -> JSONResponse:

@@ -193,17 +193,19 @@ export async function updatePassword(username, originalPassword, newPassword) {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: username,  
+        username,
         originalPassword,
         newPassword,
       }),
     });
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json(); 
 
-    return await response.json();
+    return { status: response.status, ...data };
+
   } catch (error) {
     console.error("Error updating password:", error);
-    return { status: "error", message: error.message };
+    return { status: "error", message: "Something went wrong. Please try again." };
   }
 }
+

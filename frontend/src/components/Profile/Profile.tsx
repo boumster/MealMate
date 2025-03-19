@@ -114,6 +114,7 @@ const Profile: React.FC = () => {
     if (response.status === 200) {
       setSuccessMessage(response.message); // ✅ Show actual success message from backend
       setErrors({}); // Clear errors on success
+      
     } else {
       setErrors({ email: response.message });
       setSuccessMessage(""); // Clear success message on error
@@ -131,21 +132,28 @@ const Profile: React.FC = () => {
   
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setSuccessMessage(""); // Clear success message on error
+      setSuccessMessage("");
       return;
     }
   
     const response = await updatePassword(user?.username, currentPassword, newPassword);
   
     if (response.status === 200) {
-      setSuccessMessage(response.message); // ✅ Show actual success message from backend
-      setErrors({}); // Clear errors on success
-    } else {
-      setErrors({ password: response.message });
-      setSuccessMessage(""); // Clear success message on error
+      setSuccessMessage(response.message + ", Logging out..."); 
+      setErrors({}); 
+      setTimeout(() => { // Added 2s timeout to show success.
+        logoutUser();
+        history.push("/login");
+      }, 2000);
+    } 
+    else if (response.status === 400) {
+      setErrors({ password: response.message }); 
+      setSuccessMessage(""); 
+    } 
+    else {
+      setErrors({ general: response.message || "An unexpected error occurred." }); 
+      setSuccessMessage(""); 
     }
-    history.push("/login");
-    logoutUser();
 
   };
 
