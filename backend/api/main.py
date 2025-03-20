@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .database import DatabaseConnection
 import bcrypt
-from .models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
+from .models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve, ChatMessage
 from .LLM import GeminiLLM
 import logging
 from datetime import datetime
@@ -26,9 +26,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-class ChatMessage(BaseModel):
-    message: str
 
 @app.post("/chat")
 async def chat(message: ChatMessage) -> JSONResponse:

@@ -38,3 +38,6 @@ class MealPlanRetrieve(BaseModel):
 class IndividualMealPlanRetrieve(BaseModel):
     id: str
     meal_id: str
+
+class ChatMessage(BaseModel):
+    message: str
