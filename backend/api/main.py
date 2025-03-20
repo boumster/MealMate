@@ -2,10 +2,10 @@ import base64
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from api.database import DatabaseConnection
+from .database import DatabaseConnection
 import bcrypt
-from api.models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
-from api.LLM import GeminiLLM
+from .models import UserData, LoginData, MealPlanRequest, ChangeData, MealPlanRetrieve, IndividualMealPlanRetrieve
+from .LLM import GeminiLLM
 import logging
 from datetime import datetime
 from pydantic import BaseModel

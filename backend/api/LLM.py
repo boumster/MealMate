@@ -71,19 +71,28 @@ class GeminiLLM:
         return response.text
 
 
-    def chat_completion(self, prompt: str) -> str:
-        if not self._client:
-            raise RuntimeError("Google AI client not initialized")
+    def chat_completion(self, prompt: str, role: str = "nutrition assistant") -> str:
+        formatted_prompt = f"""
+        You are a professional {role} focused on nutrition and wellness.
+    
+        Guidelines:
+        1. Keep responses under 100 words
+        2. Give direct, concise answers
+        3. Use simple, clear language
+        4. Focus on key points only
+        5. Avoid lengthy explanations
+        6. Skip unnecessary details
+        7. No medical advice
+        8. Be precise and practical
+        9. Format text in short paragraphs
+    
+        {prompt}
+        """
     
         response = self._client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
+            model="gemini-2.0-flash", contents=formatted_prompt
         )
-    
-        if hasattr(response, 'text'):
-            return response.text
-        return "I'm sorry, I couldn't process your request."
-
+        return response.text
     def calculate_calories(self, image_data: bytes) -> Dict[str, Any]:
         try:
             vision_content = {

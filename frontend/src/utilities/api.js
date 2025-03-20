@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://seng401.vercel.app";
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 export async function fetchAbout() {
   try {
@@ -97,6 +97,28 @@ export async function generateMealImage(day, recipe) {
   }
 }
 
+export async function sendChatMessage(message) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error sending chat message:", error);
+    throw error;
+  }
+}
+
 export async function calculateCalories(file) {
   try {
     const formData = new FormData();
@@ -118,29 +140,6 @@ export async function calculateCalories(file) {
   }
 }
 
-export async function sendChatMessage(message) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: message,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error sending chat message:", error);
-    throw error;
-  }
-}
 
 export async function fetchMealPlans(userData) {
   try {

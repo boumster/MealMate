@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { sendChatMessage } from '../../utilities/api';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import '../../styles/ChatBubble.css';
 
 const ChatBubble: React.FC = () => {
@@ -14,10 +17,18 @@ const ChatBubble: React.FC = () => {
     };
 
     useEffect(() => {
-        if (isOpen) {
-            scrollToBottom();
+        if (isOpen && messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            if (!lastMessage.isUser || isLoading) {
+                setTimeout(() => {
+                    messagesEndRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100); // Small delay to ensure animation starts
+            }
         }
-    }, [messages, isLoading, isOpen]);
+    }, [messages, isOpen, isLoading]);
 
     const handleSend = async () => {
         if (!inputText.trim() || isLoading) return;
@@ -31,9 +42,12 @@ const ChatBubble: React.FC = () => {
             const response = await sendChatMessage(inputText);
 
             if (response?.status === 200) {
-                setMessages(prev => [...prev, { text: response.response, isUser: false }]);
-            }else {
-                throw new Error('Invalid response format');
+                setMessages(prev => [...prev, {
+                    text: response.response || 'No response received',
+                    isUser: false
+                }]);
+            } else {
+                throw new Error(`Server returned status: ${response?.status || 'unknown'}`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -57,10 +71,8 @@ const ChatBubble: React.FC = () => {
         <div className="chat-container">
             <div className={`chat-popup ${isOpen ? 'open' : ''}`}>
                 <div className="chat-header">
-                    <h3>Chef Assistant</h3>
-                    <button onClick={() => setIsOpen(false)} className="close-button">
-                        ✕
-                    </button>
+                    <h3>NutriBot - Your Personal Assistant</h3>
+                    <button onClick={() => setIsOpen(false)} className="close-button">✕</button>
                 </div>
 
                 <div className="messages-container">
@@ -69,12 +81,23 @@ const ChatBubble: React.FC = () => {
                             key={index}
                             className={`message ${msg.isUser ? 'user-message' : 'assistant-message'}`}
                         >
-                            {msg.text}
+                            {msg.isUser ? (
+                                msg.text
+                            ) : (
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    rehypePlugins={[rehypeRaw]}
+                                >
+                                    {msg.text}
+                                </ReactMarkdown>
+                            )}
                         </div>
                     ))}
                     {isLoading && (
-                        <div className="loading-message">
-                            Thinking...
+                        <div className="loading-dots">
+                            <div className="dot"></div>
+                            <div className="dot"></div>
+                            <div className="dot"></div>
                         </div>
                     )}
                     <div ref={messagesEndRef} />
