@@ -1,14 +1,37 @@
 {
     "builds": [
         {
-        "src": "api/main.py",
-        "use": "@vercel/python"
+            "src": "api/main.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxDuration": 60,
+                "memory": 1024
+            }
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-        "src": "/(.*)",
-        "dest": "api/main.py"
+            "source": "/(.*)",
+            "destination": "api/main.py"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Methods",
+                    "value": "GET,DELETE,PATCH,POST,PUT,OPTIONS"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+                }
+            ]
         }
     ]
 }
