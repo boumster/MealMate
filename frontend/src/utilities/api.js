@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://seng401.vercel.app";
+const API_BASE_URL = "https://mealmateplanner.online";
 
 export async function fetchAbout() {
   try {
