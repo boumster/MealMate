@@ -108,7 +108,7 @@ const ChatBubble: React.FC = () => {
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Ask about recipes, nutrition..."
+                        placeholder="Type your message here..."
                         className="chat-input"
                         disabled={isLoading}
                     />
