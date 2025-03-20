@@ -4,6 +4,7 @@ import "../../styles/Login.css";
 import { loginUser } from "../../utilities/api";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import { Button, Container, Input } from "../../styles/styles";
+import Loading from "../Loading/Loading";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -11,8 +12,10 @@ const Login: React.FC = () => {
   const history = useHistory(); //for navigating pages
   const { loginUser: authLogin } = useAuth();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const userData = {
         username,
@@ -21,23 +24,25 @@ const Login: React.FC = () => {
       setError("");
 
       const response = await loginUser(userData);
-      
+
       if (response && response.status === 200) {
         // Store user data in auth context
         await authLogin(response.user);
         history.push("/");
       } else {
-        setError(response?.message || "Login failed invalid credentials. Please Try Again.");
+        setError(
+          response?.message ||
+            "Login failed invalid credentials. Please Try Again."
+        );
       }
-    } catch (error) {
-    }
+    } catch (error) {}
+    setLoading(false);
   };
 
   return (
     <Container className="login-container">
       <h2>Mealmate Login</h2>
-      {error && 
-      <p className="error">{error}</p>}
+      {error && <p className="error">{error}</p>}
       <Input
         type="text"
         placeholder="Username"
@@ -52,18 +57,24 @@ const Login: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button className="login-button" onClick={handleLogin}>
-        Login
-      </Button>
-      <Button
-        className="login-button"
-        onClick={() => history.push("/register")}
-      >
-        Register
-      </Button>
-      <Button className="login-button" onClick={() => history.push("/")}>
-        Return to Home
-      </Button>
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <Button className="login-button" onClick={handleLogin}>
+            Login
+          </Button>
+          <Button
+            className="login-button"
+            onClick={() => history.push("/register")}
+          >
+            Register
+          </Button>
+          <Button className="login-button" onClick={() => history.push("/")}>
+            Return to Home
+          </Button>
+        </>
+      )}
     </Container>
   );
 };
