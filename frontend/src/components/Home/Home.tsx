@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import { Container, Button } from "../../styles/styles";
-
-
+import { useAuth } from "../../context/Auth/AuthProvider";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -30,7 +29,6 @@ const HeroSubtitle = styled.p`
   margin-bottom: 20px;
 `;
 
-
 const FeaturesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -49,6 +47,7 @@ const FeatureCard = styled.div`
 
 export default function Home() {
   const history = useHistory();
+  const { user } = useAuth();
 
   return (
     <Container>
@@ -56,12 +55,15 @@ export default function Home() {
       <HeroSection>
         <HeroTitle>🥗 MealMate - Your Smart Meal Planner</HeroTitle>
         <HeroSubtitle>
-          Plan, track, and optimize your meals effortlessly with AI-powered suggestions.
+          Plan, track, and optimize your meals effortlessly with AI-powered
+          suggestions.
         </HeroSubtitle>
-        <ButtonContainer>
+        {!user && (
+          <ButtonContainer>
             <Button onClick={() => history.push("/login")}>Login</Button>
             <Button onClick={() => history.push("/register")}>Register</Button>
-        </ButtonContainer>
+          </ButtonContainer>
+        )}
       </HeroSection>
 
       {/* Features Grid */}
@@ -80,7 +82,10 @@ export default function Home() {
         </FeatureCard>
         <FeatureCard>
           <h3>🤖 AI-Powered Recommendations</h3>
-          <p>Get meal suggestions based on your preferences and dietary restrictions.</p>
+          <p>
+            Get meal suggestions based on your preferences and dietary
+            restrictions.
+          </p>
         </FeatureCard>
 
         <FeatureCard>
@@ -91,7 +96,7 @@ export default function Home() {
         <FeatureCard>
           <h3>💬 Talk to Our Chatbot</h3>
           <p>Get instant meal advice and nutrition tips from our AI chatbot.</p>
-      </FeatureCard>
+        </FeatureCard>
       </FeaturesGrid>
     </Container>
   );
