@@ -6,10 +6,25 @@ import { useAuth } from "../../context/Auth/AuthProvider";
 import { Button, Container, Input, Title } from "../../styles/styles";
 import styled from "styled-components";
 
-const ErrorText = styled.p`
-  color: red;
-  font-size: 14px;
-  margin: 5px 0;
+const RegisterContainer = styled(Container)`
+  width: 600px;
+  padding: 20px;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    max-width: 400px;
+    padding: 15px;
+  }
+`;
+
+const StyledTitle = styled(Title)`
+  font-size: 2em;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+  }
 `;
 
 const Description = styled.div`
@@ -17,12 +32,23 @@ const Description = styled.div`
   font-size: 14px;
   margin-bottom: 0px;
   text-align: left;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const BulletList = styled.ul`
   margin: 5px 0 0px 20px;
   padding: 0;
   list-style-type: disc;
+
+  @media (max-width: 768px) {
+    margin-left: 15px;
+    li {
+      margin-bottom: 5px;
+    }
+  }
 `;
 
 const HrLine = styled.div`
@@ -30,14 +56,19 @@ const HrLine = styled.div`
   width: 100%;
   background-color: black;
   margin: 20px 0;
+
+  @media (max-width: 768px) {
+    margin: 15px 0;
+  }
 `;
 
-const RegisterContainer = styled(Container)`
-  width: 600px;
-`;
+const FormGroup = styled.div`
+  width: 100%;
+  margin-bottom: 15px;
 
-const RegisterButton = styled(Button)`
-  width: 60%;
+  @media (max-width: 768px) {
+    margin-bottom: 12px;
+  }
 `;
 
 const Label = styled.label`
@@ -45,6 +76,62 @@ const Label = styled.label`
   color: #555;
   margin-bottom: 5px;
   display: block;
+  text-align: left;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+`;
+
+const StyledInput = styled(Input)`
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+
+    @media (max-width: 768px) {
+        padding: 10px;
+        font-size: 16px;
+    }
+`;
+
+const ErrorText = styled.p`
+    color: red;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+    text-align: left;
+
+    @media (max-width: 768px) {
+        font-size: 13px;
+    }
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 20px;
+
+    @media (max-width: 768px) {
+        margin-top: 15px;
+        gap: 8px;
+    }
+`;
+
+const RegisterButton = styled(Button)`
+    width: 60%;
+    margin: 5px 0;
+    font-size: 1em;
+    padding: 10px;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        margin: 4px 0;
+        font-size: 0.9em;
+        padding: 12px;
+    }
 `;
 
 

@@ -1,14 +1,162 @@
 import React, { useState, useRef } from "react";
-import {
-    Container,
-    Input,
-    Button,
-    Form,
-    Label,
-    FormRow,
-} from "../../styles/styles";
+import styled from "styled-components";
+import { Container, Input, Button, Form, Label, FormRow } from "../../styles/styles";
 import { calculateCalories } from "../../utilities/api";
 import Loading from "../Loading/Loading";
+
+const ResponsiveContainer = styled(Container)`
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+
+    @media (max-width: 768px) {
+        padding: 15px;
+    }
+`;
+
+const Title = styled.h1`
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px #000000;
+
+    @media (max-width: 768px) {
+        font-size: 1.8em;
+    }
+`;
+
+const Subtitle = styled.div`
+    padding-bottom: 30px;
+
+    @media (max-width: 768px) {
+        padding-bottom: 20px;
+        font-size: 0.9em;
+    }
+`;
+
+const PreviewImage = styled.img`
+    max-width: 40%;
+    height: auto;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+
+    @media (max-width: 768px) {
+        max-width: 90%;
+    }
+`;
+
+const ResponsiveFormRow = styled(FormRow)`
+    justify-content: center;
+    text-align: center;
+    padding-right: 320px;
+    font-size: 0.9em;
+
+    @media (max-width: 768px) {
+        padding-right: 0;
+    }
+`;
+
+const ResultsContainer = styled.div<{ show: boolean }>`
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    font-size: 1.2em;
+    align-items: flex-start;
+    opacity: ${props => props.show ? 1 : 0};
+    transform: translateY(${props => props.show ? '0' : '20px'});
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        font-size: 1em;
+        gap: 15px;
+    }
+`;
+
+const Column = styled.div<{ width?: string, borderColor?: string }>`
+    flex: ${props => props.width ? 'none' : 1};
+    width: ${props => props.width || 'auto'};
+    padding: 20px;
+    background-color: lightgray;
+    border-radius: 8px;
+    height: fit-content;
+    border: 2px solid ${props => props.borderColor || 'black'};
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        padding: 15px;
+    }
+
+    p {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+`;
+
+const IngredientSection = styled.div`
+    margin: 8px 0;
+`;
+
+const IngredientHeader = styled.div<{ isExpanded: boolean }>`
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-right: 10px;
+
+    span {
+        transform: ${props => props.isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        display: inline-block;
+        flex-shrink: 0;
+        margin-top: 8px;
+    }
+
+    p {
+        margin: 8px 0;
+        flex: 1;
+        min-width: 0;
+    }
+`;
+
+const IngredientDetails = styled.div<{ isExpanded: boolean }>`
+    max-height: ${props => props.isExpanded ? '500px' : '0'};
+    opacity: ${props => props.isExpanded ? 1 : 0};
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin: 0 0 0 20px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    @media (max-width: 768px) {
+        margin: 0 0 0 10px;
+    }
+
+    p {
+        margin: 8px 0;
+        padding-right: 10px;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+`;
+
+const Divider = styled.hr`
+    margin: 10px -20px;
+    border: 1px solid white;
+`;
+
+const ErrorMessage = styled.p`
+    color: red;
+    font-size: 1.2em;
+    margin: 10px 0;
+`;
 
 export default function ImageUpload() {
     const [image, setImage] = useState<File | null>(null);
@@ -44,20 +192,18 @@ export default function ImageUpload() {
             setIsLoading(false);
             return;
         }
+
         try {
             const data = await calculateCalories(image);
             if (data.status === 200) {
                 setCalories(data.calories);
                 setError(null);
-
-                // Delay to ensure DOM is updated
                 setTimeout(() => {
                     setShowResults(true);
-                    // Scroll to results with offset
                     if (resultsRef.current) {
                         const elementRect = resultsRef.current.getBoundingClientRect();
                         const absoluteElementTop = elementRect.top + window.pageYOffset;
-                        const offset = 50; // Adjust this value to control the gap from the top
+                        const offset = 50;
                         window.scrollTo({
                             top: absoluteElementTop - offset,
                             behavior: 'smooth'
@@ -81,73 +227,48 @@ export default function ImageUpload() {
         }));
     };
 
-    const renderCalories = () => {
-        if (!calories) return <p>No calories found</p>;
+    const parseCalories = () => {
+        if (!calories) return { ingredientLines: [], totalLines: [] };
 
-        const lines = calories.split("\n").filter((line) => line.trim());
+        const lines = calories.split("\n").filter(line => line.trim());
         const ingredientLines: string[] = [];
         const totalLines: string[] = [];
 
         let isTotalSection = false;
-        lines.forEach((line) => {
-            if (line.includes("Total")) {
-                isTotalSection = true;
-            }
-            if (isTotalSection) {
-                totalLines.push(line);
-            } else {
-                ingredientLines.push(line);
-            }
+        lines.forEach(line => {
+            if (line.includes("Total")) isTotalSection = true;
+            if (isTotalSection) totalLines.push(line);
+            else ingredientLines.push(line);
         });
 
-        const getIngredientDetails = (startIndex: number) => {
-            const details = [];
-            for (let i = startIndex + 1; i < ingredientLines.length; i++) {
-                const line = ingredientLines[i];
-                if (line.includes("Ingredient:")) break;
+        return { ingredientLines, totalLines };
+    };
 
-                if (line.includes("Calories:") ||
-                    line.includes("Proteins:") ||
-                    line.includes("Fats:") ||
-                    line.includes("Carbohydrates:")) {
-                    if (!line.includes("g") && !line.includes("kcal")) {
-                        details.push(line + (line.includes("Calories") ? " kcal" : " g"));
-                    } else {
-                        details.push(line);
-                    }
-                } else {
-                    details.push(line);
-                }
+    const getIngredientDetails = (startIndex: number, lines: string[]) => {
+        const details = [];
+        for (let i = startIndex + 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (line.includes("Ingredient:")) break;
+            if (line.includes("Calories:") || line.includes("Proteins:") ||
+                line.includes("Fats:") || line.includes("Carbohydrates:")) {
+                details.push(line + (!line.includes("g") && !line.includes("kcal")
+                    ? (line.includes("Calories") ? " kcal" : " g")
+                    : ""));
+            } else {
+                details.push(line);
             }
-            return details;
-        };
+        }
+        return details;
+    };
+
+    const renderResults = () => {
+        if (!calories) return null;
+
+        const { ingredientLines, totalLines } = parseCalories();
 
         return (
-            <div
-                ref={resultsRef}
-                style={{
-                    display: "flex",
-                    gap: "20px",
-                    margin: "20px 0",
-                    fontSize: "1.2em",
-                    alignItems: "flex-start",
-                    opacity: showResults ? 1 : 0,
-                    transform: `translateY(${showResults ? 0 : '20px'})`,
-                    transition: "opacity 0.5s ease-out, transform 0.5s ease-out",
-                }}
-            >
-                {/* Left column */}
-                <div
-                    style={{
-                        flex: "1",
-                        padding: "20px",
-                        backgroundColor: "lightgray",
-                        borderRadius: "8px",
-                        height: "fit-content",
-                        border: "2px solid black",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
-                    }}
-                >
+            <ResultsContainer ref={resultsRef} show={showResults}>
+                <Column>
                     {ingredientLines.map((line, index) => {
                         if (line.includes("Here's the breakdown")) {
                             return (
@@ -158,104 +279,50 @@ export default function ImageUpload() {
                         }
                         if (line.includes("Ingredient:")) {
                             const isExpanded = expandedStates[index] ?? false;
-                            const details = getIngredientDetails(index);
+                            const details = getIngredientDetails(index, ingredientLines);
                             return (
-                                <div key={index}>
-                                    {index !== 0 && (
-                                        <hr style={{ margin: "10px -20px", border: "1px solid white" }} />
-                                    )}
-                                    <div
-                                        onClick={() => toggleExpand(index)}
-                                        style={{
-                                            cursor: "pointer",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "10px"
-                                        }}
-                                    >
-                                        <span style={{
-                                            transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                                            transition: "transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                                            display: "inline-block"
-                                        }}>
-                                            ▸
-                                        </span>
+                                <IngredientSection key={index}>
+                                    {index !== 0 && <Divider />}
+                                    <IngredientHeader isExpanded={isExpanded} onClick={() => toggleExpand(index)}>
+                                        <span>▸</span>
                                         <p style={{ margin: "8px 0", fontWeight: "bold" }}>{line}</p>
-                                    </div>
-                                    <div style={{
-                                        maxHeight: isExpanded ? "500px" : "0",
-                                        opacity: isExpanded ? 1 : 0,
-                                        overflow: "hidden",
-                                        transition: "all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-                                        margin: "0 0 0 20px"
-                                    }}>
+                                    </IngredientHeader>
+                                    <IngredientDetails isExpanded={isExpanded}>
                                         {details.map((detail, i) => (
                                             <p key={i}>{detail}</p>
                                         ))}
-                                    </div>
-                                </div>
+                                    </IngredientDetails>
+                                </IngredientSection>
                             );
                         }
                         return null;
                     })}
-                </div>
-
-                {/* Right column */}
-                <div
-                    style={{
-                        width: "300px",
-                        padding: "20px",
-                        backgroundColor: "lightgray",
-                        borderRadius: "8px",
-                        height: "fit-content",
-                        border: "2px solid #3d7cc9",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)",
-                    }}
-                >
+                </Column>
+                <Column width="300px" borderColor="#3d7cc9">
                     {totalLines.map((line, index) => {
-                        let displayLine = line;
-                        if (line.includes("Total")) {
-                            if (!line.includes("g") && !line.includes("kcal")) {
-                                displayLine = line + (line.includes("Calories") ? " kcal" : " g");
-                            }
-                        }
+                        const displayLine = line.includes("Total") && !line.includes("g") && !line.includes("kcal")
+                            ? line + (line.includes("Calories") ? " kcal" : " g")
+                            : line;
                         return (
-                            <p
-                                key={index}
-                                style={{
-                                    margin: "8px 0",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                            <p key={index} style={{ margin: "8px 0", fontWeight: "bold" }}>
                                 {displayLine}
                             </p>
                         );
                     })}
-                </div>
-            </div>
+                </Column>
+            </ResultsContainer>
         );
     };
 
     return (
-        <Container style={{ maxWidth: "800px", margin: "0 auto", padding: "40px", textAlign: "center" }}>
-            <h1 style={{fontSize: "2.5em", marginBottom: "10px", textShadow: "1px 1px 2px #000000"}}>Image to Calories Calculator</h1>
-            <div style={{paddingBottom: "30px"}}>
+        <ResponsiveContainer>
+            <Title>Image to Calories Calculator</Title>
+            <Subtitle>
                 Upload an image of your food to calculate its calories
-            </div>
-            {imagePreview && (
-                <img
-                    src={imagePreview}
-                    alt="Selected food"
-                    style={{
-                        maxWidth: "40%",
-                        height: "auto",
-                        marginBottom: "20px",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 1)"
-                    }}
-                />
-            )}
+            </Subtitle>
+            {imagePreview && <PreviewImage src={imagePreview} alt="Selected food" />}
             <Form>
-                <FormRow style={{ justifyContent: "center", textAlign: "center", paddingRight: "320px", fontSize: "0.9em" }}>
+                <ResponsiveFormRow>
                     <Label htmlFor="image" style={{ fontSize: "1.2em" }}></Label>
                     <div>
                         <Input
@@ -270,7 +337,7 @@ export default function ImageUpload() {
                             Supported formats: .jpg, .jpeg, .png, .webp, .heic, .gif
                         </p>
                     </div>
-                </FormRow>
+                </ResponsiveFormRow>
                 <Button
                     onClick={handleCalculateCalories}
                     disabled={isLoading}
@@ -283,9 +350,9 @@ export default function ImageUpload() {
                 >
                     {isLoading ? <Loading size="small" /> : "Calculate Calories"}
                 </Button>
-                {error && <p style={{ color: "red", fontSize: "1.2em" }}>{error}</p>}
-                {calories && renderCalories()}
+                {error && <ErrorMessage>{error}</ErrorMessage>}
+                {calories && renderResults()}
             </Form>
-        </Container>
+        </ResponsiveContainer>
     );
 }
