@@ -91,7 +91,7 @@ const Slider = styled.span`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #87CEEB;
+  background-color: #87ceeb;
   transition: 0.3s;
   border-radius: 34px;
 
@@ -115,7 +115,7 @@ const Slider = styled.span`
     top: 6px;
     font-size: 14px;
     transition: 0.3s;
-    opacity: ${props => props.theme.isDarkMode ? 0 : 1};
+    opacity: ${(props) => (props.theme.isDarkMode ? 0 : 1)};
   }
 
   ${SwitchInput}:checked + &:after {
@@ -130,11 +130,11 @@ interface DropdownMenuProps {
 
 const DropdownMenu = styled.div<DropdownMenuProps>`
   position: absolute;
-  background-color: ${props => props.theme.cardBg};
-  color: ${props => props.theme.text};
-  border: 1px solid ${props => props.theme.border};
+  background-color: ${(props) => props.theme.cardBg};
+  color: ${(props) => props.theme.text};
+  border: 1px solid ${(props) => props.theme.border};
   border-radius: 4px;
-  box-shadow: ${props => props.theme.shadow};
+  box-shadow: ${(props) => props.theme.shadow};
   z-index: 1000;
   display: ${(props) => (props.isOpen ? "block" : "none")};
 `;
@@ -153,9 +153,9 @@ const DropdownItem = styled.a`
   display: block;
   padding: 10px;
   text-decoration: none;
-  color: ${props => props.theme.text};
+  color: ${(props) => props.theme.text};
   &:hover {
-    background-color: ${props => props.theme.background};
+    background-color: ${(props) => props.theme.background};
   }
 `;
 
@@ -166,51 +166,55 @@ export default function Header() {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-      <HeaderContainer>
-        <HeaderContent>
-          <MenuButton onClick={() => setIsMainDropdownOpen(!isMainDropdownOpen)}>
-            &#9776;
-          </MenuButton>
-          <HeaderTitle>MealMate</HeaderTitle>
+    <HeaderContainer>
+      <HeaderContent>
+        <MenuButton onClick={() => setIsMainDropdownOpen(!isMainDropdownOpen)}>
+          &#9776;
+        </MenuButton>
+        <HeaderTitle>MealMate</HeaderTitle>
 
-          <MainDropdown isOpen={isMainDropdownOpen}>
-            <DropdownItem href="/">Home</DropdownItem>
-            <DropdownItem href="/about">About</DropdownItem>
-            <DropdownItem href="/contact">Contact</DropdownItem>
-            <DropdownItem href="/mealplans">Meal Plans</DropdownItem>
-            <DropdownItem href="/myplans">My Plans</DropdownItem>
-            <DropdownItem href="/calculate-calories">Calculate Calories</DropdownItem>
-          </MainDropdown>
+        <MainDropdown isOpen={isMainDropdownOpen}>
+          <DropdownItem href="/">Home</DropdownItem>
+          <DropdownItem href="/about">About</DropdownItem>
+          <DropdownItem href="/contact">Contact</DropdownItem>
+          <DropdownItem href="/mealplans">Meal Plans</DropdownItem>
+          <DropdownItem href="/myplans">My Plans</DropdownItem>
+          <DropdownItem href="/calculate-calories">
+            Calculate Calories
+          </DropdownItem>
+        </MainDropdown>
 
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-            <ThemeSwitch>
-              <SwitchInput
-                  type="checkbox"
-                  checked={isDarkMode}
-                  onChange={toggleTheme}
+        <div
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}
+        >
+          <ThemeSwitch style={{ marginRight: "1rem" }}>
+            <SwitchInput
+              type="checkbox"
+              checked={isDarkMode}
+              onChange={toggleTheme}
+            />
+            <Slider />
+          </ThemeSwitch>
+
+          {isAuthenticated ? (
+            <>
+              <ProfileIcon
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                src="/images/icons/profileIcon.png"
+                alt="pfp"
               />
-              <Slider />
-            </ThemeSwitch>
-
-            {isAuthenticated ? (
-                <>
-                  <ProfileIcon
-                      onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                      src="/images/icons/profileIcon.png"
-                      alt="pfp"
-                  />
-                  <ProfileDropdown isOpen={isProfileDropdownOpen}>
-                    <DropdownItem href="/profile">My Profile</DropdownItem>
-                    <DropdownItem href="#" onClick={logoutUser}>
-                      Logout
-                    </DropdownItem>
-                  </ProfileDropdown>
-                </>
-            ) : (
-                <LoginButton href="/login">Login</LoginButton>
-            )}
-          </div>
-        </HeaderContent>
-      </HeaderContainer>
+              <ProfileDropdown isOpen={isProfileDropdownOpen}>
+                <DropdownItem href="/profile">My Profile</DropdownItem>
+                <DropdownItem href="#" onClick={logoutUser}>
+                  Logout
+                </DropdownItem>
+              </ProfileDropdown>
+            </>
+          ) : (
+            <LoginButton href="/login">Login</LoginButton>
+          )}
+        </div>
+      </HeaderContent>
+    </HeaderContainer>
   );
 }
