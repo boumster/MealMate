@@ -5,7 +5,10 @@ import { useAuth } from "../../context/Auth/AuthProvider";
 import { fetchMealPlan, generateMealImage } from "../../utilities/api";
 import { Container, Button } from "../../styles/styles";
 import '../../styles/Mealplans.css';
+import styled from 'styled-components';
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 export default function Plan() {
+    const { isDarkMode } = useTheme();
   const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [mealPlan, setMealPlan] = useState<any>(null);
@@ -27,6 +30,25 @@ export default function Plan() {
       loadCurrentDayImage(firstDayContent, 1);
     }
   }, [mealPlan]);
+
+    useEffect(() => {
+        const root = document.documentElement;
+        if (isDarkMode) {
+            root.style.setProperty('--chat-bg', '#34495e');
+            root.style.setProperty('--chat-text', '#ecf0f1');
+            root.style.setProperty('--chat-input-bg', '#2c3e50');
+            root.style.setProperty('--chat-border', '#7f8c8d');
+            root.style.setProperty('--chat-assistant-bg', '#2c3e50');
+            root.style.setProperty('--chat-shadow', 'rgba(0, 0, 0, 0.3)');
+        } else {
+            root.style.setProperty('--chat-bg', '#ffffff');
+            root.style.setProperty('--chat-text', '#333333');
+            root.style.setProperty('--chat-input-bg', '#ffffff');
+            root.style.setProperty('--chat-border', '#cccccc');
+            root.style.setProperty('--chat-assistant-bg', '#f0f0f0');
+            root.style.setProperty('--chat-shadow', 'rgba(0, 0, 0, 0.1)');
+        }
+    }, [isDarkMode]);
 
   async function fetchPlan() {
     setIsLoading(true);

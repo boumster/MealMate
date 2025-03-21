@@ -5,10 +5,13 @@ import { registerUser } from "../../utilities/api";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import { Button, Container, Input, Title } from "../../styles/styles";
 import styled from "styled-components";
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 
 const RegisterContainer = styled(Container)`
   width: 600px;
   padding: 20px;
+  background-color: ${props => props.theme.cardBg};
+  color: ${props => props.theme.text};
 
   @media (max-width: 768px) {
     width: 90%;
@@ -20,6 +23,7 @@ const RegisterContainer = styled(Container)`
 const StyledTitle = styled(Title)`
   font-size: 2em;
   margin-bottom: 20px;
+  color: ${props => props.theme.text};
 
   @media (max-width: 768px) {
     font-size: 1.5em;
@@ -28,7 +32,7 @@ const StyledTitle = styled(Title)`
 `;
 
 const Description = styled.div`
-  color: gray;
+  color: ${props => props.theme.text};
   font-size: 14px;
   margin-bottom: 0px;
   text-align: left;
@@ -42,6 +46,7 @@ const BulletList = styled.ul`
   margin: 5px 0 0px 20px;
   padding: 0;
   list-style-type: disc;
+  color: ${props => props.theme.text};
 
   @media (max-width: 768px) {
     margin-left: 15px;
@@ -54,7 +59,7 @@ const BulletList = styled.ul`
 const HrLine = styled.div`
   height: 1px;
   width: 100%;
-  background-color: black;
+  background-color: ${props => props.theme.border};
   margin: 20px 0;
 
   @media (max-width: 768px) {
@@ -73,7 +78,7 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-size: 14px;
-  color: #555;
+  color: ${props => props.theme.text};
   margin-bottom: 5px;
   display: block;
   text-align: left;
@@ -84,54 +89,59 @@ const Label = styled.label`
 `;
 
 const StyledInput = styled(Input)`
-    width: 100%;
-    margin-bottom: 5px;
-    padding: 8px 12px;
-    font-size: 14px;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: ${props => props.theme.inputBg};
+  color: ${props => props.theme.inputText};
+  border: 1px solid ${props => props.theme.inputBorder};
 
-    @media (max-width: 768px) {
-        padding: 10px;
-        font-size: 16px;
-    }
+  @media (max-width: 768px) {
+    padding: 10px;
+    font-size: 16px;
+  }
 `;
 
 const ErrorText = styled.p`
-    color: red;
-    font-size: 14px;
-    margin: 0 0 10px 0;
-    text-align: left;
+  color: ${props => props.theme.error};
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  text-align: left;
 
-    @media (max-width: 768px) {
-        font-size: 13px;
-    }
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const ButtonGroup = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 20px;
 
-    @media (max-width: 768px) {
-        margin-top: 15px;
-        gap: 8px;
-    }
+  @media (max-width: 768px) {
+    margin-top: 15px;
+    gap: 8px;
+  }
 `;
 
 const RegisterButton = styled(Button)`
-    width: 60%;
-    margin: 5px 0;
-    font-size: 1em;
-    padding: 10px;
+  width: 60%;
+  margin: 5px 0;
+  font-size: 1em;
+  padding: 10px;
+  background-color: ${props => props.theme.buttonBg};
+  color: ${props => props.theme.buttonText};
 
-    @media (max-width: 768px) {
-        width: 100%;
-        margin: 4px 0;
-        font-size: 0.9em;
-        padding: 12px;
-    }
+  @media (max-width: 768px) {
+    width: 100%;
+    margin: 4px 0;
+    font-size: 0.9em;
+    padding: 12px;
+  }
 `;
 
 
@@ -145,6 +155,7 @@ const Register: React.FC = () => {
 
   const history = useHistory();
   const { loginUser: authLogin } = useAuth();
+  const { isDarkMode } = useTheme();
 
   // Email validation function
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -160,7 +171,6 @@ const Register: React.FC = () => {
     } else if (/\s/.test(username)) {
       newErrors.username = "Username cannot contain spaces.";
     }
-    
 
     if (!isValidEmail(email)) {
       newErrors.email = "Invalid email format.";
@@ -196,68 +206,68 @@ const Register: React.FC = () => {
   };
 
   return (
-    <RegisterContainer className="register-container">
-      <Title>Register User</Title>
-      <Description>
-        <BulletList>
-          <li>Username is required</li>
-          <li>Email must be in a valid format (e.g., user@example.com)</li>
-          <li>Password must have at least 6 characters, one uppercase letter, and one number</li>
-          <li>Passwords must match</li>
-        </BulletList>
-      </Description>
+      <RegisterContainer className="register-container">
+        <Title>Register User</Title>
+        <Description>
+          <BulletList>
+            <li>Username is required</li>
+            <li>Email must be in a valid format (e.g., user@example.com)</li>
+            <li>Password must have at least 6 characters, one uppercase letter, and one number</li>
+            <li>Passwords must match</li>
+          </BulletList>
+        </Description>
 
-      <HrLine></HrLine>
+        <HrLine></HrLine>
 
         <Label htmlFor="username">Username</Label>
         {errors.username && <ErrorText>{errors.username}</ErrorText>}
-        <Input
-          id="username"
-          type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+        <StyledInput
+            id="username"
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
         />
 
         <Label htmlFor="email">Email</Label>
         {errors.email && <ErrorText>{errors.email}</ErrorText>}
-        <Input
-          id="email"
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+        <StyledInput
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
         />
 
         <Label htmlFor="password">Password</Label>
         {errors.password && <ErrorText>{errors.password}</ErrorText>}
-        <Input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          value={checkPassword}
-          onChange={(e) => setCheckPassword(e.target.value)}
+        <StyledInput
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            value={checkPassword}
+            onChange={(e) => setCheckPassword(e.target.value)}
         />
 
         <Label htmlFor="confirm-password">Confirm Password</Label>
         {errors.confirmPassword && <ErrorText>{errors.confirmPassword}</ErrorText>}
-        <Input
-          id="confirm-password"
-          type="password"
-          placeholder="Confirm your password"
-          value={finalPassword}
-          onChange={(e) => setFinalPassword(e.target.value)}
+        <StyledInput
+            id="confirm-password"
+            type="password"
+            placeholder="Confirm your password"
+            value={finalPassword}
+            onChange={(e) => setFinalPassword(e.target.value)}
         />
 
-
-        <RegisterButton className="register-button" onClick={handleRegister}>
-          Register
-        </RegisterButton>
-        <RegisterButton className="register-button" onClick={() => history.push("/login")}>
-          Go to Login
-        </RegisterButton>
-
-    </RegisterContainer>
+        <ButtonGroup>
+          <RegisterButton className="register-button" onClick={handleRegister}>
+            Register
+          </RegisterButton>
+          <RegisterButton className="register-button" onClick={() => history.push("/login")}>
+            Go to Login
+          </RegisterButton>
+        </ButtonGroup>
+      </RegisterContainer>
   );
 };
 

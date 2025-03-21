@@ -3,9 +3,12 @@ import { sendChatMessage } from '../../utilities/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import styled from 'styled-components';
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 import '../../styles/ChatBubble.css';
 
 const ChatBubble: React.FC = () => {
+    const { isDarkMode } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([]);
     const [inputText, setInputText] = useState('');
@@ -30,6 +33,23 @@ const ChatBubble: React.FC = () => {
         }
     }, [messages, isOpen, isLoading]);
 
+    useEffect(() => {
+        const root = document.documentElement;
+        if (isDarkMode) {
+            root.style.setProperty('--chat-bg', '#34495e');
+            root.style.setProperty('--chat-text', '#ecf0f1');
+            root.style.setProperty('--chat-input-bg', '#2c3e50');
+            root.style.setProperty('--chat-border', '#7f8c8d');
+            root.style.setProperty('--chat-assistant-bg', '#2c3e50');
+        } else {
+            root.style.setProperty('--chat-bg', '#ffffff');
+            root.style.setProperty('--chat-text', '#333333');
+            root.style.setProperty('--chat-input-bg', '#ffffff');
+            root.style.setProperty('--chat-border', '#cccccc');
+            root.style.setProperty('--chat-assistant-bg', '#f0f0f0');
+        }
+    }, [isDarkMode]);
+    
     const handleSend = async () => {
         if (!inputText.trim() || isLoading) return;
 

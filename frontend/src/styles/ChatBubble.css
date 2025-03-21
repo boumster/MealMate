@@ -11,7 +11,8 @@
     right: 0;
     width: 400px;
     height: 500px;
-    background-color: white;
+    background-color: var(--chat-bg);
+    color: var(--chat-text);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     display: flex;
@@ -86,8 +87,8 @@
 }
 
 .assistant-message {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--chat-assistant-bg);
+    color: var(--chat-text);
     margin-right: auto;
     border-bottom-left-radius: 4px;
     animation: assistantMessageSlide 0.3s ease-out forwards;
@@ -174,18 +175,22 @@ animation-delay: 0s;
     border-top: 1px solid #eee;
     display: flex;
     gap: 8px;
-    background-color: #f8f9fa;
+    background-color: var(--chat-bg);
+    border-top-color: var(--chat-border);
     border-radius: 0 0 12px 12px;
 }
 
 .chat-input {
     flex: 1;
     padding: 8px 12px;
-    border: 1px solid #ddd;
     border-radius: 20px;
+    border: 1px solid #ccc;
     resize: none;
     height: 40px;
     font-size: 14px;
+    background-color: var(--chat-input-bg);
+    color: var(--chat-text);
+    border-color: var(--chat-border);
 }
 
 .send-button {
