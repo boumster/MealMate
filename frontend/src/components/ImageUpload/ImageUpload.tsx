@@ -81,9 +81,10 @@ const Column = styled.div<{ width?: string, borderColor?: string }>`
     border-radius: 8px;
     height: fit-content;
     border: 2px solid ${props => props.borderColor || 'black'};
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     word-break: break-word;
     overflow-wrap: break-word;
+    color: #333333;
 
     @media (max-width: 768px) {
         width: 100%;
@@ -95,6 +96,7 @@ const Column = styled.div<{ width?: string, borderColor?: string }>`
         overflow-wrap: break-word;
         word-wrap: break-word;
         hyphens: auto;
+        color: inherit;
     }
 `;
 
@@ -149,7 +151,7 @@ const IngredientDetails = styled.div<{ isExpanded: boolean }>`
 
 const Divider = styled.hr`
     margin: 10px -20px;
-    border: 1px solid white;
+    border: 1px solid #333333;
 `;
 
 const ErrorMessage = styled.p`
