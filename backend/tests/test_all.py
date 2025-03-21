@@ -257,3 +257,7 @@ def test_execute_query_error():
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# This file was run while being in the backend directory.
+# The command used was: pytest tests/test_all.py -v 
