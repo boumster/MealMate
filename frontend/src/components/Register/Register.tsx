@@ -194,13 +194,15 @@ const Register: React.FC = () => {
         password: checkPassword,
       };
 
-      const response = await registerUser(userData);
-      if (response.status === 200) {
+      try {
+        const response = await registerUser(userData);
         authLogin(response.user);
         alert("User registered successfully");
         history.push("/");
-      } else {
-        alert(response.message);
+        
+      } catch (error) {
+        console.error("Registration failed:", error);
+        alert("An error occurred during registration. Please try again.");
       }
     }
   };
