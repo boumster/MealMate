@@ -1,17 +1,20 @@
-import styled from "styled-components";
 
 // Container for centering content
+import styled from "styled-components";
+
 const Container = styled.div`
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.cardBackground};
+    color: ${({ theme }) => theme.text};
     padding: 1.5rem;
     margin: 1.5rem auto;
     max-width: 65rem;
     border-radius: 0.5rem;
-    box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.2rem 1rem ${({ theme }) => theme.shadowColor};
     display: flex;
     flex-direction: column;
     align-items: center;
 `;
+
 
 // Table styles
 const Table = styled.table`

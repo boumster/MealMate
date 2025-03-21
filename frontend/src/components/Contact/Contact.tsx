@@ -6,13 +6,14 @@ const ContactContainer = styled(Container)`
     max-width: 800px;
     padding: 40px 20px;
     margin: 0 auto;
+    background-color: ${props => props.theme.cardBg};
+    color: ${props => props.theme.text};
 `;
 
 const Title = styled.h2`
     font-size: 2.5em;
     margin-bottom: 30px;
     text-align: center;
-    color: #2c3e50;
     font-weight: 700;
 
     @media (max-width: 768px) {
@@ -23,7 +24,7 @@ const Title = styled.h2`
 const Description = styled.p`
     font-size: 18px;
     line-height: 1.8;
-    color: #666;
+    color: ${props => props.theme.text};
     margin: 20px 0 40px;
     text-align: center;
     max-width: 600px;
@@ -35,13 +36,14 @@ const Description = styled.p`
 `;
 
 const ContactCard = styled.div`
-    background: white;
+    background: ${props => props.theme.cardBg};
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: ${props => props.theme.shadow};
     transition: transform 0.3s ease;
     max-width: 400px;
     margin: 0 auto;
+    border: 1px solid ${props => props.theme.border};
 
     &:hover {
         transform: translateY(-5px);
@@ -50,7 +52,7 @@ const ContactCard = styled.div`
 
 const CardTitle = styled.h3`
     font-size: 20px;
-    color: #2c3e50;
+    color: ${props => props.theme.text};
     margin-bottom: 15px;
     display: flex;
     align-items: center;
@@ -58,17 +60,17 @@ const CardTitle = styled.h3`
     gap: 10px;
 
     svg {
-        color: #3498db;
+        color: ${props => props.theme.linkColor};
     }
 `;
 
 const CardContent = styled.div`
     font-size: 16px;
-    color: #666;
+    color: ${props => props.theme.text};
     line-height: 1.6;
 
     strong {
-        color: #2c3e50;
+        color: ${props => props.theme.text};
     }
 `;
 
@@ -77,19 +79,19 @@ const CenteredCardContent = styled(CardContent)`
 `;
 
 const EmailLink = styled.a`
-    color: #3498db;
+    color: ${props => props.theme.linkColor};
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s ease;
     cursor: pointer;
 
     &:hover {
-        color: #2980b9;
+        color: ${props => props.theme.linkHover};
         text-decoration: underline;
     }
 
     &:active {
-        color: #1f618d;
+        opacity: 0.8;
     }
 `;
 

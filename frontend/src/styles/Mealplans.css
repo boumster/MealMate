@@ -2,12 +2,13 @@
   margin: 2%;
   font-size: 0.8rem;
   font-weight: 500;
+  color: var(--chat-text);
 }
 
 .multiselect-container {
   width: 100%;
   border-radius: 8px;
-  background-color: white;
+  background-color: var(--chat-bg);
   margin: 0.5rem 0;
 }
 
@@ -23,6 +24,7 @@
   padding: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  color: var(--chat-text);
 }
 
 .multiselect-container .option:hover {
@@ -35,6 +37,8 @@
   padding: 8px;
   border: none;
   border-bottom: 2px solid #033D94;
+  background-color: var(--chat-input-bg);
+  color: var(--chat-text);
 }
 
 .multiselect-container:focus {
@@ -46,7 +50,7 @@
 }
 
 .error-message {
-  color: red;
+  color: #e74c3c;
   font-size: 12px;
   display: block;
 }
@@ -62,8 +66,18 @@
     transform: translateY(0);
   }
   65% {
-    transform: translateY(0);
+
   }
+}
+
+span[style*="animation: waveText"] {
+  color: var(--chat-text) !important;
+  transition: color 0.3s ease;
+}
+
+.loading-text {
+  color: var(--chat-text);
+  transition: color 0.3s ease;
 }
 
 .modal-overlay {
@@ -91,8 +105,6 @@
   cursor: zoom-out;
   transition: transform 0.3s ease;
 }
-
-
 
 @keyframes fadeIn {
   from {
@@ -142,16 +154,55 @@
   white-space: pre-wrap;
   line-height: 1.5;
   font-size: 1rem;
-  background-color: #fff;
+  background-color: var(--chat-bg);
+  color: var(--chat-text);
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px var(--chat-shadow);
 }
 
 .right-column {
   width: 48%;
   position: sticky;
   top: 2rem;
+}
+
+.right-column h4 {
+  color: black !important;
+  opacity: 1;
+}
+
+
+
+/* Multiselect dark mode overrides */
+.searchWrapper {
+  background-color: var(--chat-input-bg) !important;
+  border-color: var(--chat-border) !important;
+}
+
+.optionContainer {
+  background-color: var(--chat-bg) !important;
+  border-color: var(--chat-border) !important;
+}
+
+.optionContainer .option {
+  color: var(--chat-text) !important;
+}
+
+.optionContainer .option:hover,
+.optionContainer .option.highlight {
+  background-color: var(--chat-assistant-bg) !important;
+}
+
+.searchBox {
+  background-color: var(--chat-input-bg) !important;
+  color: var(--chat-text) !important;
+  border-color: var(--chat-border) !important;
+}
+
+.chip {
+  background-color: var(--chat-assistant-bg) !important;
+  color: var(--chat-text) !important;
 }
 
 /* Media query for smaller screens */
@@ -166,4 +217,3 @@
     margin-top: 1rem;
   }
 }
-

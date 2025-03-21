@@ -14,37 +14,40 @@ import Login from "./Login/Login";
 import Profile from "./Profile/Profile";
 import { PrivateRoute } from "./PrivateRoutes/PrivateRoute";
 import ChatBubble from './ChatBubble/ChatBubble';
+import {ThemeProvider} from "./ThemeContext/ThemeContext";
 
 export default function App() {
   const location = useLocation();
 
   return (
-      <div className="App">
-        {location.pathname !== "/login" && location.pathname !== "/register" && (
-            <Header />
-        )}
-        <Switch>
-          {/* Public Routes */}
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/register" component={Register} />
-          <Route exact path="/" component={Home} />
-          <Route path="/about" component={About} />
-
-          {/* Protected Routes */}
-          <PrivateRoute path="/contact" component={Contact} />
-          <PrivateRoute path="/mealplans" component={Mealplans} />
-          <PrivateRoute path="/calculate-calories" component={ImageUpload} />
-          <PrivateRoute path="/profile" component={Profile} />
-          <PrivateRoute path="/myplans" component={MyPlans} />
-          <PrivateRoute path="/plan/:id" component={Plan} />
-
-          {/* 404 Route */}
-          <Route path="*" component={NotFound} />
-        </Switch>
-
-        {location.pathname !== "/login" && location.pathname !== "/register" && (
-            <ChatBubble />
-        )}
-      </div>
+      <ThemeProvider>
+        <div className="App">
+          {location.pathname !== "/login" && location.pathname !== "/register" && (
+              <Header />
+          )}
+          <Switch>
+            {/* Public Routes */}
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/" component={Home} />
+            <Route path="/about" component={About} />
+  
+            {/* Protected Routes */}
+            <PrivateRoute path="/contact" component={Contact} />
+            <PrivateRoute path="/mealplans" component={Mealplans} />
+            <PrivateRoute path="/calculate-calories" component={ImageUpload} />
+            <PrivateRoute path="/profile" component={Profile} />
+            <PrivateRoute path="/myplans" component={MyPlans} />
+            <PrivateRoute path="/plan/:id" component={Plan} />
+  
+            {/* 404 Route */}
+            <Route path="*" component={NotFound} />
+          </Switch>
+  
+          {location.pathname !== "/login" && location.pathname !== "/register" && (
+              <ChatBubble />
+          )}
+        </div>
+      </ThemeProvider>
   );
 }

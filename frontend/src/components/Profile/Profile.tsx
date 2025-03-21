@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Container, Button, Label, Input } from "../../styles/styles";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import styled from "styled-components";
 import { updateEmail, updatePassword } from "../../utilities/api";
+import { useTheme } from "../ThemeContext/ThemeContext";
 
 const ProfileImage = styled.img`
   width: 100px;
@@ -25,9 +26,9 @@ const ProfileCard = styled.div`
   flex-direction: row;
   align-items: center;
   padding: 20px;
-  background: white;
+  background: ${props => props.theme.cardBg};
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: ${props => props.theme.shadow};
   width: 70%;
   justify-content: center;
   gap: 100px;
@@ -53,7 +54,7 @@ const ProfileContent = styled.div`
 `;
 
 const Header = styled.h1`
-  color: #333;
+  color: ${props => props.theme.text};
   text-align: center;
   margin-bottom: 1rem;
   font-weight: normal;
@@ -67,11 +68,11 @@ const Header = styled.h1`
 
 const EditContainer = styled.div`
   width: 70%;
-  background: white;
+  background: ${props => props.theme.cardBg};
   padding: 20px;
   margin-top: 20px;
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: ${props => props.theme.shadow};
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -85,7 +86,7 @@ const EditContainer = styled.div`
 `;
 
 const PasswordContainer = styled(EditContainer)`
-  border: 1px solid #ccc;
+  border: 1px solid ${props => props.theme.border};
   margin-top: 30px;
 
   @media (max-width: 768px) {
@@ -96,10 +97,11 @@ const PasswordContainer = styled(EditContainer)`
 const EditInput = styled(Input)`
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid ${props => props.theme.border};
   border-radius: 5px;
   font-size: 1rem;
-  background-color: white;
+  background-color: ${props => props.theme.cardBg};
+  color: ${props => props.theme.text};
 
   @media (max-width: 768px) {
     font-size: 0.9rem;
@@ -127,9 +129,18 @@ const SuccessText = styled.p`
   }
 `;
 
+
+const StyledContainer = styled(Container)`
+  background-color: ${props => props.theme.background};
+  color: ${props => props.theme.text};
+  min-height: 100vh;
+  position: relative;
+`;
+
 const Profile: React.FC = () => {
   const history = useHistory();
   const { isAuthenticated, user, logoutUser, setUser } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -138,139 +149,128 @@ const Profile: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Email validation
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  // Password validation (6+ chars, 1 uppercase, 1 number)
   const isValidPassword = (password: string) => /^(?=.*[A-Z])(?=.*\d).{6,}$/.test(password);
 
-  // 🔹 Handle Email Update
   const handleEmailUpdate = async () => {
     let newErrors: { [key: string]: string } = {};
-  
+
     if (!isValidEmail(email)) {
       newErrors.email = "Invalid email format.";
     }
-  
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setSuccessMessage(""); // Clear success message on error
-      return;
-    }
-  
-    const response = await updateEmail(user?.username, email);
-  
-    if (response.status === 200) {
-      setSuccessMessage(response.message); // ✅ Show actual success message from backend
-      setErrors({}); // Clear errors on success
-  
-      // Safely update the user state if `setUser` exists
-      if (user && setUser) {
-        setUser({ ...user, email }); // Update the user's email in state
-      }
-  
-      setTimeout(() => { // Added 2s timeout to show success.
-        history.push("/profile");
-        setSuccessMessage(""); // Clear success message on error
-      }, 2000);
-    } else {
-      setErrors({ email: response.message });
-      setSuccessMessage(""); // Clear success message on error
-    }
-  };
-  
-  // 🔹 Handle Password Update
-  const handlePasswordUpdate = async () => {
-    let newErrors: { [key: string]: string } = {};
-  
-    if (!isValidPassword(newPassword)) {
-      newErrors.password = "Password must have at least 6 characters, one uppercase letter, and one number.";
-    }
-  
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setSuccessMessage("");
       return;
     }
-  
-    const response = await updatePassword(user?.username, currentPassword, newPassword);
-  
+
+    const response = await updateEmail(user?.username, email);
+
     if (response.status === 200) {
-      setSuccessMessage(response.message + ", Logging out..."); 
-      setErrors({}); 
-      setTimeout(() => { // Added 2s timeout to show success.
+      setSuccessMessage(response.message);
+      setErrors({});
+
+      if (user && setUser) {
+        setUser({ ...user, email });
+      }
+
+      setTimeout(() => {
+        history.push("/profile");
+        setSuccessMessage("");
+      }, 2000);
+    } else {
+      setErrors({ email: response.message });
+      setSuccessMessage("");
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    let newErrors: { [key: string]: string } = {};
+
+    if (!isValidPassword(newPassword)) {
+      newErrors.password = "Password must have at least 6 characters, one uppercase letter, and one number.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setSuccessMessage("");
+      return;
+    }
+
+    const response = await updatePassword(user?.username, currentPassword, newPassword);
+
+    if (response.status === 200) {
+      setSuccessMessage(response.message + ", Logging out...");
+      setErrors({});
+      setTimeout(() => {
         logoutUser();
         history.push("/login");
       }, 2000);
-    } 
-    else if (response.status === 400) {
-      setErrors({ password: response.message }); 
-      setSuccessMessage(""); 
-    } 
-    else {
-      setErrors({ general: response.message || "An unexpected error occurred." }); 
-      setSuccessMessage(""); 
+    } else if (response.status === 400) {
+      setErrors({ password: response.message });
+      setSuccessMessage("");
+    } else {
+      setErrors({ general: response.message || "An unexpected error occurred." });
+      setSuccessMessage("");
     }
-
   };
 
   return (
-    <Container>
-      <Header>Hello <b>{user?.username || "User"}</b>, welcome to your personal page!</Header>
+      <StyledContainer>
 
-      {/* Profile Card */}
-      <ProfileCard>
-        <ProfileImage src="/images/icons/profileIcon.png" alt="Profile" />
-        <ProfileContent>
-          <Label><b>Username:</b> {user?.username || "User"}</Label>
-          <Label><b>Email:</b> {user?.email || "No Email Available"}</Label>
-          <Button onClick={logoutUser}>Logout</Button>
-        </ProfileContent>
-      </ProfileCard>
+        <Header>Hello <b>{user?.username || "User"}</b>, welcome to your personal page!</Header>
 
-      {/* Edit Email */}
-      <EditContainer>
-        <Label><b>Current Email:</b></Label>
-        <EditInput type="text" value={user?.email || "User"} disabled />
+        <ProfileCard>
+          <ProfileImage src="/images/icons/profileIcon.png" alt="Profile" />
+          <ProfileContent>
+            <Label><b>Username:</b> {user?.username || "User"}</Label>
+            <Label><b>Email:</b> {user?.email || "No Email Available"}</Label>
+            <Button onClick={logoutUser}>Logout</Button>
+          </ProfileContent>
+        </ProfileCard>
 
-        <Label><b>Change Email:</b></Label>
-        <EditInput 
-          type="email" 
-          placeholder="Enter new email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)} 
-        />
-        {errors.email && <ErrorText>{errors.email}</ErrorText>}
-        {successMessage && <SuccessText>{successMessage}</SuccessText>}
+        <EditContainer>
+          <Label><b>Current Email:</b></Label>
+          <EditInput type="text" value={user?.email || "User"} disabled />
 
-        <Button onClick={handleEmailUpdate}>Save Changes</Button>
-      </EditContainer>
+          <Label><b>Change Email:</b></Label>
+          <EditInput
+              type="email"
+              placeholder="Enter new email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+          />
+          {errors.email && <ErrorText>{errors.email}</ErrorText>}
+          {successMessage && <SuccessText>{successMessage}</SuccessText>}
 
-      {/* Change Password */}
-      <PasswordContainer>
-        <Label><b>Change Password</b></Label>
+          <Button onClick={handleEmailUpdate}>Save Changes</Button>
+        </EditContainer>
 
-        <Label>Current Password:</Label>
-        <EditInput 
-          type="password" 
-          placeholder="Enter current password"
-          value={currentPassword} 
-          onChange={(e) => setCurrentPassword(e.target.value)} 
-        />
+        <PasswordContainer>
+          <Label><b>Change Password</b></Label>
 
-        <Label>New Password:</Label>
-        <EditInput 
-          type="password" 
-          placeholder="Enter new password"
-          value={newPassword} 
-          onChange={(e) => setNewPassword(e.target.value)} 
-        />
-        {errors.password && <ErrorText>{errors.password}</ErrorText>}
-        {successMessage && <SuccessText>{successMessage}</SuccessText>}
+          <Label>Current Password:</Label>
+          <EditInput
+              type="password"
+              placeholder="Enter current password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+          />
 
-        <Button onClick={handlePasswordUpdate}>Change Password</Button>
-      </PasswordContainer>
-    </Container>
+          <Label>New Password:</Label>
+          <EditInput
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+          />
+          {errors.password && <ErrorText>{errors.password}</ErrorText>}
+          {successMessage && <SuccessText>{successMessage}</SuccessText>}
+
+          <Button onClick={handlePasswordUpdate}>Change Password</Button>
+        </PasswordContainer>
+      </StyledContainer>
   );
 };
 

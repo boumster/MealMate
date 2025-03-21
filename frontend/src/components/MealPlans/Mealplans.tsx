@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Container,
   Input,
@@ -13,6 +13,7 @@ import { useAuth } from "../../context/Auth/AuthProvider";
 import Loading from "../Loading/Loading";
 import "../../styles/Mealplans.css";
 import { Multiselect } from "multiselect-react-dropdown";
+import { useTheme } from '../ThemeContext/ThemeContext';
 
 export default function Mealplans() {
   const { user } = useAuth();
@@ -70,7 +71,7 @@ export default function Mealplans() {
     { name: "Kosher", value: "kosher" },
     { name: "No Restrictions", value: "no restrictions" },
   ];
-
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState("mealPlan");
   const [mealPlanImages, setMealPlanImages] = useState<(string | null)[]>([]);
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -100,6 +101,25 @@ const multiselectStyles = {
     margin: 0
   }
 };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.style.setProperty('--chat-bg', '#34495e');
+      root.style.setProperty('--chat-text', '#ecf0f1');
+      root.style.setProperty('--chat-input-bg', '#2c3e50');
+      root.style.setProperty('--chat-border', '#7f8c8d');
+      root.style.setProperty('--chat-assistant-bg', '#2c3e50');
+      root.style.setProperty('--chat-shadow', 'rgba(0, 0, 0, 0.3)');
+    } else {
+      root.style.setProperty('--chat-bg', '#ffffff');
+      root.style.setProperty('--chat-text', '#333333');
+      root.style.setProperty('--chat-input-bg', '#ffffff');
+      root.style.setProperty('--chat-border', '#cccccc');
+      root.style.setProperty('--chat-assistant-bg', '#f0f0f0');
+      root.style.setProperty('--chat-shadow', 'rgba(0, 0, 0, 0.1)');
+    }
+  }, [isDarkMode]);
 
   // Filter all for cuisine selection
   const handleCuisineSelect = (
@@ -502,11 +522,11 @@ return (
                           key={index}
                           style={{
                             display: "inline-block",
-                            color: "#666",
+                            color: "var(--chat-text)", 
                             fontSize: "1rem",
                             animation: "waveText 2s ease-in-out infinite",
                             animationDelay: `${index * 0.05}s`,
-                            marginLeft: char === " " ? "0.4em" : "0.1em",
+                            marginLeft: char === ' ' ? '0.4em' : '0.1em'
                           }}
                       >
                   {char}
