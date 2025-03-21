@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Container, Button, Label, Input } from "../../styles/styles";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import styled from "styled-components";
-import { updateEmail, updatePassword } from "../../utilities/api"; 
+import { updateEmail, updatePassword } from "../../utilities/api";
 
 const ProfileImage = styled.img`
   width: 100px;
@@ -12,6 +12,12 @@ const ProfileImage = styled.img`
   object-fit: cover;
   border: 2px solid black;
   margin-bottom: 15px;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
 `;
 
 const ProfileCard = styled.div`
@@ -25,12 +31,25 @@ const ProfileCard = styled.div`
   width: 70%;
   justify-content: center;
   gap: 100px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 90%;
+    gap: 20px;
+    padding: 15px;
+  }
 `;
 
 const ProfileContent = styled.div`
   display: flex;
   flex-direction: column;
   align-content: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
 `;
 
 const Header = styled.h1`
@@ -38,6 +57,12 @@ const Header = styled.h1`
   text-align: center;
   margin-bottom: 1rem;
   font-weight: normal;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0 10px;
+  }
 `;
 
 const EditContainer = styled.div`
@@ -50,11 +75,22 @@ const EditContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 15px;
+    margin-top: 15px;
+    gap: 10px;
+  }
 `;
 
 const PasswordContainer = styled(EditContainer)`
   border: 1px solid #ccc;
   margin-top: 30px;
+
+  @media (max-width: 768px) {
+    margin-top: 20px;
+  }
 `;
 
 const EditInput = styled(Input)`
@@ -64,18 +100,31 @@ const EditInput = styled(Input)`
   border-radius: 5px;
   font-size: 1rem;
   background-color: white;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
 `;
 
 const ErrorText = styled.p`
   color: red;
   font-size: 14px;
   margin-top: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 const SuccessText = styled.p`
   color: green;
   font-size: 14px;
   margin-top: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 const Profile: React.FC = () => {
