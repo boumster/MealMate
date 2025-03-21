@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useAuth } from "../../context/Auth/AuthProvider";
-import { useTheme } from "../ThemeContext/ThemeContext";
+import { useTheme } from "../../context/ThemeContext/ThemeContext";
 import { Container } from "../../styles/styles";
 
 const HeaderContainer = styled.header`

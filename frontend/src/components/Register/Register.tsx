@@ -5,7 +5,7 @@ import { registerUser } from "../../utilities/api";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import { Button, Container, Input, Title } from "../../styles/styles";
 import styled from "styled-components";
-import { useTheme } from '../ThemeContext/ThemeContext';
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 
 const RegisterContainer = styled(Container)`
   width: 600px;

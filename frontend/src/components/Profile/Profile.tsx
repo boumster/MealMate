@@ -4,7 +4,7 @@ import { Container, Button, Label, Input } from "../../styles/styles";
 import { useAuth } from "../../context/Auth/AuthProvider";
 import styled from "styled-components";
 import { updateEmail, updatePassword } from "../../utilities/api";
-import { useTheme } from "../ThemeContext/ThemeContext";
+import { useTheme } from "../../context/ThemeContext/ThemeContext";
 
 const ProfileImage = styled.img`
   width: 100px;

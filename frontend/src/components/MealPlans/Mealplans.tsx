@@ -13,7 +13,7 @@ import { useAuth } from "../../context/Auth/AuthProvider";
 import Loading from "../Loading/Loading";
 import "../../styles/Mealplans.css";
 import { Multiselect } from "multiselect-react-dropdown";
-import { useTheme } from '../ThemeContext/ThemeContext';
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 
 export default function Mealplans() {
   const { user } = useAuth();

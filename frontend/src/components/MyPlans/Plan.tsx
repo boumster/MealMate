@@ -6,7 +6,7 @@ import { fetchMealPlan, generateMealImage } from "../../utilities/api";
 import { Container, Button } from "../../styles/styles";
 import '../../styles/Mealplans.css';
 import styled from 'styled-components';
-import { useTheme } from '../ThemeContext/ThemeContext';
+import { useTheme } from '../../context/ThemeContext/ThemeContext';
 export default function Plan() {
     const { isDarkMode } = useTheme();
   const { user } = useAuth();
