@@ -2,7 +2,7 @@
 
 This is a simple React application built with TypeScript. It serves as a template for creating React applications with a structured folder layout.
 
-## Getting Started
+## Quick Start
 
 To get started with this project, follow these steps:
 
