@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://mealmateplanner.online";
+const API_BASE_URL = "/api"; // CACHE_BUST_2025_10_14_19_35
 
 export async function fetchAbout() {
   try {

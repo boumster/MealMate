@@ -1,0 +1,17 @@
+[Unit]
+Description=MealMate FastAPI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/mealmate/backend
+Environment=PATH=/var/www/mealmate/backend/venv/bin
+ExecStart=/var/www/mealmate/backend/venv/bin/uvicorn api.main:app --host 0.0.0.0 --port 8000
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
