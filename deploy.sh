@@ -30,19 +30,6 @@ echo "📋 Copying application files..."
 rsync -av --exclude='.git' --exclude='node_modules' --exclude='__pycache__' --exclude='*.pyc' . $APP_DIR/
 cd $APP_DIR
 
-# Create production environment files
-echo "⚙️ Creating production environment files..."
-# Backend environment
-cat > backend/.env << EOF
-GOOGLE_API_KEY=AIzaSyBIL0HjmH3DOjf1nUelkV88qcFVOZ6cf50
-DB_HOST=localhost
-DB_USER=fitness_user
-DB_PASSWORD=fitness123
-DB_NAME=fitnessdb
-DB_PORT=3306
-SECRET_KEY=your_super_secret_key_here_minimum_32_characters
-EOF
-
 # Frontend environment (for production build)
 cat > frontend/.env << EOF
 REACT_APP_API_BASE_URL=/api
